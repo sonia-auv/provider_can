@@ -33,8 +33,20 @@
 
 #include <canlib.h>
 #include "exception.h"
+#include <iostream>
+#include <iomanip>
 
 namespace provider_can {
+
+const long SONIA_CAN_BAUD_1M = 1000000;
+const long SONIA_CAN_BAUD_500K = 500000;
+const long SONIA_CAN_BAUD_250K = 250000;
+const long SONIA_CAN_BAUD_125K = 125000;
+const long SONIA_CAN_BAUD_100K = 100000;
+const long SONIA_CAN_BAUD_62K = 62000;
+const long SONIA_CAN_BAUD_50K = 50000;
+
+
 
     class CanDriver {
         //============================================================================
@@ -42,26 +54,18 @@ namespace provider_can {
 
         typedef struct {
             /// Short desc.
-            int32_t id;
+            unsigned int id;
             /// Short desc.
             unsigned char data[8];
             /// Short desc.
-            uint32_t dlc;
+            unsigned int dlc;
             /// Short desc.
-            uint32_t flag;
+            unsigned int flag;
             /// Short desc.
-            uint32_t time;
+            unsigned int time;
         } CanMessage;
 
         typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
-
-        #define SONIA_CAN_BAUD_1M (1000000)
-        #define SONIA_CAN_BAUD_500K (500000)
-        #define SONIA_CAN_BAUD_250K (250000)
-        #define SONIA_CAN_BAUD_125K (125000)
-        #define SONIA_CAN_BAUD_100K (100000)
-        #define SONIA_CAN_BAUD_62K (62000)
-        #define SONIA_CAN_BAUD_50K (50000)
 
 
     public:
