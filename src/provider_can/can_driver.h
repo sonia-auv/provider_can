@@ -38,34 +38,36 @@
 
 namespace provider_can {
 
-const long SONIA_CAN_BAUD_1M = 1000000;
-const long SONIA_CAN_BAUD_500K = 500000;
-const long SONIA_CAN_BAUD_250K = 250000;
-const long SONIA_CAN_BAUD_125K = 125000;
-const long SONIA_CAN_BAUD_100K = 100000;
-const long SONIA_CAN_BAUD_62K = 62000;
-const long SONIA_CAN_BAUD_50K = 50000;
+    //============================================================================
+    // T Y P E D E F   A N D   E N U M
+
+    typedef struct {
+        /// Short desc.
+        unsigned int id;
+        /// Short desc.
+        unsigned char data[8];
+        /// Short desc.
+        unsigned int dlc;
+        /// Short desc.
+        unsigned int flag;
+        /// Short desc.
+        unsigned int time;
+    } CanMessage;
+
+    typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
+
+    const long SONIA_CAN_BAUD_1M = 1000000;
+    const long SONIA_CAN_BAUD_500K = 500000;
+    const long SONIA_CAN_BAUD_250K = 250000;
+    const long SONIA_CAN_BAUD_125K = 125000;
+    const long SONIA_CAN_BAUD_100K = 100000;
+    const long SONIA_CAN_BAUD_62K = 62000;
+    const long SONIA_CAN_BAUD_50K = 50000;
 
 
 
     class CanDriver {
-        //============================================================================
-        // T Y P E D E F   A N D   E N U M
 
-        typedef struct {
-            /// Short desc.
-            unsigned int id;
-            /// Short desc.
-            unsigned char data[8];
-            /// Short desc.
-            unsigned int dlc;
-            /// Short desc.
-            unsigned int flag;
-            /// Short desc.
-            unsigned int time;
-        } CanMessage;
-
-        typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
 
 
     public:

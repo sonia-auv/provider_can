@@ -31,11 +31,12 @@ int main(int argc, char** argv) {
 
   ros::NodeHandle nh;
 
-
-
   CanDriver can(1,1000000);
 
-// struct CanMessage msg;
-  can.readMessages(NULL);
+  CanMessage msg;
+  can.readMessages(&msg);
+
+  ros::spin();
+
   return (0);
 }

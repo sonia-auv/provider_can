@@ -157,7 +157,6 @@ canStatus CanDriver::close() {
 
 canStatus CanDriver::writeMessage(CanMessage *msg) {
     canStatus status;
-    // cout << "writing id " << msg.id << endl;
     status = canWrite(handle_, msg->id, msg->data, msg->dlc, msg->flag);
 
     return status;
