@@ -38,75 +38,77 @@
 
 namespace provider_can {
 
-    //============================================================================
-    // T Y P E D E F   A N D   E N U M
+//============================================================================
+// T Y P E D E F   A N D   E N U M
 
-    typedef struct {
-        /// Short desc.
-        unsigned int id;
-        /// Short desc.
-        unsigned char data[8];
-        /// Short desc.
-        unsigned int dlc;
-        /// Short desc.
-        unsigned int flag;
-        /// Short desc.
-        unsigned int time;
-    } CanMessage;
+typedef struct {
+  /// Short desc.
+  unsigned int id;
+  /// Short desc.
+  unsigned char data[8];
+  /// Short desc.
+  unsigned int dlc;
+  /// Short desc.
+  unsigned int flag;
+  /// Short desc.
+  unsigned int time;
+} CanMessage;
 
-    typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
+typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
 
-    const long SONIA_CAN_BAUD_1M = 1000000;
-    const long SONIA_CAN_BAUD_500K = 500000;
-    const long SONIA_CAN_BAUD_250K = 250000;
-    const long SONIA_CAN_BAUD_125K = 125000;
-    const long SONIA_CAN_BAUD_100K = 100000;
-    const long SONIA_CAN_BAUD_62K = 62000;
-    const long SONIA_CAN_BAUD_50K = 50000;
+const uint16_t SONIA_CAN_BAUD_1M = 1000000;
+const uint16_t SONIA_CAN_BAUD_500K = 500000;
+const uint16_t SONIA_CAN_BAUD_250K = 250000;
+const uint16_t SONIA_CAN_BAUD_125K = 125000;
+const uint16_t SONIA_CAN_BAUD_100K = 100000;
+const uint16_t SONIA_CAN_BAUD_62K = 62000;
+const uint16_t SONIA_CAN_BAUD_50K = 50000;
 
+class CanDriver {
+ public:
+  //============================================================================
+  // P U B L I C   C / D T O R S
 
+  //! Constructor
+  CanDriver(uint32_t chan, uint16_t baudrate);
 
-    class CanDriver {
+  // Destructor
+  ~CanDriver();
 
+  //============================================================================
+  // P U B L I C   M E T H O D S
 
+  canStatus readMessages(CanMessage *msg);
 
-    public:
-        //============================================================================
-        // P U B L I C   C / D T O R S
+  canStatus writeMessage(CanMessage *msg);
 
-        //! Constructor
-        CanDriver(unsigned int chan, long baudrate);
+ private:
+  //============================================================================
+  // P R I V A T E   M E T H O D S
 
-        // Destructor
-        ~CanDriver();
+  bool initUsbDevice();
 
-        //============================================================================
-        // P U B L I C   M E T H O D S
+  canStatus open();
 
-        canStatus readMessages(CanMessage *msg);
-        canStatus writeMessage(CanMessage *msg);
+  canStatus setBusParams();
 
-        //============================================================================
-        // P U B L I C   M E M B E R S
+  canStatus setBusOff();
 
-    private:
-        //============================================================================
-        // P R I V A T E   M E T H O D S
+  canStatus setBusOn();
 
-        unsigned int channel_;
-        canHandle handle_;
-        unsigned int baudrate_;
-        unsigned int msg_count_;
-        bool initUsbDevice();
-        canStatus open();
-        canStatus setBusParams();
-        canStatus setBusOff();
-        canStatus setBusOn();
-        canStatus close();
+  canStatus close();
 
-        //============================================================================
-        // P R I V A T E   M E M B E R S
-    };
+  //============================================================================
+  // P R I V A T E   M E M B E R S
+
+  unsigned int channel_;
+
+  canHandle handle_;
+
+  unsigned int baudrate_;
+
+  unsigned int msg_count_;
+};
 
 }  // namespace provider_can
 

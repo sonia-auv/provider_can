@@ -30,7 +30,6 @@
 
 #include "can_driver.h"
 
-
 using namespace provider_can;
 
 //==============================================================================
@@ -38,142 +37,133 @@ using namespace provider_can;
 
 //------------------------------------------------------------------------------
 //
-CanDriver::CanDriver(unsigned int chan, long baudrate)
-        : baudrate_(baudrate),
-          channel_(chan)
-{
-    if (!initUsbDevice()) throw ExceptionCanDeviceNotFound();
+CanDriver::CanDriver(uint32_t chan, uint16_t baudrate)
+    : baudrate_(baudrate), channel_(chan) {
+  if (!initUsbDevice()) throw ExceptionCanDeviceNotFound();
 }
 
 //------------------------------------------------------------------------------
 //
-CanDriver::~CanDriver() { }
+CanDriver::~CanDriver() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
-
 canStatus CanDriver::open(void) {
-    handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
-                                        // CAN channel handler
+  handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
+  // CAN channel handler
 
-    unsigned short version = 0;
-    version = canGetVersion();
+  unsigned short version = 0;
+  version = canGetVersion();
 
-    std::cout << "Canlib version = " << (version >> 8) << "." << (version & 0xFF)
-    << std::endl;
+  std::cout << "Canlib version = " << (version >> 8) << "." << (version & 0xFF)
+            << std::endl;
 
-    return (canStatus) handle_;
+  return (canStatus)handle_;
 }
 
 //------------------------------------------------------------------------------
 //
-
 bool CanDriver::initUsbDevice(void) {
-    canStatus status;
+  canStatus status;
 
-    status = open();                // Open CAN channel
+  status = open();  // Open CAN channel
 
-    if (status < canOK) {           // If open failed
-        //printErrorText(status);
-        return false;
-    }
+  if (status < canOK) {  // If open failed
+    // printErrorText(status);
+    return false;
+  }
 
-    status = setBusParams();        // Set CAN parameters
+  status = setBusParams();  // Set CAN parameters
 
-    if (status < canOK) {           // If parameters set failed
-        //printErrorText(status);
-        return false;
-    }
+  if (status < canOK) {  // If parameters set failed
+    // printErrorText(status);
+    return false;
+  }
 
-    status = setBusOn();            // Turn on the channel
+  status = setBusOn();  // Turn on the channel
 
-    if (status < canOK) {           // If bus can't turn on
-        //printErrorText(status);
-        return false;
-    }
+  if (status < canOK) {  // If bus can't turn on
+    // printErrorText(status);
+    return false;
+  }
 
-    return true;                    // Init success
+  return true;  // Init success
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::setBusParams() {
-    canStatus status;
+  canStatus status;
 
-    switch (baudrate_) {
-        case BAUD_1M:
-        case BAUD_500K:
-        case BAUD_250K:
-        case BAUD_125K:
-        case BAUD_100K:
-        case BAUD_62K:
-        case BAUD_50K:
-            status = canSetBusParams(handle_, baudrate_, 0, 0, 0, 0, 0);
-            break;
-        default:
-            //status = canSetBusParams(handle_, baudrate_, tseg1, tseg2, sjw, noSamp, 0);
-            break;
-    }
+  switch (baudrate_) {
+    case BAUD_1M:
+    case BAUD_500K:
+    case BAUD_250K:
+    case BAUD_125K:
+    case BAUD_100K:
+    case BAUD_62K:
+    case BAUD_50K:
+      status = canSetBusParams(handle_, baudrate_, 0, 0, 0, 0, 0);
+      break;
+    default:
+      // status = canSetBusParams(handle_, baudrate_, tseg1, tseg2, sjw, noSamp,
+      // 0);
+      break;
+  }
 
-    return status;
+  return status;
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::setBusOff() {
-    canStatus status;
+  canStatus status;
 
-    status = canBusOff(handle_);
+  status = canBusOff(handle_);
 
-    return status;
+  return status;
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::setBusOn() {
-    canStatus status;
+  canStatus status;
 
-    status = canBusOn(handle_);
+  status = canBusOn(handle_);
 
-    return status;
+  return status;
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::close() {
-    canStatus status;
+  canStatus status;
 
-    status = canClose(handle_);
+  status = canClose(handle_);
 
-    return status;
+  return status;
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::writeMessage(CanMessage *msg) {
-    canStatus status;
-    status = canWrite(handle_, msg->id, msg->data, msg->dlc, msg->flag);
+  canStatus status;
+  status = canWrite(handle_, msg->id, msg->data, msg->dlc, msg->flag);
 
-    return status;
+  return status;
 }
 
 //------------------------------------------------------------------------------
 //
-
 canStatus CanDriver::readMessages(CanMessage *msg) {
-    canStatus status;
-    long int id;
-    long unsigned int time;
+  canStatus status;
+  long int id;
+  long unsigned int time;
 
-    status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
+  status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
 
-    msg->id = id;
-    msg->time = time;
+  msg->id = id;
+  msg->time = time;
 
-    return status;
+  return status;
 }
