@@ -24,14 +24,12 @@
 #include <ros/ros.h>
 #include "provider_can/can_driver.h"
 
-using namespace provider_can;
-
 int main(int argc, char** argv) {
   ros::init(argc, argv, "provider_can");
 
   ros::NodeHandle nh;
 
-  CanDriver can(1,1000000);
+  provider_can::CanDriver can(1, 1000000);
 
   CanMessage msg;
   can.readMessages(&msg);
