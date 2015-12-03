@@ -28,7 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
-find_library(kvaser_LIBRARIES canlib /opt/linuxcan/canlib)
+find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 
 # Declare a catkin package
 catkin_package(

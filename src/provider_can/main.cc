@@ -22,17 +22,27 @@
  */
 
 #include <ros/ros.h>
-#include "provider_can/can_driver.h"
+#include "can_driver.h"
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "provider_can");
 
   ros::NodeHandle nh;
+  printf("yes1");
 
-  provider_can::CanDriver can(1, 1000000);
+  provider_can::CanDriver can(0, provider_can::SONIA_CAN_BAUD_100K);
 
-  CanMessage msg;
-  can.readMessages(&msg);
+  provider_can::CanMessage msg;
+ // can.readMessage(&msg, 0);
+
+  msg.data[0] = 0x33;
+  msg.dlc = 1;
+  msg.flag = 1;
+  msg.id = 0x01;
+
+  can.printErrorText(can.writeMessage(&msg, 0));
+
+  printf("yes2");
 
   ros::spin();
 
