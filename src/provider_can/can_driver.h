@@ -42,27 +42,21 @@ namespace provider_can {
 // T Y P E D E F   A N D   E N U M
 
 typedef struct {
-  /// Short desc.
-  long id;
-  /// Short desc.
-  uint32_t data[8];
-  /// Short desc.
+  /// device identifier. see SONIA's documentation
+  uint32_t id;
+  /// data to send
+  unsigned char data[8];
+  /// number of data bytes
   uint32_t dlc;
-  /// Short desc.
+  /// Type of the message. In transmission, possible values are: canMSG_EXT,
+  /// canMSG_RTR, canMSG_STD. In reception, there are many more possibilities.
+  //  see canlib documentation.
   uint32_t flag;
-  /// Short desc.
-  unsigned long time;
+  /// Timestamp of the message
+  uint32_t time;
 } CanMessage;
 
 typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
-
-const uint32_t SONIA_CAN_BAUD_1M = 1000000;
-const uint32_t SONIA_CAN_BAUD_500K = 500000;
-const uint32_t SONIA_CAN_BAUD_250K = 250000;
-const uint32_t SONIA_CAN_BAUD_125K = 125000;
-const uint32_t SONIA_CAN_BAUD_100K = 100000;
-const uint32_t SONIA_CAN_BAUD_62K = 62000;
-const uint32_t SONIA_CAN_BAUD_50K = 50000;
 
 class CanDriver {
  public:
@@ -70,7 +64,27 @@ class CanDriver {
   // P U B L I C   C / D T O R S
 
   //! Constructor
+
+  /**
+   * Initialize KVaser device
+   *
+   * \param chan KVaser channel 0 or 1
+   * \param baudrate possible values
+   *          BAUD_1M:
+              BAUD_500K:
+              BAUD_250K:
+              BAUD_125K:
+              BAUD_100K:
+              BAUD_62K:
+              BAUD_50K:
+   * \param ts1 Time segment 1
+   * \param ts2 Time segment 2
+   * \param jump The Synchronization Jump Width; can be 1,2,3, or 4.
+   * \param samp The number of sampling points; can be 1 or 3.
+   */
   CanDriver(uint32_t chan, uint32_t baudrate);
+  CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
+            uint32_t ts2, uint32_t jump, uint32_t samp);
 
   // Destructor
   ~CanDriver();
@@ -79,7 +93,7 @@ class CanDriver {
   // P U B L I C   M E T H O D S
 
    /**
-   * Allows the user to read a CAN message through a KVaser device
+   * Allows the user to read one CAN message through a KVaser device
    *
    * This stores read messages from the read buffer into msg struct.
    * The function allows to select a timeout delay after which the function will
@@ -91,8 +105,21 @@ class CanDriver {
    */
   canStatus readMessage(CanMessage *msg, uint32_t timeout_msec) ;
 
+  /**
+   * Allows the user to read all CAN messages received through a KVaser device
+   *
+   * This function verifies how many messages are actually contained in
+   * the reception buffer, reads them all and returns them into a table.
+   *
+   * \param status status of the reading
+   * \param num_of_messages number of messages read (which is the size of the
+   *                        returned table)
+   * \return CanMessage pointer to the messages table.
+   */
+  CanMessage* readAllMessages(canStatus *status, uint32_t *num_of_messages);
+
    /**
-   * Allows the user to read a CAN message through a KVaser device
+   * Allows the user to send one CAN message through a KVaser device
    *
    * This function takes the message to send from a msg struct and
    * allows to select a timeout delay after which the message will
@@ -102,29 +129,41 @@ class CanDriver {
    * \param timeout_msec time to wait for a message to be sent
    * \return canStatus enum
    */
-  canStatus writeMessage(CanMessage *msg, uint32_t timeout_msec) ;
+  canStatus writeMessage(CanMessage msg, uint32_t timeout_msec) ;
+
+
 
    /**
    * Convert canStatus enum into text to show on terminal
    */
   void printErrorText(canStatus error);
 
+
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
   bool initUsbDevice();
-
   canStatus open();
-
   canStatus setBusParams();
-
   canStatus setBusOff();
-
   canStatus setBusOn();
-
   canStatus close();
+  canStatus flushTxBuffer();
+  canStatus flushRxBuffer();
+  canStatus getBusParams(long* freq, unsigned int* tseg1,
+               unsigned int* tseg2, unsigned int* sjw,
+               unsigned int* noSamp);
 
+
+  /**
+   * gets the number of messages contained in the selected buffer
+   *
+   * \param lvl number of messages
+   * \return canStatus enum (canOK or canERR)
+   */
+  canStatus getTxBufLevel(uint32_t* lvl);
+  canStatus getRxBufLevel(uint32_t* lvl);
 
    /**
    * Adds an acceptance filter to CAN device so that we can receive
@@ -161,6 +200,11 @@ class CanDriver {
   uint32_t baudrate_;
 
   uint32_t msg_count_;
+
+  uint32_t tseg1_;      // Time segment 1
+  uint32_t tseg2_;      // Time segment 2
+  uint32_t sjw_;        // The Synchronization Jump Width; can be 1,2,3, or 4.
+  uint32_t noSamp_;     // The number of sampling points; can be 1 or 3.
 };
 
 }  // namespace provider_can

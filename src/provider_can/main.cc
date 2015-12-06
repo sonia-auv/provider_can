@@ -28,23 +28,44 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "provider_can");
 
   ros::NodeHandle nh;
+
+  ros::Rate loop_rate(10);
   printf("yes1");
 
-  provider_can::CanDriver can(0, provider_can::SONIA_CAN_BAUD_100K);
+  provider_can::CanDriver can(0, BAUD_125K);
 
   provider_can::CanMessage msg;
- // can.readMessage(&msg, 0);
+  provider_can::CanMessage *msgrd;
+  canStatus status;
+  uint32_t messages_read;
 
-  msg.data[0] = 0x33;
-  msg.dlc = 1;
-  msg.flag = 1;
-  msg.id = 0x01;
+  msg.data[0] = 0x04;
+  msg.data[1] = 0x01;
 
-  can.printErrorText(can.writeMessage(&msg, 0));
+  msg.dlc = 2;
+  msg.flag = canMSG_EXT;
+  msg.id = 0x10701F08;
 
-  printf("yes2");
+  can.writeMessage(msg, 10);
 
-  ros::spin();
+  while (ros::ok())
+  {
+
+    msgrd = can.readAllMessages(&status, &messages_read);
+    can.printErrorText(status);
+
+    printf("  %d       ", messages_read);
+
+    printf("%X       ", msgrd[0].id);
+    printf("%X       ", msgrd[1].id);
+    printf("%X       ", msgrd[2].id);
+    printf("%X       \n", msgrd[3].id);
+
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
+
 
   return (0);
 }
