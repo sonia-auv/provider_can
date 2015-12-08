@@ -52,7 +52,10 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
 
 //------------------------------------------------------------------------------
 //
-CanDriver::~CanDriver() {}
+CanDriver::~CanDriver() {
+  flushRxBuffer();
+  flushTxBuffer();
+}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N

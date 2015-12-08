@@ -32,7 +32,7 @@ find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 
 # Declare a catkin package
 catkin_package(
-		INCLUDE_DIRS ${provider_imu_SRC_DIR}
+		INCLUDE_DIRS ${provider_can_SRC_DIR}
 		LIBRARIES
 		CATKIN_DEPENDS roscpp
 )

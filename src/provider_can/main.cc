@@ -22,7 +22,8 @@
  */
 
 #include <ros/ros.h>
-#include "can_driver.h"
+//#include "can_driver.h"
+#include "can_dispatcher.h"
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "provider_can");
@@ -32,7 +33,10 @@ int main(int argc, char** argv) {
   ros::Rate loop_rate(10);
   printf("yes1");
 
+  provider_can::CanDispatcher canD(0, BAUD_125K);
+  /*
   provider_can::CanDriver can(0, BAUD_125K);
+
 
   provider_can::CanMessage msg;
   provider_can::CanMessage *msgrd;
@@ -47,10 +51,10 @@ int main(int argc, char** argv) {
   msg.id = 0x10701F08;
 
   can.writeMessage(msg, 10);
-
+*/
   while (ros::ok())
   {
-
+/*
     msgrd = can.readAllMessages(&status, &messages_read);
     can.printErrorText(status);
 
@@ -60,7 +64,7 @@ int main(int argc, char** argv) {
     printf("%X       ", msgrd[1].id);
     printf("%X       ", msgrd[2].id);
     printf("%X       \n", msgrd[3].id);
-
+*/
     ros::spinOnce();
     loop_rate.sleep();
   }
