@@ -29,6 +29,7 @@
 */
 
 #include "can_dispatcher.h"
+#include "can_driver.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -72,22 +73,51 @@ void CanDispatcher::listDevices(){
 
         new_device_found = true;                                // Ready for next loop
     }
-                                                                    // TODO: Sauvegarder les propriétés des devices suite à l'ID Request
-    rx_dispatched_buffer_ = new CanDeviceBuffer[nDevicesPresent];   // TODO: comment aggrandir le buffer sans effacer l'ancien?
+
+    devices_list_ = new CanDevice[nDevicesPresent];
 
     for(int i = 0; i < nDevicesPresent; i++)                    // Saves address for each dispatched device
-        rx_dispatched_buffer_[i].global_address = devicesAddresses[i];
+        devices_list_[i].global_address = devicesAddresses[i];
+
+    dispatchMessages();         // Dispatch and saves all received messages
 }
 
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::dispatchMessages(){
+
     for(int j = 0; j < rx_raw_buffer_.num_of_messages; j++){    // For each message contained in raw buffer
         for(int i = 0; i < nDevicesPresent; i++){               // For each detected device
-            if(rx_dispatched_buffer_[i].global_address == (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)) {
-                // Saves message into dispatched buffers
-                rx_dispatched_buffer_[i].buffer[rx_dispatched_buffer_[i].num_of_messages++] =
+            if(devices_list_[i].global_address == rx_raw_buffer_.buffer[j].id){
+                // If the ID receiveds correspond to an ID request response
+                // saves device's parameters.
+                devices_list_[i].device_properties.firmware_version =
+                        (rx_raw_buffer_.buffer[j].data[1] << 8) | rx_raw_buffer_.buffer[j].data[0];
+
+                devices_list_[i].device_properties.uc_signature =
+                        (rx_raw_buffer_.buffer[j].data[4] << 16) | (rx_raw_buffer_.buffer[j].data[3] << 8) |
+                                rx_raw_buffer_.buffer[j].data[2];
+
+                devices_list_[i].device_properties.capabilities =
+                        rx_raw_buffer_.buffer[j].data[5];
+
+                devices_list_[i].device_properties.device_data =
+                        rx_raw_buffer_.buffer[j].data[6];
+            }
+            else if(devices_list_[i].global_address | 0xFF == rx_raw_buffer_.buffer[j].id){
+                // If the ID received correspond to a device fault
+                devices_list_[i].device_fault = true;
+            }
+            else if(devices_list_[i].global_address == (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)) {
+                // If the ID received correspond to any other message
+                if(devices_list_[i].num_of_messages >= DISPATCHED_RX_BUFFER_SIZE)
+                    devices_list_[i].num_of_messages = 0;// Avoids buffer overflow
+
+                // Saves message into dispatched devices' buffers.
+                devices_list_[i].rx_buffer[devices_list_[i].num_of_messages++] =
                         rx_raw_buffer_.buffer[j];
+
+                i = nDevicesPresent;
             }
         }
     }
@@ -99,9 +129,18 @@ void CanDispatcher::dispatchMessages(){
 void CanDispatcher::readMessages(){
     canStatus status;
     CanMessage *buffer;
-    buffer = canDriver_.readAllMessages(&status, &rx_raw_buffer_.num_of_messages);
+    buffer = canDriver_.readAllMessages(&status, &rx_raw_buffer_.num_of_messages);// TODO: Verify if read was successful
 
     memcpy(rx_raw_buffer_.buffer, buffer, rx_raw_buffer_.num_of_messages);
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::sendMessages(){
+    for(int i = 0; i < tx_raw_buffer_.num_of_messages; i++)
+        canDriver_.writeMessage(tx_raw_buffer_.buffer[i],CAN_SEND_TIMEOUT);// TODO: Verify if write was successful
+
+    tx_raw_buffer_.num_of_messages = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -120,10 +159,10 @@ void CanDispatcher::sendIdRequest(){
 
 //------------------------------------------------------------------------------
 //
-uint32_t CanDispatcher::setPollRate(uint32_t address, uint8_t poll_rate){
+void CanDispatcher::setPollRate(uint32_t address, uint8_t poll_rate){
     for(int i = 0; i < nDevicesPresent; i++)
-        if(rx_dispatched_buffer_[i].global_address == (address & DEVICE_ADDRESS_MASK)){
-            rx_dispatched_buffer_[i].device_properties.poll_rate = poll_rate;
+        if(devices_list_[i].global_address == (address & DEVICE_ADDRESS_MASK)){
+            devices_list_[i].device_properties.poll_rate = poll_rate;
             i = nDevicesPresent;
         }
 
@@ -131,12 +170,56 @@ uint32_t CanDispatcher::setPollRate(uint32_t address, uint8_t poll_rate){
 
 //------------------------------------------------------------------------------
 //
-uint8_t fetchMessages(uint32_t address, CanMessage *buffer){
+uint8_t CanDispatcher::fetchMessages(uint32_t address, CanMessage *buffer){
+
+    uint8_t num_of_messages;
+
+    for(int i = 0; i < nDevicesPresent; i++)
+        if(devices_list_[i].global_address == (address & DEVICE_ADDRESS_MASK)){
+            buffer = devices_list_[i].rx_buffer;
+            i = nDevicesPresent;
+            num_of_messages = devices_list_[i].num_of_messages;
+            devices_list_[i].num_of_messages = 0;
+        }
+    return num_of_messages;
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::getDevicesProperties(uint32_t address, DeviceProperties *properties){
+    for(int i = 0; i < nDevicesPresent; i++)
+        if(devices_list_[i].global_address == (address & DEVICE_ADDRESS_MASK)){
+            properties = &devices_list_[i].device_properties;
+            i = nDevicesPresent;
+        }
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::pushMessage(CanMessage *message){
+    tx_raw_buffer_.buffer[tx_raw_buffer_.num_of_messages++] = *message;
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::pollDevices(){
 
 }
 
 //------------------------------------------------------------------------------
 //
-void sendMessage(uint32_t address, CanMessage *message){
+void CanDispatcher::sendResetRequest(uint32_t address){
+
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::sendSleepRequest(uint32_t address){
+
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::sendWakeUpRequest(uint32_t address){
 
 }
