@@ -189,27 +189,30 @@ canStatus CanDriver::readMessage(CanMessage *msg, uint32_t timeout_msec) {
 
 //------------------------------------------------------------------------------
 //
-CanMessage* CanDriver::readAllMessages(canStatus *status, uint32_t
+canStatus CanDriver::readAllMessages(CanMessage *msg_table, uint32_t
 *num_of_messages) {
   long int id;
   long unsigned int time;
-  CanMessage* msg_table;
+  canStatus status;
 
-  *status = getRxBufLevel(num_of_messages);   // get the reception buffer level
 
-  if (*status == canOK) {
+  status = getRxBufLevel(num_of_messages);   // get the reception buffer level
 
-    msg_table = new CanMessage[*num_of_messages]; // creates table to store
+  if (status == canOK) {
+
+    rx_buffer_ = new CanMessage[*num_of_messages]; // creates table to store
                                                   // all data
 
     for(uint32_t i = 0; i < *num_of_messages; i++) {// storing data
-      *status = readMessage(&msg_table[i],0);
+      status = readMessage(&rx_buffer_[i],0);
 
-      if(*status != canOK)
+      if(status != canOK)
         i = *num_of_messages;
     }
   }
-  return msg_table;
+
+  msg_table = rx_buffer_;
+  return status;
 }
 
 //------------------------------------------------------------------------------

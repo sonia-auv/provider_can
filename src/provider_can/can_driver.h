@@ -112,12 +112,12 @@ class CanDriver {
      * This function verifies how many messages are actually contained in
      * the reception buffer, reads them all and returns them into a table.
      *
-     * \param status status of the reading
+     * \param msg_table pointer to the messages table.
      * \param num_of_messages number of messages read (which is the size of the
      *                        returned table)
-     * \return CanMessage pointer to the messages table.
+     * \return canStatus
      */
-    CanMessage* readAllMessages(canStatus *status, uint32_t *num_of_messages);
+    canStatus readAllMessages(CanMessage *msg_table, uint32_t *num_of_messages);
 
      /**
      * Allows the user to send one CAN message through a KVaser device
@@ -201,7 +201,7 @@ class CanDriver {
 
     uint32_t baudrate_;
 
-    uint32_t msg_count_;
+    CanMessage* rx_buffer_;
 
     uint32_t tseg1_;      // Time segment 1
     uint32_t tseg2_;      // Time segment 2
