@@ -26,9 +26,9 @@
 #include "can_dispatcher.h"
 
 int main(int argc, char** argv) {
-  provider_can::CanMessage *msg;
+  provider_can::CanMessage* msg;
 
-  uint8_t message[2] = {0x3,0x1};
+  uint8_t message[2] = {0x3, 0x1};
 
   uint8_t num;
 
@@ -40,20 +40,19 @@ int main(int argc, char** argv) {
 
   provider_can::CanDispatcher canD(0, BAUD_125K);
 
-  printf("test: %d  ", canD.pushMessage(7,1,0xF08,message,2));
+  printf("test: %d  ", canD.pushMessage(7, 1, 0xF08, message, 2));
 
-  while (ros::ok())
-  {
+  while (ros::ok()) {
     canD.providerCanProcess();
 
-    canD.fetchMessages(6,2,msg,&num);
-    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+    canD.fetchMessages(6, 2, msg, &num);
+    printf("Device: %X, ndata: %d \n\r", msg[0].id, num);
 
-    canD.fetchMessages(2,7,msg,&num);
-    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+    canD.fetchMessages(2, 7, msg, &num);
+    printf("Device: %X, ndata: %d \n\r", msg[0].id, num);
 
-    canD.fetchMessages(3,5,msg,&num);
-    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+    canD.fetchMessages(3, 5, msg, &num);
+    printf("Device: %X, ndata: %d \n\r", msg[0].id, num);
 
     canD.fetchMessages(5,3,msg,&num);
     printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
@@ -61,42 +60,6 @@ int main(int argc, char** argv) {
     ros::spinOnce();
     loop_rate.sleep();
   }
-/*
-  provider_can::CanDriver can(0, BAUD_125K);
-  provider_can::CanMessage msg;
-  provider_can::CanMessage *msgrd;
-  canStatus status;
-  uint32_t messages_read;
-
-  msg.data[0] = 0x04;
-  msg.data[1] = 0x01;
-
-  msg.dlc = 2;
-  msg.flag = canMSG_EXT;
-  msg.id = 0x10701F08;
-
-  can.writeMessage(msg, 10);
-
-  while (ros::ok())
-  {
-
-    status = can.readAllMessages(msgrd, &messages_read);
-    can.printErrorText(status);
-
-    if(messages_read!=0){
-      printf("%X       ", msgrd[0].id);
-      printf("%X       ", msgrd[1].id);
-      printf("%X       ", msgrd[2].id);
-
-      printf("%d       \n\r", messages_read);
-    }
-
-
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
-*/
-
 
   return (0);
 }
