@@ -75,6 +75,13 @@ install:
   - tar zxvf linuxcan.tar.gz
   - sudo mv linuxcan/ /opt/
   - cd /opt/linuxcan
+  - sed -i -e '2293d' ./leaf/leafHWIf.c
+  - sed -i -e '2293d' ./leaf/leafHWIf.c
+  - sed -i -e '2123d' ./mhydra/mhydraHWIf.c
+  - sed -i -e '2123d' ./mhydra/mhydraHWIf.c
+  - sed -i -e '1757d' ./usbcanII/usbcanHWIf.c
+  - sed -i -e '1757d' ./usbcanII/usbcanHWIf.c
+  - sed -i -e '900d' ./pciefd/pciefd_hwif.c
   - make -j8
   - sudo make install
   - cd ~/catkin_ws
