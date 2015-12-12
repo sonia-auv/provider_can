@@ -45,12 +45,17 @@ namespace provider_can {
     const uint8_t RESET = 0x02;
     const uint8_t SLEEP = 0x04;
 
-    const uint32_t UNICAST = 0x8000000;
+    const uint32_t UNICAST = 0x10000000;
     const uint32_t RESET_REQ = 0xfe;
     const uint32_t WAKEUP_REQ = 0xf1;
     const uint32_t SLEEP_REQ = 0xf0;
 
+    const uint8_t UNIQUE_ID_POSITION = 12;
+    const uint8_t DEVICE_ID_POSITION = 20;
+
     const uint32_t ID_REQ_WAIT = 100000;
+    const uint8_t DISCOVERY_TRIES = 10;
+    const uint8_t DISCOVERY_DELAY = 5;
 
     const uint32_t CAN_SEND_TIMEOUT = 10;
 
@@ -58,7 +63,7 @@ namespace provider_can {
 
     const int MAX_NUM_OF_DEVICES = 30;
     const int RAW_TX_BUFFER_SIZE = 25;
-    const int DISPATCHED_RX_BUFFER_SIZE = 25;
+    const int DISPATCHED_RX_BUFFER_SIZE = 50;
     const uint32_t DEVICE_ADDRESS_MASK = 0x7FFFF000;
 
     typedef struct {
@@ -66,11 +71,11 @@ namespace provider_can {
         uint32_t uc_signature;
         uint8_t capabilities;
         uint8_t device_data;
-        uint8_t poll_rate = 10;
+        uint8_t poll_rate = 100;
     }DeviceProperties;
 
     typedef struct {
-        uint32_t num_of_messages;
+        uint32_t num_of_messages = 0;
         CanMessage *buffer;
     }RawBuffer;
 
@@ -105,21 +110,24 @@ namespace provider_can {
         *
         * This indicates how many times per second we want an RTR to be sent to the device.
         *
-        * \param address device's generic address
-        * \param poll_rate polling rate, in Hz
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
+        * \param poll_rate polling rate, in ms
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus setPollRate(uint32_t address, uint8_t poll_rate);
+        SoniaDeviceStatus setPollRate(uint8_t device_id,uint8_t unique_id,
+                                      uint8_t poll_rate);
 
         /**
         * The next functions sends SONIA specific messages to selected device
         *
-        * \param address device's generic address
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus sendResetRequest(uint32_t address);
-        SoniaDeviceStatus sendSleepRequest(uint32_t address);
-        SoniaDeviceStatus sendWakeUpRequest(uint32_t address);
+        SoniaDeviceStatus sendResetRequest(uint8_t device_id,uint8_t unique_id);
+        SoniaDeviceStatus sendSleepRequest(uint8_t device_id,uint8_t unique_id);
+        SoniaDeviceStatus sendWakeUpRequest(uint8_t device_id,uint8_t unique_id);
 
         /**
         * The function puts a new message in the tx_queue. It will be sent later in the process
@@ -127,10 +135,15 @@ namespace provider_can {
         * The function verifies if the address of the message is a known device. SoniaDeviceStatus will
         * indicate if so. If it is not the case, the message will be sent anyway.
         *
-        * \param message message information to send
+        * \param device_id SONIA Device ID
+        * \param unique_id SONIA unique ID
+        * \param message_id SONIA message ID
+        * \param buffer message content
+        * \param ndata message length
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus pushMessage(CanMessage *message);
+        SoniaDeviceStatus pushMessage(uint8_t device_id, uint8_t
+        unique_id, uint16_t message_id ,uint8_t *buffer, uint8_t ndata);
 
         /**
         * The function returns the rx_buffer of the selected device
@@ -140,36 +153,43 @@ namespace provider_can {
         * rx_buffer will only contain data messages, not ID request responses nor device fault messages. These are
         * filtered by dispatchMessages().
         *
-        * \param address device's generic address
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
         * \param buffer device's rx_buffer
         * \param num_of_messages number of messages read
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus fetchMessages(uint32_t address, CanMessage
-        *&buffer, uint8_t *num_of_messages);
+        SoniaDeviceStatus fetchMessages(uint8_t device_id,
+                                        uint8_t unique_id,
+                                        CanMessage *&buffer,
+                                        uint8_t *num_of_messages);
 
         /**
         * The function returns the devices's properties
         *
-        * \param address device's generic address
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
         * \param properties device's properties
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus getDevicesProperties(uint32_t address, DeviceProperties *properties);
+        SoniaDeviceStatus getDevicesProperties(uint8_t device_id,
+                                               uint8_t unique_id,
+                                               DeviceProperties *properties);
 
         /**
         * The function clears the specified device fault flag. This avoids SoniaDeviceStatus to always take
         * SONIA_DEVICE_FAULT value for every functions of this class when a fault has been received.
         *
-        * \param address device's generic address
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus clearFault(uint32_t address);
+        SoniaDeviceStatus clearFault(uint8_t device_id,uint8_t unique_id);
 
 
 
         uint8_t getNumberOfDevices();
-        uint8_t getUnknownAddresses(uint32_t *addresses);
+        uint8_t getUnknownAddresses(uint32_t *&addresses);
 
         /**
         * This process has to be called periodically. It handles reading and sending messages.
@@ -197,7 +217,7 @@ namespace provider_can {
         *
         * This function loops through all known device and compares the poll_rate with a timer value
         * to known if polling is required or not. use setPollRate() to specify a poll rate for a
-        * specific device. Default poll_rate is 10Hz.
+        * specific device. Default poll_rate is 100ms.
         *
         */
         void pollDevices(); // TODO: la fonctionnalité RTR devra être implémentée dans l'élé du sub
@@ -223,22 +243,27 @@ namespace provider_can {
         canStatus sendMessages();
 
         /**
-        * Dispatch all messages contained into rx_raw_buffer_ to each respective CanDevice
-        * struct created by listDevices().
-        * This function also filters ID_request responses and device_fault messages to set
-        * DeviceProperties struct.
+        * Dispatch all messages contained into rx_raw_buffer_ to each respective
+        * CanDevice struct created by listDevices().
+        * This function also filters ID_request responses and device_fault
+        * messages to set DeviceProperties struct.
         */
         void dispatchMessages();
 
         /**
-        * The function returns the device_list_ index value which contains the selected address
+        * The function returns the device_list_ index value which contains the
+        * selected address/device
         *
         * \param address address to look for
+        * \param device_id SONIA Device ID to look for
+        * \param unique_id SONIA unique ID to look for
         * \param index device_list_ index found
         * \return SoniaDeviceStatus enum
         */
-        // TODO: convert address into device_id/unique_id
-        SoniaDeviceStatus getDeviceIndex(uint32_t address, int *index);
+        SoniaDeviceStatus getDeviceIndex(uint8_t device_id, uint8_t
+        unique_id, int *index);
+        SoniaDeviceStatus getAddressIndex(uint32_t address, int
+        *index);
 
         /**
         * The function sends and RTR on CAN bus with selected address
@@ -247,24 +272,37 @@ namespace provider_can {
         */
         void sendRTR(uint32_t address);
 
+        /**
+        * Adds an address to the unknown addresses table. If unknown
+        * addresses are found, providerCanProcess will send ID requests to
+        * be sure every present device are known.
+        *
+        * \param address
+        */
+        void addUnknownAddress(uint32_t address);
+
         //============================================================================
         // P R I V A T E   M E M B E R S
 
-        CanDevice devices_list_[MAX_NUM_OF_DEVICES];       // List of devices present on CAN bus
+        CanDevice devices_list_[MAX_NUM_OF_DEVICES]; // List of devices present on CAN bus
 
         uint32_t unknown_addresses_table_[MAX_NUM_OF_DEVICES];
         uint8_t nunknown_addresses_;
 
-        RawBuffer rx_raw_buffer_;       // Buffer directly taken from KVaser
+        RawBuffer rx_raw_buffer_;           // Buffer directly taken from KVaser
         RawBuffer tx_raw_buffer_;
 
-        uint8_t ndevices_present_;        // Number of devices detected
+        uint8_t ndevices_present_;          // Number of devices detected
 
-        CanDriver canDriver_;           // Can communication object
+        CanDriver canDriver_;               // Can communication object
 
         timespec ticks_per_sec_;
         timespec actual_time_;
         timespec initial_time_;
+        timespec id_req_time_;
+
+        uint8_t discovery_tries_;
+
 
     };
 

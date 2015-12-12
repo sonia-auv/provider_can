@@ -26,6 +26,12 @@
 #include "can_dispatcher.h"
 
 int main(int argc, char** argv) {
+  provider_can::CanMessage *msg;
+
+  uint8_t message[2] = {0x3,0x1};
+
+  uint8_t num;
+
   ros::init(argc, argv, "provider_can");
 
   ros::NodeHandle nh;
@@ -34,9 +40,23 @@ int main(int argc, char** argv) {
 
   provider_can::CanDispatcher canD(0, BAUD_125K);
 
+  printf("test: %d  ", canD.pushMessage(7,1,0xF08,message,2));
+
   while (ros::ok())
   {
     canD.providerCanProcess();
+
+    canD.fetchMessages(6,2,msg,&num);
+    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+
+    canD.fetchMessages(2,7,msg,&num);
+    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+
+    canD.fetchMessages(3,5,msg,&num);
+    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
+
+    canD.fetchMessages(5,3,msg,&num);
+    printf("Device: %X, ndata: %d \n\r",msg[0].id, num);
 
     ros::spinOnce();
     loop_rate.sleep();
