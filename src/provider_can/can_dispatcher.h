@@ -50,12 +50,14 @@ namespace provider_can {
     const uint32_t WAKEUP_REQ = 0xf1;
     const uint32_t SLEEP_REQ = 0xf0;
 
+    const uint32_t ID_REQ_WAIT = 100000;
+
     const uint32_t CAN_SEND_TIMEOUT = 10;
 
     const uint32_t ID_REQ_INTERVAL_MS = 5000;
 
-    const int MAX_NUM_OF_DEVICES = 25;
-    const int RAW_RX_BUFFER_SIZE = 500;
+    const int MAX_NUM_OF_DEVICES = 30;
+    const int RAW_TX_BUFFER_SIZE = 25;
     const int DISPATCHED_RX_BUFFER_SIZE = 25;
     const uint32_t DEVICE_ADDRESS_MASK = 0x7FFFF000;
 
@@ -69,7 +71,7 @@ namespace provider_can {
 
     typedef struct {
         uint32_t num_of_messages;
-        CanMessage buffer[RAW_RX_BUFFER_SIZE];
+        CanMessage *buffer;
     }RawBuffer;
 
     typedef struct {
@@ -143,7 +145,8 @@ namespace provider_can {
         * \param num_of_messages number of messages read
         * \return SoniaDeviceStatus enum
         */
-        SoniaDeviceStatus fetchMessages(uint32_t address, CanMessage *buffer, uint8_t *num_of_messages);
+        SoniaDeviceStatus fetchMessages(uint32_t address, CanMessage
+        *&buffer, uint8_t *num_of_messages);
 
         /**
         * The function returns the devices's properties
@@ -234,6 +237,7 @@ namespace provider_can {
         * \param index device_list_ index found
         * \return SoniaDeviceStatus enum
         */
+        // TODO: convert address into device_id/unique_id
         SoniaDeviceStatus getDeviceIndex(uint32_t address, int *index);
 
         /**

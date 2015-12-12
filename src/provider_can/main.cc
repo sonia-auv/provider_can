@@ -31,14 +31,13 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros::Rate loop_rate(10);
-  printf("yes1");
 
   provider_can::CanDispatcher canD(0, BAUD_125K);
-
 
   while (ros::ok())
   {
     canD.providerCanProcess();
+
     ros::spinOnce();
     loop_rate.sleep();
   }
@@ -56,7 +55,7 @@ int main(int argc, char** argv) {
   msg.flag = canMSG_EXT;
   msg.id = 0x10701F08;
 
-  //can.writeMessage(msg, 10);
+  can.writeMessage(msg, 10);
 
   while (ros::ok())
   {
@@ -64,11 +63,12 @@ int main(int argc, char** argv) {
     status = can.readAllMessages(msgrd, &messages_read);
     can.printErrorText(status);
 
-    printf("  %d       ", messages_read);
-
     if(messages_read!=0){
       printf("%X       ", msgrd[0].id);
-      printf("%d       ", messages_read);
+      printf("%X       ", msgrd[1].id);
+      printf("%X       ", msgrd[2].id);
+
+      printf("%d       \n\r", messages_read);
     }
 
 

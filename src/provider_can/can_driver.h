@@ -117,7 +117,8 @@ class CanDriver {
      *                        returned table)
      * \return canStatus
      */
-    canStatus readAllMessages(CanMessage *msg_table, uint32_t *num_of_messages);
+    canStatus readAllMessages(CanMessage *&msg_table, uint32_t
+    *num_of_messages);
 
      /**
      * Allows the user to send one CAN message through a KVaser device

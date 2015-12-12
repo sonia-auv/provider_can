@@ -29,6 +29,7 @@
 */
 
 #include "can_dispatcher.h"
+#include "can_driver.h"
 #include <unistd.h>
 #include <string.h>
 
@@ -40,13 +41,18 @@ using namespace provider_can;
 CanDispatcher::CanDispatcher(uint32_t chan, uint32_t baudrate):
         canDriver_(chan,baudrate)
 {
+    ndevices_present_ = 0;
 
     clock_gettime(CLOCK_REALTIME, &actual_time_);
     clock_gettime(CLOCK_REALTIME, &initial_time_);
 
+    tx_raw_buffer_.buffer = new CanMessage[RAW_TX_BUFFER_SIZE];
+
     canDriver_.flushRxBuffer();
     canDriver_.flushTxBuffer();
+
     listDevices();
+
 }
 
 //------------------------------------------------------------------------------
@@ -60,19 +66,25 @@ void CanDispatcher::listDevices(){
 
     bool new_device_found = true;
 
-    sendIdRequest();        // Ask ID from every device on CAN bus
-    usleep(1000);           // Wait for all responses
-    readMessages();         // Reads all messages into rx_raw_buffer_
+    sendIdRequest();                // Ask ID from every device on CAN bus
+    usleep(ID_REQ_WAIT);            // Wait for all responses
+    readMessages();                 // Reads all messages into rx_raw_buffer_
 
-    for(int j = 0; j < rx_raw_buffer_.num_of_messages; j++) {   // For each messages received during sleep,
-        for (int i = 0; i < ndevices_present_; i++) {             // For each device found until now
-            if ((rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK) == devices_list_[i].global_address)// Verify if the ID has
-                new_device_found = false;                       // already been seen. If so, avoids adding it again.
+    for(int j = 0; j < rx_raw_buffer_.num_of_messages; j++) {
+        // For each messages received during sleep,
+        for (int i = 0; i < ndevices_present_; i++) {
+            // For each device found until now
+            if ((rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)
+                == devices_list_[i].global_address) // Verify if the ID has
+                new_device_found = false;           // already been seen. If so,
+                                                    // avoids adding it again.
         }
-        if(new_device_found)                                    // If the messages contains a new address
-            devices_list_[ndevices_present_++].global_address = (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK);// adds a device
+        if(new_device_found)
+            // If the messages contains a new address, adds a device
+            devices_list_[ndevices_present_++].global_address =
+                (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK);
 
-        new_device_found = true;                                // Ready for next loop
+        new_device_found = true;                    // Ready for next loop
     }
 
     dispatchMessages();         // Dispatch and saves all received messages
@@ -91,9 +103,10 @@ void CanDispatcher::dispatchMessages(){
                                                                         // located
 
         if(status != SONIA_DEVICE_NOT_PRESENT) {        // If device exists
+            // If the ID received correspond to an ID request response
+            // saves device's parameters.
             if (devices_list_[index].global_address == rx_raw_buffer_.buffer[j].id) {
-                // If the ID received correspond to an ID request response
-                // saves device's parameters.
+
                 devices_list_[index].device_properties.firmware_version =
                         (rx_raw_buffer_.buffer[j].data[1] << 8) | rx_raw_buffer_.buffer[j].data[0];
 
@@ -107,18 +120,36 @@ void CanDispatcher::dispatchMessages(){
                 devices_list_[index].device_properties.device_data =
                         rx_raw_buffer_.buffer[j].data[6];
             }
-            else if (devices_list_[index].global_address | 0xFF == rx_raw_buffer_.buffer[j].id) {
                 // If the ID received correspond to a device fault
+            else if ((devices_list_[index].global_address | 0xFF) ==
+                    rx_raw_buffer_.buffer[j].id) {
+
                 devices_list_[index].device_fault = true;
+
+                printf("Device %X: Fault \n\r",
+                       devices_list_[index]
+                           .global_address);
             }
-            else if (devices_list_[index].global_address == (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)) {
                 // If the ID received correspond to any other message
-                if (devices_list_[index].num_of_messages >= DISPATCHED_RX_BUFFER_SIZE)
-                    devices_list_[index].num_of_messages = 0;// Avoids buffer overflow
+            else if (devices_list_[index].global_address ==
+                (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)) {
+
+
+                // Avoids buffer overflow
+                if (devices_list_[index].num_of_messages >=
+                    DISPATCHED_RX_BUFFER_SIZE){
+
+                    devices_list_[index].num_of_messages = 0;
+                    printf("Device %X: Buffer Overflow \n\r",
+                           devices_list_[index]
+                        .global_address);
+                }
+
 
                 // Saves message into dispatched devices' buffers.
                 devices_list_[index].rx_buffer[devices_list_[index].num_of_messages++] =
                         rx_raw_buffer_.buffer[j];
+
             }
         }
         else{   // If address is unknown
@@ -138,10 +169,8 @@ void CanDispatcher::dispatchMessages(){
 //
 canStatus CanDispatcher::readMessages(){
     canStatus status;
-    CanMessage *buffer;
-    status = canDriver_.readAllMessages(buffer, &rx_raw_buffer_.num_of_messages);
-
-    memcpy(rx_raw_buffer_.buffer, buffer, rx_raw_buffer_.num_of_messages);
+    status = canDriver_.readAllMessages(rx_raw_buffer_.buffer, &rx_raw_buffer_
+        .num_of_messages);
 
     return status;
 }
@@ -193,7 +222,8 @@ SoniaDeviceStatus CanDispatcher::setPollRate(uint32_t address, uint8_t poll_rate
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::fetchMessages(uint32_t address, CanMessage *buffer, uint8_t *num_of_messages){
+SoniaDeviceStatus CanDispatcher::fetchMessages(uint32_t address, CanMessage
+*&buffer, uint8_t *num_of_messages){
 
     SoniaDeviceStatus status;
     int index;
@@ -361,11 +391,15 @@ uint8_t CanDispatcher::getUnknownAddresses(uint32_t *addresses){
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::providerCanProcess(){
+    CanMessage *msg;
+    uint8_t num;
+
     clock_gettime(CLOCK_REALTIME, &actual_time_);
 
     readMessages();
     dispatchMessages();
-    sendMessages();
-    pollDevices();
+
+   // sendMessages();
+   // pollDevices();
 
 }
