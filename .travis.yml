@@ -82,10 +82,10 @@ install:
   - sed -i -e '1757d' ./usbcanII/usbcanHWIf.c
   - sed -i -e '1757d' ./usbcanII/usbcanHWIf.c
   - sed -i -e '900d' ./pciefd/pciefd_hwif.c
-  - make -j8
+  - make
   - sudo make install
-  - cd ~/catkin_ws
   # Build
+  - cd ~/catkin_ws
   - catkin_make -j8
 
 # Command to run tests
