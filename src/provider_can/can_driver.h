@@ -140,6 +140,16 @@ class CanDriver {
   canStatus flushTxBuffer();
   canStatus flushRxBuffer();
 
+  /**
+* Returns number of errors encountered in different processes
+*
+* \param txErr number of transmission errors
+* \param rxErr number of reception errors
+* \param ovErr number of overrun errors
+* \return canStatus enum (canOK or canERR)
+*/
+  canStatus getErrorCount(uint32_t* tx_err, uint32_t* rx_err, uint32_t* ov_err);
+
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
@@ -176,16 +186,6 @@ class CanDriver {
   * \return canStatus enum
   */
   canStatus setAcceptanceFilter(uint32_t enveloppe, int flag);
-
-  /**
-  * Returns number of errors encountered in different processes
-  *
-  * \param txErr number of transmission errors
-  * \param rxErr number of reception errors
-  * \param ovErr number of overrun errors
-  * \return canStatus enum (canOK or canERR)
-  */
-  canStatus getErrorCount(uint32_t* txErr, uint32_t* rxErr, uint32_t* ovErr);
 
   //============================================================================
   // P R I V A T E   M E M B E R S

@@ -57,6 +57,8 @@ const uint32_t ID_REQ_WAIT = 100000;
 const uint8_t DISCOVERY_TRIES = 10;
 const uint8_t DISCOVERY_DELAY = 5;
 
+const uint8_t ERROR_RECOVERY_DELAY = 2;
+
 const uint32_t CAN_SEND_TIMEOUT = 10;
 
 const uint32_t ID_REQ_INTERVAL_MS = 5000;
@@ -68,10 +70,14 @@ const uint32_t DEVICE_ADDRESS_MASK = 0x7FFFF000;
 
 typedef struct {
   uint16_t firmware_version;
+  // Signature of LPC chip
   uint32_t uc_signature;
+  // may be RESET, SLEEP, WAKEUP or ISP
   uint8_t capabilities;
+  // any data
   uint8_t device_data;
-  uint16_t poll_rate = 300;
+  // RTR send rate, in ms
+  uint16_t poll_rate = 500;
 } DeviceProperties;
 
 typedef struct {
@@ -80,10 +86,13 @@ typedef struct {
 } RawBuffer;
 
 typedef struct {
+  // device global address (ex: 0x00602000 for PSU)
   uint32_t global_address;
   DeviceProperties device_properties;
+  // number of messages contained in the rx buffer
   uint8_t num_of_messages;
   CanMessage rx_buffer[DISPATCHED_RX_BUFFER_SIZE];
+  // if device has sent a fault
   bool device_fault = false;
 } CanDevice;
 
@@ -99,7 +108,8 @@ class CanDispatcher {
   // P U B L I C   C / D T O R S
 
   //! Constructor
-  CanDispatcher(uint32_t chan, uint32_t baudrate);
+  // param loop_rate main process loop rate. Must be the same as ROS loop_rate
+  CanDispatcher(uint32_t chan, uint32_t baudrate, uint32_t loop_rate);
 
   // Destructor
   ~CanDispatcher();
@@ -244,7 +254,7 @@ class CanDispatcher {
   * be created
   * for it and if it sends other messages, they will be dropped.
   */
-  void listDevices();
+  canStatus listDevices();
 
   /**
   * Reads all messages received on CAN bus and stores them into rx_raw_buffer_
@@ -314,8 +324,17 @@ class CanDispatcher {
   timespec actual_time_;
   timespec initial_time_;
   timespec id_req_time_;
+  timespec error_recovery_;
 
   uint8_t discovery_tries_;
+
+  uint32_t loop_rate_;  // main process loop rate
+
+  uint32_t tx_error_;
+  uint32_t rx_error_;
+  uint32_t ovrr_error_;
+
+
 };
 
 }  // namespace provider_can

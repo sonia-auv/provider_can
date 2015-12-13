@@ -38,15 +38,19 @@ using namespace provider_can;
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-CanDispatcher::CanDispatcher(uint32_t chan, uint32_t baudrate)
+CanDispatcher::CanDispatcher(uint32_t chan, uint32_t baudrate, uint32_t loop_rate)
     : canDriver_(chan, baudrate) {
   ndevices_present_ = 0;
   nunknown_addresses_ = 0;
   discovery_tries_ = 0;
+  loop_rate_ = loop_rate;
+
+  canDriver_.getErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
 
   clock_gettime(CLOCK_REALTIME, &actual_time_);
   clock_gettime(CLOCK_REALTIME, &initial_time_);
   clock_gettime(CLOCK_REALTIME, &id_req_time_);
+  clock_gettime(CLOCK_REALTIME, &error_recovery_);
 
   tx_raw_buffer_.buffer = new CanMessage[RAW_TX_BUFFER_SIZE];
 
@@ -63,14 +67,20 @@ CanDispatcher::~CanDispatcher() {}
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
-void CanDispatcher::listDevices() {
+canStatus CanDispatcher::listDevices() {
   bool new_device_found = true;
+  canStatus status;
 
   nunknown_addresses_ = 0;  // resets unknown addresses discovery.
 
-  sendIdRequest();      // Ask ID from every device on CAN bus
+  status = sendIdRequest();      // Ask ID from every device on CAN bus
+  if(status < canOK)
+    return status;
+
   usleep(ID_REQ_WAIT);  // Wait for all responses
-  readMessages();       // Reads all messages into rx_raw_buffer_
+  status = readMessages();       // Reads all messages into rx_raw_buffer_
+  if(status < canOK)
+    return status;
 
   for (int j = 0; j < rx_raw_buffer_.num_of_messages; j++) {
     // For each messages received during sleep,
@@ -90,6 +100,8 @@ void CanDispatcher::listDevices() {
   }
 
   dispatchMessages();  // Dispatch and saves all received messages
+
+  return status;
 }
 
 //------------------------------------------------------------------------------
@@ -128,7 +140,7 @@ void CanDispatcher::dispatchMessages() {
                rx_raw_buffer_.buffer[j].id) {
         devices_list_[index].device_fault = true;
 
-        printf("Device %X: Fault \n\r", devices_list_[index].global_address);
+        printf("\n\rDevice %X: Fault ", devices_list_[index].global_address);
       }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
@@ -136,7 +148,7 @@ void CanDispatcher::dispatchMessages() {
         // Avoids buffer overflow
         if (devices_list_[index].num_of_messages >= DISPATCHED_RX_BUFFER_SIZE) {
           devices_list_[index].num_of_messages = 0;
-          printf("Device %X: Buffer Overflow \n\r",
+          printf("\n\rDevice %X: Buffer Overflow. You must empty it faster.",
                  devices_list_[index].global_address);
         }
 
@@ -171,7 +183,7 @@ canStatus CanDispatcher::sendMessages() {
   for (int i = 0; i < tx_raw_buffer_.num_of_messages; i++) {
     status =
         canDriver_.writeMessage(tx_raw_buffer_.buffer[i], CAN_SEND_TIMEOUT);
-    if (status != canOK) i = tx_raw_buffer_.num_of_messages;
+    if (status < canOK) i = tx_raw_buffer_.num_of_messages;
   }
 
   tx_raw_buffer_.num_of_messages = 0;
@@ -320,10 +332,15 @@ SoniaDeviceStatus CanDispatcher::getAddressIndex(uint32_t address, int *index) {
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::pollDevices() {
+
+  uint32_t actual_time_ms = actual_time_.tv_nsec / 1000000;
+  uint32_t initial_time_ms = initial_time_.tv_nsec / 1000000;
+
   for (int i = 0; i < ndevices_present_; i++) {
-    if ((((actual_time_.tv_nsec - initial_time_.tv_nsec) / 1000000) %
-            (devices_list_[i].device_properties.poll_rate)) < 1) {
-      //printf("polling %X", devices_list_[i].global_address);
+    if (((actual_time_ms - initial_time_ms) %
+            devices_list_[i].device_properties.poll_rate) < ((1.0/
+          (float)loop_rate_)
+        *1000.0)) {
       sendRTR(devices_list_[i].global_address);
     }
   }
@@ -412,19 +429,66 @@ void CanDispatcher::addUnknownAddress(uint32_t address) {
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::providerCanProcess() {
+  canStatus status;
   clock_gettime(CLOCK_REALTIME, &actual_time_);
 
-  readMessages();
-  dispatchMessages();
-  sendMessages();
-  //pollDevices();
 
-  if (discovery_tries_ <= DISCOVERY_TRIES &&
-      (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
-      nunknown_addresses_ != 0) {
-    printf("Unknown devices found. Retrying ID Request");
-    listDevices();
-    discovery_tries_++;
-    id_req_time_ = actual_time_;
+  // verifying CAN errors
+  if(tx_error_ >= 50 || rx_error_ >= 50){
+    printf("\rToo many errors encountered (tx: %d, rx: %d, ovrr: %d). Verify "
+               "KVaser connectivity. "
+               "Stopping "
+               "CAN until problem is "
+               "solved",tx_error_,rx_error_,ovrr_error_);
+
+    if ((actual_time_.tv_sec - error_recovery_.tv_sec) >= ERROR_RECOVERY_DELAY) {
+      printf("\n\rRetrying a recovery\n");
+
+      error_recovery_ = actual_time_;
+      canDriver_.getErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+    }
+  }
+    // normal process
+  else{
+
+    // reading from CAN bus
+    status = readMessages();
+
+    // verifying errors
+    if(status < canOK){
+      printf("\n\r");
+      canDriver_.printErrorText(status);
+      canDriver_.getErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+      printf("tx: %d, rx: %d, ovrr: %d",tx_error_,rx_error_,
+             ovrr_error_);
+    }
+
+    // Dispatching read messages
+    dispatchMessages();
+
+    // sending messages contained in tx_buffer
+    status = sendMessages();
+
+    // verifying errors
+    if(status < canOK){
+      printf("\n\r");
+      canDriver_.printErrorText(status);
+      canDriver_.getErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+      printf("tx: %d, rx: %d, ovrr: %d",tx_error_,rx_error_,ovrr_error_);
+    }
+
+    // Sends RTR to devices if asked
+    pollDevices();
+
+    // verifying if devices where not found. if so, sends ID requests to try
+    // to find undiscovered devices.
+    if (discovery_tries_ <= DISCOVERY_TRIES &&
+        (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
+        nunknown_addresses_ != 0) {
+      printf("\n\rUnknown devices found. Retrying ID Request");
+      listDevices();
+      discovery_tries_++;
+      id_req_time_ = actual_time_;
+    }
   }
 }

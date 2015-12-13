@@ -244,11 +244,11 @@ canStatus CanDriver::setAcceptanceFilter(uint32_t enveloppe, int flag) {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::getErrorCount(uint32_t* txErr, uint32_t* rxErr,
-                                   uint32_t* ovErr) {
+canStatus CanDriver::getErrorCount(uint32_t* tx_err, uint32_t* rx_err,
+                                   uint32_t* ov_err) {
   canStatus status;
 
-  status = canReadErrorCounters(handle_, txErr, rxErr, ovErr);
+  status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
 
   return status;
 }
