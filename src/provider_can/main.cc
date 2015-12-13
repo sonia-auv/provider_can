@@ -22,15 +22,10 @@
  */
 
 #include <ros/ros.h>
-//#include "can_driver.h"
 #include "can_dispatcher.h"
+#include "bottom_light.h"
 
 int main(int argc, char** argv) {
-  provider_can::CanMessage* msg;
-
-  uint8_t message[2] = {0x3, 0x1};
-  uint32_t *addresses;
-  uint8_t num;
 
   ros::init(argc, argv, "provider_can");
 
@@ -38,18 +33,13 @@ int main(int argc, char** argv) {
 
   ros::Rate loop_rate(10);
 
-  provider_can::CanDispatcher canD(1,1,0, BAUD_125K, 10);
-
-  printf("test: %d  ", canD.pushUnicastMessage(7, 1, 0xF08, message, 2));
-
-  canD.setPollRate(6,2,100);
-  canD.setPollRate(5,3,200);
-  canD.setPollRate(2,4,300);
+  provider_can::CanDispatcher canD(controllers,on_board_pc,0, BAUD_125K, 10);
+  provider_can::BottomLight bottom_light(&canD);
 
   while (ros::ok()) {
+
     canD.providerCanProcess();
-
-
+    bottom_light.lightProcess();
 
     ros::spinOnce();
     loop_rate.sleep();

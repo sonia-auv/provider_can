@@ -28,6 +28,9 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PROVIDER_CAN_CAN_DEF_H_
+#define PROVIDER_CAN_CAN_DEF_H_
+
 // Devices capabilities
 const uint8_t ISP = 0x01;
 const uint8_t RESET = 0x02;
@@ -134,3 +137,4 @@ enum CAN2RS232{
     micron_dst_modem = 1
 };
 
+#endif

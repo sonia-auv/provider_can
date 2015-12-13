@@ -29,7 +29,6 @@
 */
 
 #include "can_dispatcher.h"
-#include "can_driver.h"
 #include <unistd.h>
 #include <stdio.h>
 

@@ -27,6 +27,7 @@
  * You should have received a copy of the GNU General Public License
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
+// TODO: Ajouter la fonctionnalité set et get_parameter
 
 #ifndef PROVIDER_CAN_CAN_DISPATCHER_H_
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
