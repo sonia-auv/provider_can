@@ -34,39 +34,30 @@
 #include "can_driver.h"
 #include <stdint.h>
 #include <sys/times.h>
+#include "can_def.h"
 
 namespace provider_can {
 
 //============================================================================
 // T Y P E D E F   A N D   E N U M
 
-// Devices capabilities
-const uint8_t ISP = 0x01;  // TODO: put these defines in CAN.h
-const uint8_t RESET = 0x02;
-const uint8_t SLEEP = 0x04;
-
-const uint32_t UNICAST = 0x10000000;
-const uint32_t RESET_REQ = 0xfe;
-const uint32_t WAKEUP_REQ = 0xf1;
-const uint32_t SLEEP_REQ = 0xf0;
-
-const uint8_t UNIQUE_ID_POSITION = 12;
-const uint8_t DEVICE_ID_POSITION = 20;
-
+// Delay after an ID request before listing devices
 const uint32_t ID_REQ_WAIT = 100000;
+
+// Number of ID request retries
 const uint8_t DISCOVERY_TRIES = 10;
+// Delay between ID request retries (sec)
 const uint8_t DISCOVERY_DELAY = 5;
-
+// Delay between error recovery retries
 const uint8_t ERROR_RECOVERY_DELAY = 2;
-
+// Delay to wait for a message to be sent (ms)
 const uint32_t CAN_SEND_TIMEOUT = 10;
 
-const uint32_t ID_REQ_INTERVAL_MS = 5000;
-
+// Table sizes
 const int MAX_NUM_OF_DEVICES = 30;
 const int RAW_TX_BUFFER_SIZE = 25;
 const int DISPATCHED_RX_BUFFER_SIZE = 50;
-const uint32_t DEVICE_ADDRESS_MASK = 0x7FFFF000;
+
 
 typedef struct {
   uint16_t firmware_version;
@@ -89,11 +80,17 @@ typedef struct {
   // device global address (ex: 0x00602000 for PSU)
   uint32_t global_address;
   DeviceProperties device_properties;
+
   // number of messages contained in the rx buffer
   uint8_t num_of_messages;
   CanMessage rx_buffer[DISPATCHED_RX_BUFFER_SIZE];
+
   // if device has sent a fault
   bool device_fault = false;
+  uint8_t *fault_message;
+
+  // If device answered from a ping request
+  bool ping_response = false;
 } CanDevice;
 
 typedef enum {
@@ -109,7 +106,10 @@ class CanDispatcher {
 
   //! Constructor
   // param loop_rate main process loop rate. Must be the same as ROS loop_rate
-  CanDispatcher(uint32_t chan, uint32_t baudrate, uint32_t loop_rate);
+  // param device_id PC ID
+  // param unique_id PC ID
+  CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
+                uint32_t baudrate, uint32_t loop_rate);
 
   // Destructor
   ~CanDispatcher();
@@ -143,9 +143,11 @@ class CanDispatcher {
   SoniaDeviceStatus sendSleepRequest(uint8_t device_id, uint8_t unique_id);
   SoniaDeviceStatus sendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
 
+  SoniaDeviceStatus pingDevice(uint8_t device_id, uint8_t unique_id);// TODO: To be tested
+  SoniaDeviceStatus verifyPingResponse(uint8_t device_id, uint8_t unique_id, bool *response);
+
   /**
-  * The function puts a new message in the tx_queue. It will be sent later in
-  * the process
+  * This function allows to send a message to a specific device.
   *
   * The function verifies if the address of the message is a known device.
   * SoniaDeviceStatus will
@@ -158,9 +160,20 @@ class CanDispatcher {
   * \param ndata message length
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus pushMessage(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus pushUnicastMessage(uint8_t device_id, uint8_t unique_id,
                                 uint16_t message_id, uint8_t *buffer,
                                 uint8_t ndata);
+
+  /**
+  * The function allows to send broadcast messages using PC address. The messages
+  * are not related to specific devices, but to anyone who reads it.
+  *
+  * \param message_id SONIA message ID
+  * \param buffer message content
+  * \param ndata message length
+  */
+  void pushBroadMessage(uint16_t message_id, uint8_t *buffer,// TODO: to be tested
+                                         uint8_t ndata);
 
   /**
   * The function returns the rx_buffer of the selected device
@@ -195,16 +208,14 @@ class CanDispatcher {
                                          DeviceProperties *properties);
 
   /**
-  * The function clears the specified device fault flag. This avoids
-  * SoniaDeviceStatus to always take
-  * SONIA_DEVICE_FAULT value for every functions of this class when a fault has
-  * been received.
+  * The function clears the specified device fault flag and returns the
+  * value of the fault.
   *
   * \param device_id SONIA Device ID to look for
   * \param unique_id SONIA unique ID to look for
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus clearFault(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus getDeviceFault(uint8_t device_id, uint8_t unique_id, uint8_t *&fault);// TODO: To be tested
 
   uint8_t getNumberOfDevices();
   uint8_t getUnknownAddresses(uint32_t *&addresses);
@@ -334,7 +345,7 @@ class CanDispatcher {
   uint32_t rx_error_;
   uint32_t ovrr_error_;
 
-
+  uint32_t master_id_;  // PC ID
 };
 
 }  // namespace provider_can

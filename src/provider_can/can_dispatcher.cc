@@ -31,19 +31,22 @@
 #include "can_dispatcher.h"
 #include "can_driver.h"
 #include <unistd.h>
-#include <string.h>
+#include <stdio.h>
 
 using namespace provider_can;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-CanDispatcher::CanDispatcher(uint32_t chan, uint32_t baudrate, uint32_t loop_rate)
+CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
+                             uint32_t baudrate, uint32_t loop_rate)
     : canDriver_(chan, baudrate) {
   ndevices_present_ = 0;
   nunknown_addresses_ = 0;
   discovery_tries_ = 0;
   loop_rate_ = loop_rate;
+
+  master_id_ = (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
   canDriver_.getErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
 
@@ -136,11 +139,16 @@ void CanDispatcher::dispatchMessages() {
             rx_raw_buffer_.buffer[j].data[6];
       }
       // If the ID received correspond to a device fault
-      else if ((devices_list_[index].global_address | 0xFF) ==
+      else if ((devices_list_[index].global_address | DEVICE_FAULT) ==
                rx_raw_buffer_.buffer[j].id) {
         devices_list_[index].device_fault = true;
-
+        devices_list_[index].fault_message = rx_raw_buffer_.buffer[j].data;
         printf("\n\rDevice %X: Fault ", devices_list_[index].global_address);
+      }
+      // If the ID received corresponds to a ping response
+      else if (devices_list_[index].global_address | PING ==
+                                            rx_raw_buffer_.buffer[j].id) {
+        devices_list_[index].ping_response = true;
       }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
@@ -156,6 +164,7 @@ void CanDispatcher::dispatchMessages() {
         devices_list_[index].rx_buffer[devices_list_[index].num_of_messages++] =
             rx_raw_buffer_.buffer[j];
       }
+
     } else {  // If address is unknown
               // Adds the address to the unknown addresses table
       addUnknownAddress(rx_raw_buffer_.buffer[j].id);
@@ -259,7 +268,7 @@ SoniaDeviceStatus CanDispatcher::getDevicesProperties(
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::pushMessage(uint8_t device_id,
+SoniaDeviceStatus CanDispatcher::pushUnicastMessage(uint8_t device_id,
                                              uint8_t unique_id,
                                              uint16_t message_id,
                                              uint8_t *buffer, uint8_t ndata) {
@@ -275,6 +284,20 @@ SoniaDeviceStatus CanDispatcher::pushMessage(uint8_t device_id,
   tx_raw_buffer_.buffer[tx_raw_buffer_.num_of_messages++] = message;
 
   return getDeviceIndex(device_id, unique_id, &index);
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::pushBroadMessage(uint16_t message_id,
+                                                    uint8_t *buffer, uint8_t ndata) {
+
+  CanMessage message;
+  message.id = master_id_ | (message_id & 0x0FFF);
+  message.flag = canMSG_EXT;
+  message.dlc = ndata;
+  for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
+
+  tx_raw_buffer_.buffer[tx_raw_buffer_.num_of_messages++] = message;
 }
 
 //------------------------------------------------------------------------------
@@ -348,14 +371,16 @@ void CanDispatcher::pollDevices() {
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::clearFault(uint8_t device_id,
-                                            uint8_t unique_id) {
+SoniaDeviceStatus CanDispatcher::getDeviceFault(uint8_t device_id,
+                                            uint8_t unique_id, uint8_t *&fault) {
   SoniaDeviceStatus status;
   int index;
   status = getDeviceIndex(device_id, unique_id, &index);
 
-  if (status != SONIA_DEVICE_NOT_PRESENT)
+  if (status != SONIA_DEVICE_NOT_PRESENT){
     devices_list_[index].device_fault = false;
+    fault = devices_list_[index].fault_message;
+  }
 
   return status;
 }
@@ -366,7 +391,7 @@ SoniaDeviceStatus CanDispatcher::sendResetRequest(uint8_t device_id,
                                                   uint8_t unique_id) {
   uint8_t *msg;
 
-  return (pushMessage(device_id, unique_id, RESET_REQ, msg, 0));
+  return (pushUnicastMessage(device_id, unique_id, RESET_REQ, msg, RESET_REQUEST_DLC));
 }
 
 //------------------------------------------------------------------------------
@@ -375,7 +400,33 @@ SoniaDeviceStatus CanDispatcher::sendSleepRequest(uint8_t device_id,
                                                   uint8_t unique_id) {
   uint8_t *msg;
 
-  return (pushMessage(device_id, unique_id, SLEEP_REQ, msg, 0));
+  return (pushUnicastMessage(device_id, unique_id, SLEEP_REQ, msg, SLEEP_REQUEST_DLC));
+}
+
+
+//------------------------------------------------------------------------------
+//
+SoniaDeviceStatus CanDispatcher::pingDevice(uint8_t device_id,
+                                            uint8_t unique_id){
+  uint8_t *msg;
+
+  return (pushUnicastMessage(device_id, unique_id, PING, msg, PING_REQUEST_DLC));
+}
+
+//------------------------------------------------------------------------------
+//
+SoniaDeviceStatus CanDispatcher::verifyPingResponse(uint8_t device_id,
+                                            uint8_t unique_id,bool *response){
+  SoniaDeviceStatus status;
+  int index;
+  status = getDeviceIndex(device_id,unique_id,&index);
+
+  if(status != SONIA_DEVICE_NOT_PRESENT)
+    *response = devices_list_[index].ping_response;
+
+  devices_list_[index].ping_response = false;
+
+  return status;
 }
 
 //------------------------------------------------------------------------------
@@ -384,7 +435,7 @@ SoniaDeviceStatus CanDispatcher::sendWakeUpRequest(uint8_t device_id,
                                                    uint8_t unique_id) {
   uint8_t *msg;
 
-  return (pushMessage(device_id, unique_id, WAKEUP_REQ, msg, 0));
+  return (pushUnicastMessage(device_id, unique_id, WAKEUP_REQ, msg, WAKEUP_REQUEST_DLC));
 }
 
 //------------------------------------------------------------------------------

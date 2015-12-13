@@ -38,9 +38,9 @@ int main(int argc, char** argv) {
 
   ros::Rate loop_rate(10);
 
-  provider_can::CanDispatcher canD(0, BAUD_125K, 10);
+  provider_can::CanDispatcher canD(1,1,0, BAUD_125K, 10);
 
-  printf("test: %d  ", canD.pushMessage(7, 1, 0xF08, message, 2));
+  printf("test: %d  ", canD.pushUnicastMessage(7, 1, 0xF08, message, 2));
 
   canD.setPollRate(6,2,100);
   canD.setPollRate(5,3,200);
