@@ -101,6 +101,59 @@ typedef enum {
   SONIA_DEVICE_FAULT = -1
 } SoniaDeviceStatus;
 
+/**
+ * The CanDispatcher class is the core of CAN communication. It handles all
+ * the SONIA's can standard and dispatch messages for future processing. This
+ * class lists every device present on can bus at startup and ensure that
+ * every message from every device is correctly processed. some messages such as
+ * ping responses or ID requests are processed directly in this class.
+ *
+ * IMPORTANT NOTE: Almost every function of this class returns SoniaDeviceStatus
+ * enum. This notifies the user if the requested device exists or not or encountered
+ * a fault. You must always verify the value of this return parameter to know if
+ * your device is present or not. CanDispatcher will handle sending ID requests
+ * to try to find an undiscovered device if it finds that something is wrong.
+ *
+ * How to use:
+ * 1. Call the constructor specifying PC's device and unique ID, CAN channel, baudrate
+ * and loop_rate (which is the number of times per second the main process is called).
+ *
+ * NOTE: existing Device and unique IDs are listed in can_def.h
+ *
+ * 2. Pass a pointer to the CanDispatcher object to every other class that
+ * may want to read messages. example:
+ *
+    ros::Rate loop_rate(10);
+    provider_can::CanDispatcher canD(controllers,on_board_pc,0, BAUD_125K, 10);
+    provider_can::BottomLight bottom_light(&canD); <<<<<<<<<<<<<<<<<
+ *
+ *
+ * 3. In the main loop, call mainCanProcess() in order to handle sending and
+ * receiving messages. example:
+ *
+ *
+    while (ros::ok()) {
+      canD.mainCanProcess();
+      ...
+    }
+
+ * 4. To read messages from can, call fetchMessages(). the parameters of this
+ * function allows to select from which device we want to read messages received.
+ *
+ * 5. To send message to a specific device, call pushUnicastMessage().
+ *
+ * 6. To send messages using general PC address (set in the constructor),
+ * use pushBroadMessage(). These messages are not related to specific devices.
+ * Every device on CAN by may read it.
+ *
+ * 7. getDevicesProperties allows to retrieve some properties of a specific device.
+ *
+ * 8. Can Devices may have permanent parameters set in their flash memory. set and
+ * getDeviceParams allows to read or modify these parameters. A list of possible
+ * parameters is found in can_def.h.
+ *
+ */
+
 class CanDispatcher {
  public:
   //============================================================================
@@ -227,7 +280,7 @@ class CanDispatcher {
   * messages.
   *
   */
-  void providerCanProcess();
+  void mainCanProcess();
 
 
   /**

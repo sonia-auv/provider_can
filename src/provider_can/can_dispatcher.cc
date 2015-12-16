@@ -493,7 +493,7 @@ void CanDispatcher::addUnknownAddress(uint32_t address) {
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::providerCanProcess() {
+void CanDispatcher::mainCanProcess() {
   canStatus status;
   clock_gettime(CLOCK_REALTIME, &actual_time_);
 

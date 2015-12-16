@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
   while (ros::ok()) {
 
-    canD.providerCanProcess();
+    canD.mainCanProcess();
     bottom_light.lightProcess();
 
     ros::spinOnce();
