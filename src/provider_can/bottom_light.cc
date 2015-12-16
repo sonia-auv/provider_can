@@ -59,11 +59,15 @@ void BottomLight::lightProcess(){
 
   if(status != SONIA_DEVICE_NOT_PRESENT){
     device_present_ = true;
-    actual_light_level_ = rx_buffer->data[num_of_messages-1];
-    if(asked_light_level_ != actual_light_level_){
-      can_dispatcher_->pushUnicastMessage(lights,bottom_light,SET_LIGHT_MSG,
-                                          &asked_light_level_,SET_LIGHT_DLC);
+
+    if(num_of_messages != 0){
+      actual_light_level_ = rx_buffer->data[num_of_messages-1];
+      if(asked_light_level_ != actual_light_level_){
+        can_dispatcher_->pushUnicastMessage(lights,bottom_light,SET_LIGHT_MSG,
+                                            &asked_light_level_,SET_LIGHT_DLC);
+      }
     }
+
     if(status == SONIA_DEVICE_FAULT)
     {
       device_fault = true;

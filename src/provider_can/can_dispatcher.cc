@@ -29,6 +29,7 @@
 */
 
 #include "can_dispatcher.h"
+#include "can_driver.h"
 #include <unistd.h>
 #include <stdio.h>
 
@@ -60,6 +61,8 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t ch
   canDriver_.flushTxBuffer();
 
   listDevices();
+
+  getAllDevicesParamsReq();
 }
 
 //------------------------------------------------------------------------------
@@ -148,6 +151,18 @@ void CanDispatcher::dispatchMessages() {
       else if (devices_list_[index].global_address | PING ==
                                             rx_raw_buffer_.buffer[j].id) {
         devices_list_[index].ping_response = true;
+      }
+      // If the ID received corresponds to a parameter response
+      else if (devices_list_[index].global_address | GET_PARAM_REQ ==
+                                                     rx_raw_buffer_.buffer[j].id) {
+        devices_list_[index].device_parameters[0] = rx_raw_buffer_.buffer[j].data[0]
+                                                    | rx_raw_buffer_.buffer[j].data[1] << 8
+                                                    | rx_raw_buffer_.buffer[j].data[2] << 16
+                                                    | rx_raw_buffer_.buffer[j].data[3] << 24;
+        devices_list_[index].device_parameters[1] = rx_raw_buffer_.buffer[j].data[4]
+                                                    | rx_raw_buffer_.buffer[j].data[5] << 8
+                                                    | rx_raw_buffer_.buffer[j].data[6] << 16
+                                                    | rx_raw_buffer_.buffer[j].data[7] << 24;
       }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
@@ -541,4 +556,54 @@ void CanDispatcher::providerCanProcess() {
       id_req_time_ = actual_time_;
     }
   }
+}
+
+//------------------------------------------------------------------------------
+//
+SoniaDeviceStatus CanDispatcher::setDeviceParameterReq(uint8_t device_id,
+                                 uint8_t unique_id,
+                                 uint8_t param_number,
+                                 uint32_t param_value) {
+  /*uint8_t *msg;
+
+  msg[0] = param_number;
+  msg[1] = (uint8_t)(param_value >> 24);
+  msg[2] = (uint8_t)(param_value >> 16);
+  msg[3] = (uint8_t)(param_value >> 8);
+  msg[4] = (uint8_t)(param_value);
+
+  return (pushUnicastMessage(device_id, unique_id, SET_PARAM_REQ, msg, SET_PARAMETER_DLC));*/
+}
+
+//------------------------------------------------------------------------------
+//
+SoniaDeviceStatus CanDispatcher::getDeviceParameterReq(uint8_t device_id,
+                                                    uint8_t unique_id) {
+  /*uint8_t *msg;
+
+  return (pushUnicastMessage(device_id, unique_id, GET_PARAM_REQ, msg, SET_PARAMETER_DLC));*/
+}
+
+//------------------------------------------------------------------------------
+//
+void CanDispatcher::getAllDevicesParamsReq(void) {
+
+  for(int i = 0; i < ndevices_present_; i++)
+    getDeviceParameterReq(devices_list_[i].global_address >> 20, devices_list_[i].global_address >> 12);
+}
+
+//------------------------------------------------------------------------------
+//
+SoniaDeviceStatus CanDispatcher::getDeviceParams(uint8_t device_id,
+                                                 uint8_t unique_id,
+                                                 uint32_t *&params) {
+  int index;
+  SoniaDeviceStatus status;
+
+  status = getDeviceIndex(device_id,unique_id,&index);
+
+  if(status != SONIA_DEVICE_NOT_PRESENT)
+    params = devices_list_[index].device_parameters;
+
+  return status;
 }

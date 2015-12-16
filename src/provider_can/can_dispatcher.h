@@ -81,6 +81,7 @@ typedef struct {
   // device global address (ex: 0x00602000 for PSU)
   uint32_t global_address;
   DeviceProperties device_properties;
+  uint32_t device_parameters[2];// TODO: Not yet implemented in ELE part
 
   // number of messages contained in the rx buffer
   uint8_t num_of_messages;
@@ -228,7 +229,41 @@ class CanDispatcher {
   */
   void providerCanProcess();
 
- private:
+
+  /**
+  * This allows the user to set permanent parameters to can devices. These parameters
+  * are saved in device's flash memory and their value will be kept until it is
+  * manually changed.
+  *
+  * the list of settable parameters is shown in can_def.h
+  *
+  * \param device_id SONIA Device ID to look for
+  * \param unique_id SONIA unique ID to look for
+  * \param param_number use device parameters enums contained in can_def.h
+  * \param param_value value to set to the parameter
+  * \return SoniaDeviceStatus enum
+  */
+  // TODO: Not yet implemented in ELE part
+  SoniaDeviceStatus setDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
+                                          uint8_t param_number, uint32_t param_value);
+  /**
+  * This allows the user to read the permanent parameters set in devices'
+  * flash memory.
+  *
+  * The list of readable parameters for each device is shown in can_def.h
+  *
+  * \param device_id SONIA Device ID to look for
+  * \param unique_id SONIA unique ID to look for
+  * \param params parameters table.
+  * \return SoniaDeviceStatus enum
+  */
+  // TODO: not yet implemented in ELE part
+  SoniaDeviceStatus getDeviceParams(uint8_t device_id, uint8_t unique_id,
+                                    uint32_t *&params);
+
+
+
+private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
@@ -315,6 +350,13 @@ class CanDispatcher {
   * \param address
   */
   void addUnknownAddress(uint32_t address);
+
+  /**
+  * Allows to read permanent parameters set in the devices
+  */
+  // TODO: not yet implemented in ELE part
+  void getAllDevicesParamsReq(void);
+  SoniaDeviceStatus getDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
 
   //============================================================================
   // P R I V A T E   M E M B E R S
