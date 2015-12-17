@@ -30,12 +30,12 @@
 
 #include "bottom_light.h"
 
-using namespace provider_can;
+namespace provider_can {
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-BottomLight::BottomLight(CanDispatcher *can){
+BottomLight::BottomLight(CanDispatcher *can) {
   can_dispatcher_ = can;
   actual_light_level_ = 0;
   asked_light_level_ - 0;
@@ -44,38 +44,36 @@ BottomLight::BottomLight(CanDispatcher *can){
 //------------------------------------------------------------------------------
 //
 
-BottomLight::~BottomLight(){
+BottomLight::~BottomLight() {
 
 }
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
-void BottomLight::lightProcess(){
+void BottomLight::lightProcess() {
   CanMessage *rx_buffer;
   uint8_t num_of_messages;
   SoniaDeviceStatus status =
-    can_dispatcher_->fetchMessages(lights,bottom_light,rx_buffer,&num_of_messages);
+      can_dispatcher_->fetchMessages(lights, bottom_light, rx_buffer, &num_of_messages);
 
-  if(status != SONIA_DEVICE_NOT_PRESENT){
+  if (status != SONIA_DEVICE_NOT_PRESENT) {
     device_present_ = true;
 
-    if(num_of_messages != 0){
-      actual_light_level_ = rx_buffer->data[num_of_messages-1];
-      if(asked_light_level_ != actual_light_level_){
-        can_dispatcher_->pushUnicastMessage(lights,bottom_light,SET_LIGHT_MSG,
-                                            &asked_light_level_,SET_LIGHT_DLC);
+    if (num_of_messages != 0) {
+      actual_light_level_ = rx_buffer->data[num_of_messages - 1];
+      if (asked_light_level_ != actual_light_level_) {
+        can_dispatcher_->pushUnicastMessage(lights, bottom_light, SET_LIGHT_MSG,
+                                            &asked_light_level_, SET_LIGHT_DLC);
       }
     }
 
-    if(status == SONIA_DEVICE_FAULT)
-    {
+    if (status == SONIA_DEVICE_FAULT) {
       device_fault = true;
-      can_dispatcher_->getDeviceFault(lights,bottom_light,fault_message);
+      can_dispatcher_->getDeviceFault(lights, bottom_light, fault_message);
     }
   }
-  else
-  {
+  else {
     device_present_ = false;
   }
 
@@ -83,12 +81,14 @@ void BottomLight::lightProcess(){
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::setLightLevel(uint8_t level){
+void BottomLight::setLightLevel(uint8_t level) {
   asked_light_level_ = level;
 }
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::resetLight(){
-  can_dispatcher_->sendResetRequest(lights,bottom_light);
+void BottomLight::resetLight() {
+  can_dispatcher_->sendResetRequest(lights, bottom_light);
 }
+
+} // namespace provider_can

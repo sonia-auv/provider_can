@@ -32,10 +32,12 @@
 #ifndef PROVIDER_CAN_CAN_DISPATCHER_H_
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
 
-#include "can_driver.h"
 #include <stdint.h>
 #include <sys/times.h>
-#include "can_def.h"
+#include <vector>
+#include <memory>
+#include "provider_can/can_driver.h"
+#include "provider_can/can_def.h"
 
 namespace provider_can {
 
@@ -156,6 +158,11 @@ typedef enum {
 
 class CanDispatcher {
  public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
+
+  using Ptr = std::shared_ptr<CanDispatcher>;
+
   //============================================================================
   // P U B L I C   C / D T O R S
 

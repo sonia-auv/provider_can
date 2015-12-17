@@ -514,7 +514,7 @@ void CanDispatcher::mainCanProcess() {
     }
   }
     // normal process
-  else{
+  else {
 
     // reading from CAN bus
     status = readMessages();

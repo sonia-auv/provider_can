@@ -31,20 +31,23 @@
 #ifndef PROVIDER_CAN_BOTTOM_LIGHT_H_
 #define PROVIDER_CAN_BOTTOM_LIGHT_H_
 
-#include "can_dispatcher.h"
-#include "can_def.h"
+#include <memory>
+#include "provider_can/can_dispatcher.h"
+#include "provider_can/can_def.h"
 
 namespace provider_can {
 
-//============================================================================
-// T Y P E D E F   A N D   E N U M
-
-  const uint16_t SET_LIGHT_MSG = 0xF00;
-  const uint16_t SET_LIGHT_DLC = 1;
 
 class BottomLight {
-
  public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
+
+  using Ptr = std::shared_ptr<BottomLight>;
+
+  const static uint16_t SET_LIGHT_MSG = 0xF00;
+  const static uint16_t SET_LIGHT_DLC = 1;
+
   //============================================================================
   // P U B L I C   C / D T O R S
 
@@ -61,11 +64,9 @@ class BottomLight {
 
  private:
   //============================================================================
-  // P R I V A T E   M E T H O D S
-
-  //============================================================================
   // P R I V A T E   M E M B E R S
-  CanDispatcher *can_dispatcher_; // pointer to can controller
+
+  CanDispatcher::Ptr can_dispatcher_; // pointer to can controller
   uint8_t actual_light_level_;    // Light actual state
   uint8_t asked_light_level_;     // set by setLightLevel()
   bool device_present_;           // True if device is present on CAN bus

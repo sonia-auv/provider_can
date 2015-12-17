@@ -32,10 +32,11 @@
 #define PROVIDER_CAN_CAN_DRIVER_H_
 
 #include <canlib.h>
-#include "exception.h"
 #include <iostream>
 #include <iomanip>
 #include <stdint.h>
+#include <memory>
+#include "provider_can/exception.h"
 
 namespace provider_can {
 
@@ -61,6 +62,11 @@ typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
 
 class CanDriver {
  public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
+
+  using Ptr = std::shared_ptr<CanDriver>;
+
   //============================================================================
   // P U B L I C   C / D T O R S
 

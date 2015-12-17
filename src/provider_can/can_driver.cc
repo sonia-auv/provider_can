@@ -42,7 +42,9 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
       tseg2_(0),
       sjw_(1),
       noSamp_(16) {
-  if (!initUsbDevice()) throw ExceptionCanDeviceNotFound();
+  if (!initUsbDevice()) {
+    throw ExceptionCanDeviceNotFound();
+  }
 }
 
 CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
@@ -55,7 +57,9 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
       noSamp_(samp)
 
 {
-  if (!initUsbDevice()) throw ExceptionCanDeviceNotFound();
+  if (!initUsbDevice()) {
+    throw ExceptionCanDeviceNotFound();
+  }
 }
 
 //------------------------------------------------------------------------------
