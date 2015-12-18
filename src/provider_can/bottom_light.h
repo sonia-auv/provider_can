@@ -45,8 +45,8 @@ class BottomLight {
 
   using Ptr = std::shared_ptr<BottomLight>;
 
-  const static uint16_t SET_LIGHT_MSG = 0xF00;
-  const static uint16_t SET_LIGHT_DLC = 1;
+  const static uint16_t SET_LIGHT_MSG;
+  const static uint16_t SET_LIGHT_DLC;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -58,15 +58,15 @@ class BottomLight {
   //============================================================================
   // P U B L I C   M E T H O D S
 
-  void setLightLevel(uint8_t level);
-  void lightProcess();
-  void resetLight();
+  void SetLightLevel(uint8_t level);
+  void LightProcess();
+  void ResetLight();
 
  private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  CanDispatcher::Ptr can_dispatcher_; // pointer to can controller
+  CanDispatcher *can_dispatcher_; // pointer to can controller
   uint8_t actual_light_level_;    // Light actual state
   uint8_t asked_light_level_;     // set by setLightLevel()
   bool device_present_;           // True if device is present on CAN bus

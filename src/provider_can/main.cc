@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
 
   while (ros::ok()) {
 
-    canD.mainCanProcess();
-    bottom_light.lightProcess();
+    canD.MainCanProcess();
+    bottom_light.LightProcess();
 
     ros::spinOnce();
     loop_rate.sleep();

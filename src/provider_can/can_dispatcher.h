@@ -44,23 +44,10 @@ namespace provider_can {
 //============================================================================
 // T Y P E D E F   A N D   E N U M
 
-// Delay after an ID request before listing devices
-const uint32_t ID_REQ_WAIT = 100000;
-
-// Number of ID request retries
-const uint8_t DISCOVERY_TRIES = 10;
-// Delay between ID request retries (sec)
-const uint8_t DISCOVERY_DELAY = 5;
-// Delay between error recovery retries
-const uint8_t ERROR_RECOVERY_DELAY = 2;
-// Delay to wait for a message to be sent (ms)
-const uint32_t CAN_SEND_TIMEOUT = 10;
-
 // Table sizes
 const int MAX_NUM_OF_DEVICES = 30;
 const int RAW_TX_BUFFER_SIZE = 25;
 const int DISPATCHED_RX_BUFFER_SIZE = 50;
-
 
 typedef struct {
   uint16_t firmware_version;
@@ -102,6 +89,7 @@ typedef enum {
   SONIA_DEVICE_PRESENT = 1,
   SONIA_DEVICE_FAULT = -1
 } SoniaDeviceStatus;
+
 
 /**
  * The CanDispatcher class is the core of CAN communication. It handles all
@@ -163,6 +151,18 @@ class CanDispatcher {
 
   using Ptr = std::shared_ptr<CanDispatcher>;
 
+  // Delay after an ID request before listing devices
+  static const uint32_t ID_REQ_WAIT;
+
+  // Number of ID request retries
+  static const uint8_t DISCOVERY_TRIES;
+  // Delay between ID request retries (sec)
+  static const uint8_t DISCOVERY_DELAY;
+  // Delay between error recovery retries
+  static const uint8_t ERROR_RECOVERY_DELAY;
+  // Delay to wait for a message to be sent (ms)
+  static const uint32_t CAN_SEND_TIMEOUT;
+
   //============================================================================
   // P U B L I C   C / D T O R S
 
@@ -191,7 +191,7 @@ class CanDispatcher {
   * \param poll_rate polling rate, in ms. max: 1 sec.
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus setPollRate(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus SetPollRate(uint8_t device_id, uint8_t unique_id,
                                 uint16_t poll_rate);
 
   /**
@@ -201,12 +201,12 @@ class CanDispatcher {
   * \param unique_id SONIA unique ID to look for
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus sendResetRequest(uint8_t device_id, uint8_t unique_id);
-  SoniaDeviceStatus sendSleepRequest(uint8_t device_id, uint8_t unique_id);
-  SoniaDeviceStatus sendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus SendResetRequest(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus SendSleepRequest(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus SendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
 
-  SoniaDeviceStatus pingDevice(uint8_t device_id, uint8_t unique_id);// TODO: To be tested
-  SoniaDeviceStatus verifyPingResponse(uint8_t device_id, uint8_t unique_id, bool *response);
+  SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id);// TODO: To be tested
+  SoniaDeviceStatus VerifyPingResponse(uint8_t device_id, uint8_t unique_id, bool *response);
 
   /**
   * This function allows to send a message to a specific device.
@@ -222,7 +222,7 @@ class CanDispatcher {
   * \param ndata message length
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus pushUnicastMessage(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus PushUnicastMessage(uint8_t device_id, uint8_t unique_id,
                                 uint16_t message_id, uint8_t *buffer,
                                 uint8_t ndata);
 
@@ -234,7 +234,7 @@ class CanDispatcher {
   * \param buffer message content
   * \param ndata message length
   */
-  void pushBroadMessage(uint16_t message_id, uint8_t *buffer,// TODO: to be tested
+  void PushBroadMessage(uint16_t message_id, uint8_t *buffer,// TODO: to be tested
                                          uint8_t ndata);
 
   /**
@@ -254,7 +254,7 @@ class CanDispatcher {
   * \param num_of_messages number of messages read
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus fetchMessages(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus FetchMessages(uint8_t device_id, uint8_t unique_id,
                                   CanMessage *&buffer,
                                   uint8_t *num_of_messages);
 
@@ -266,7 +266,7 @@ class CanDispatcher {
   * \param properties device's properties
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus getDevicesProperties(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus GetDevicesProperties(uint8_t device_id, uint8_t unique_id,
                                          DeviceProperties *properties);
 
   /**
@@ -277,17 +277,17 @@ class CanDispatcher {
   * \param unique_id SONIA unique ID to look for
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus getDeviceFault(uint8_t device_id, uint8_t unique_id, uint8_t *&fault);// TODO: To be tested
+  SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id, uint8_t *&fault);// TODO: To be tested
 
-  uint8_t getNumberOfDevices();
-  uint8_t getUnknownAddresses(uint32_t *&addresses);
+  uint8_t GetNumberOfDevices();
+  uint8_t GetUnknownAddresses(uint32_t *&addresses);
 
   /**
   * This process has to be called periodically. It handles reading and sending
   * messages.
   *
   */
-  void mainCanProcess();
+  void MainCanProcess();
 
 
   /**
@@ -304,7 +304,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: Not yet implemented in ELE part
-  SoniaDeviceStatus setDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
                                           uint8_t param_number, uint32_t param_value);
   /**
   * This allows the user to read the permanent parameters set in devices'
@@ -318,7 +318,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: not yet implemented in ELE part
-  SoniaDeviceStatus getDeviceParams(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
                                     uint32_t *&params);
 
 
@@ -334,7 +334,7 @@ private:
   * ID request. This function does not handle the responses to the ID request.
   *
   */
-  canStatus sendIdRequest();
+  canStatus SendIdRequest();
 
   /**
   * Sends RTR to devices at rate specified in DeviceProperties struct, for every
@@ -347,7 +347,7 @@ private:
   * specific device. Default poll_rate is 100ms.
   *
   */
-  void pollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
+  void PollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
                        // dans l'élé du sub
 
   /**
@@ -361,17 +361,17 @@ private:
   * be created
   * for it and if it sends other messages, they will be dropped.
   */
-  canStatus listDevices();
+  canStatus ListDevices();
 
   /**
   * Reads all messages received on CAN bus and stores them into rx_raw_buffer_
   */
-  canStatus readMessages();
+  canStatus ReadMessages();
 
   /**
   * sends all messages contained in tx_raw_buffer_
   */
-  canStatus sendMessages();
+  canStatus SendMessages();
 
   /**
   * Dispatch all messages contained into rx_raw_buffer_ to each respective
@@ -379,7 +379,7 @@ private:
   * This function also filters ID_request responses and device_fault
   * messages to set DeviceProperties struct.
   */
-  void dispatchMessages();
+  void DispatchMessages();
 
   /**
   * The function returns the device_list_ index value which contains the
@@ -391,16 +391,16 @@ private:
   * \param index device_list_ index found
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus getDeviceIndex(uint8_t device_id, uint8_t unique_id,
+  SoniaDeviceStatus GetDeviceIndex(uint8_t device_id, uint8_t unique_id,
                                    int *index);
-  SoniaDeviceStatus getAddressIndex(uint32_t address, int *index);
+  SoniaDeviceStatus GetAddressIndex(uint32_t address, int *index);
 
   /**
   * The function sends and RTR on CAN bus with selected address
   *
   * \param address ID of the RTR
   */
-  void sendRTR(uint32_t address);
+  void SendRTR(uint32_t address);
 
   /**
   * Adds an address to the unknown addresses table. If unknown
@@ -409,18 +409,19 @@ private:
   *
   * \param address
   */
-  void addUnknownAddress(uint32_t address);
+  void AddUnknownAddress(uint32_t address);
 
   /**
   * Allows to read permanent parameters set in the devices
   */
   // TODO: not yet implemented in ELE part
-  void getAllDevicesParamsReq(void);
-  SoniaDeviceStatus getDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
+  void GetAllDevicesParamsReq(void);
+  SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
 
   //============================================================================
   // P R I V A T E   M E M B E R S
 
+  // TODO: change table to vector
   CanDevice
       devices_list_[MAX_NUM_OF_DEVICES];  // List of devices present on CAN bus
 

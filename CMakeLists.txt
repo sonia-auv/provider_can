@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  lib_atlas
 )
 
 find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
@@ -34,7 +35,7 @@ find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 catkin_package(
 		INCLUDE_DIRS ${provider_can_SRC_DIR}
 		LIBRARIES
-		CATKIN_DEPENDS roscpp
+		CATKIN_DEPENDS roscpp lib_atlas
 )
 
 #===============================================================================

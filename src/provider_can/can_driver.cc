@@ -30,282 +30,285 @@
 
 #include "can_driver.h"
 
-using namespace provider_can;
+namespace provider_can {
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
+  CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
     : baudrate_(baudrate),
       channel_(chan),
       tseg1_(0),
       tseg2_(0),
       sjw_(1),
       noSamp_(16) {
-  if (!initUsbDevice()) {
-    throw ExceptionCanDeviceNotFound();
+    if (!InitUsbDevice()) {
+      throw ExceptionCanDeviceNotFound();
+    }
   }
-}
 
-CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
-                     uint32_t ts2, uint32_t jump, uint32_t samp)
+  CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
+                       uint32_t ts2, uint32_t jump, uint32_t samp)
     : channel_(chan),
       baudrate_(baudrate),
       tseg1_(ts1),
       tseg2_(ts2),
       sjw_(jump),
-      noSamp_(samp)
-
-{
-  if (!initUsbDevice()) {
-    throw ExceptionCanDeviceNotFound();
-  }
-}
-
-//------------------------------------------------------------------------------
-//
-CanDriver::~CanDriver() {
-  flushRxBuffer();
-  flushTxBuffer();
-}
-
-//==============================================================================
-// M E T H O D S   S E C T I O N
-canStatus CanDriver::open(void) {
-  handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
-  // CAN channel handler
-
-  unsigned short version = 0;
-  version = canGetVersion();
-
-  std::cout << "Canlib version = " << (version >> 8) << "." << (version & 0xFF)
-            << std::endl;
-
-  return (canStatus)handle_;
-}
-
-//------------------------------------------------------------------------------
-//
-bool CanDriver::initUsbDevice(void) {
-  canStatus status;
-
-  status = open();  // Open CAN channel
-
-  if (status < canOK) {  // If open failed
-    printErrorText(status);
-    return false;
-  }
-
-  status = setBusParams();  // Set CAN parameters
-
-  if (status < canOK) {  // If parameters set failed
-    printErrorText(status);
-    return false;
-  }
-
-  status = setBusOn();  // Turn on the channel
-
-  if (status < canOK) {  // If bus can't turn on
-    printErrorText(status);
-    return false;
-  }
-
-  return true;  // Init success
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::setBusParams() {
-  canStatus status;
-
-  switch (baudrate_) {
-    case BAUD_1M:
-    case BAUD_500K:
-    case BAUD_250K:
-    case BAUD_125K:
-    case BAUD_100K:
-    case BAUD_62K:
-    case BAUD_50K:
-      status = canSetBusParams(handle_, baudrate_, 0, 0, 0, 0, 0);
-      break;
-    default:
-      status =
-          canSetBusParams(handle_, baudrate_, tseg1_, tseg2_, sjw_, noSamp_, 0);
-      break;
-  }
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::setBusOff() {
-  canStatus status;
-
-  status = canBusOff(handle_);
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::setBusOn() {
-  canStatus status;
-
-  status = canBusOn(handle_);
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::close() {
-  canStatus status;
-
-  status = canClose(handle_);
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::writeMessage(CanMessage msg, uint32_t timeout_msec) {
-  canStatus status;
-  if (timeout_msec == 0)
-    status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
-  else
-    status = canWriteWait(handle_, msg.id, msg.data, msg.dlc, msg.flag,
-                          timeout_msec);
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::readMessage(CanMessage* msg, uint32_t timeout_msec) {
-  canStatus status;
-  long int id;
-  long unsigned int time;
-
-  if (timeout_msec == 0)
-    status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
-  else
-    status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time,
-                         timeout_msec);
-
-  msg->id = id;
-  msg->time = time;
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::readAllMessages(CanMessage*& msg_table,
-                                     uint32_t* num_of_messages) {
-  long int id;
-  long unsigned int time;
-  canStatus status;
-
-  status = getRxBufLevel(num_of_messages);  // get the reception buffer level
-
-  if (status == canOK) {
-    msg_table = new CanMessage[*num_of_messages];  // creates table to store
-                                                   // all data
-
-    for (uint32_t i = 0; i < *num_of_messages; i++) {  // storing data
-      status = readMessage(&msg_table[i], 0);
-
-      if (status != canOK) i = *num_of_messages;
+      noSamp_(samp) {
+    if (!InitUsbDevice()) {
+      throw ExceptionCanDeviceNotFound();
     }
   }
 
-  return status;
-}
+//------------------------------------------------------------------------------
+//
+  CanDriver::~CanDriver() {
+    FlushRxBuffer();
+    FlushTxBuffer();
+  }
+
+//==============================================================================
+// M E T H O D S   S E C T I O N
+  canStatus CanDriver::Open(void) {
+    handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
+    // CAN channel handler
+
+    unsigned short version = 0;
+    version = canGetVersion();
+
+    std::cout << "Canlib version = " << (version >> 8) << "." << (version & 0xFF)
+    << std::endl;
+
+    return (canStatus) handle_;
+  }
 
 //------------------------------------------------------------------------------
 //
-void CanDriver::printErrorText(canStatus error) {
-  char errMsg[128];
-  errMsg[0] = '\0';
+  bool CanDriver::InitUsbDevice(void) {
+    canStatus status;
 
-  canGetErrorText(error, errMsg, sizeof(errMsg));
+    status = Open();  // Open CAN channel
 
-  if (error != canOK)
-    std::cout << " ERROR "
-              << "(" << errMsg << ")" << std::endl;
-  else
-    std::cout << "(" << errMsg << ")";
-}
+    if (status < canOK) {  // If open failed
+      PrintErrorText(status);
+      return false;
+    }
 
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::setAcceptanceFilter(uint32_t enveloppe, int flag) {
-  canStatus status;
+    status = SetBusParams();  // Set CAN parameters
 
-  status = canAccept(handle_, enveloppe, flag);
+    if (status < canOK) {  // If parameters set failed
+      PrintErrorText(status);
+      return false;
+    }
 
-  return status;
-}
+    status = SetBusOn();  // Turn on the channel
 
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::getErrorCount(uint32_t* tx_err, uint32_t* rx_err,
-                                   uint32_t* ov_err) {
-  canStatus status;
+    if (status < canOK) {  // If bus can't turn on
+      PrintErrorText(status);
+      return false;
+    }
 
-  status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
-
-  return status;
-}
+    return true;  // Init success
+  }
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::getRxBufLevel(uint32_t* lvl) {
-  canStatus status;
+  canStatus CanDriver::SetBusParams() {
+    canStatus status;
 
-  status = canIoCtl(handle_, canIOCTL_GET_RX_BUFFER_LEVEL, lvl, sizeof(lvl));
+    switch (baudrate_) {
+      case BAUD_1M:
+      case BAUD_500K:
+      case BAUD_250K:
+      case BAUD_125K:
+      case BAUD_100K:
+      case BAUD_62K:
+      case BAUD_50K:
+        status = canSetBusParams(handle_, baudrate_, 0, 0, 0, 0, 0);
+        break;
+      default:
+        status =
+          canSetBusParams(handle_, baudrate_, tseg1_, tseg2_, sjw_, noSamp_, 0);
+        break;
+    }
 
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::getTxBufLevel(uint32_t* lvl) {
-  canStatus status;
-
-  status = canIoCtl(handle_, canIOCTL_GET_TX_BUFFER_LEVEL, lvl, sizeof(lvl));
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-canStatus CanDriver::flushRxBuffer() {
-  canStatus status;
-
-  status = canIoCtl(handle_, canIOCTL_FLUSH_RX_BUFFER, 0, 0);
-
-  return status;
-}
+    return status;
+  }
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::flushTxBuffer() {
-  canStatus status;
+  canStatus CanDriver::SetBusOff() {
+    canStatus status;
 
-  status = canIoCtl(handle_, canIOCTL_FLUSH_TX_BUFFER, 0, 0);
+    status = canBusOff(handle_);
 
-  return status;
-}
+    return status;
+  }
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::getBusParams(long* freq, unsigned int* tseg1,
-                                  unsigned int* tseg2, unsigned int* sjw,
-                                  unsigned int* no_samp) {
-  canStatus status;
-  uint32_t dummy;
+  canStatus CanDriver::SetBusOn() {
+    canStatus status;
 
-  status = canGetBusParams(handle_, freq, tseg1, tseg2, sjw, no_samp, &dummy);
+    status = canBusOn(handle_);
 
-  return status;
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::Close() {
+    canStatus status;
+
+    status = canClose(handle_);
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec) {
+    canStatus status;
+    if (timeout_msec == 0)
+      status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
+    else
+      status = canWriteWait(handle_, msg.id, msg.data, msg.dlc, msg.flag,
+                            timeout_msec);
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
+    canStatus status;
+    long int id;
+    long unsigned int time;
+
+    if (timeout_msec == 0)
+      status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
+    else
+      status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time,
+                           timeout_msec);
+
+    msg->id = id;
+    msg->time = time;
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+
+  // TODO: Use shared pointer instead of raw pointer
+  canStatus CanDriver::ReadAllMessages(CanMessage *&msg_table,
+                                       uint32_t *num_of_messages) {
+    long int id;
+    long unsigned int time;
+    canStatus status;
+
+    delete msg_table;
+
+    status = GetRxBufLevel(num_of_messages);  // get the reception buffer level
+
+    if (status == canOK) {
+      msg_table = new CanMessage[*num_of_messages];  // creates table to store
+      // all data
+
+      for (uint32_t i = 0; i < *num_of_messages; i++) {  // storing data
+        status = ReadMessage(&msg_table[i], 0);
+
+        if (status != canOK) i = *num_of_messages;
+      }
+    }
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  void CanDriver::PrintErrorText(canStatus error) {
+    char errMsg[128];
+    errMsg[0] = '\0';
+
+    canGetErrorText(error, errMsg, sizeof(errMsg));
+
+    if (error != canOK)
+      std::cout << " ERROR "
+      << "(" << errMsg << ")" << std::endl;
+    else
+      std::cout << "(" << errMsg << ")";
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe, int flag) {
+    canStatus status;
+
+    status = canAccept(handle_, enveloppe, flag);
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
+                                     uint32_t *ov_err) {
+    canStatus status;
+
+    status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::GetRxBufLevel(uint32_t *lvl) {
+    canStatus status;
+
+    status = canIoCtl(handle_, canIOCTL_GET_RX_BUFFER_LEVEL, lvl, sizeof(lvl));
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::GetTxBufLevel(uint32_t *lvl) {
+    canStatus status;
+
+    status = canIoCtl(handle_, canIOCTL_GET_TX_BUFFER_LEVEL, lvl, sizeof(lvl));
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::FlushRxBuffer() {
+    canStatus status;
+
+    status = canIoCtl(handle_, canIOCTL_FLUSH_RX_BUFFER, 0, 0);
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::FlushTxBuffer() {
+    canStatus status;
+
+    status = canIoCtl(handle_, canIOCTL_FLUSH_TX_BUFFER, 0, 0);
+
+    return status;
+  }
+
+//------------------------------------------------------------------------------
+//
+  canStatus CanDriver::GetBusParams(long *freq, unsigned int *tseg1,
+                                    unsigned int *tseg2, unsigned int *sjw,
+                                    unsigned int *no_samp) {
+    canStatus status;
+    uint32_t dummy;
+
+    status = canGetBusParams(handle_, freq, tseg1, tseg2, sjw, no_samp, &dummy);
+
+    return status;
+  }
 }

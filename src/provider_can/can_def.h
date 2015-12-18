@@ -76,36 +76,36 @@ const uint8_t RESET_REQUEST_DLC = 0;
 // These are the parameter numbers for each device. It may be passed to
 // setParameterReq function or it is used to select device_parameters table
 // index for each param.
-enum MOTORS_PARAMS{
+enum MotorsParams{
 
 };
 
-enum DEPTHMETER_PARAMS{
+enum DepthMeterParams{
   voltage_offset_abs = 0,
   voltage_offset_rel
 };
 
-enum DROPPERS_PARAMS{
+enum DroppersParams{
   droppers_drop_time = 0
 };
 
-enum GRABBER_PARAMS{
+enum GrabberParams{
 
 };
 
-enum LED_INDICATOR_PARAMS{
+enum LedIndicatorParams{
 
 };
 
-enum LIGHT_PARAMS{
+enum LightParams{
 
 };
 
-enum SONAR_ROTATOR_PARAMS{
+enum SonarRotatorParams{
 
 };
 
-enum TORPEDO_LAUNCHER_PARAMS{
+enum TorpedoLauncherParams{
   torpedo_launch_time = 0,
   torpedo_max_pressure
 };
@@ -114,7 +114,7 @@ enum TORPEDO_LAUNCHER_PARAMS{
 
 //============================================================================
 // D E V I C E S   T Y P E S
-enum DEVICE_CLASS{
+enum DeviceClass{
     controllers = 1,
     actuators,
     markers,
@@ -126,17 +126,17 @@ enum DEVICE_CLASS{
     can2rs232,
 };
 
-enum TYPE{
+enum MessageType{
     global = 0x0,
     application = 0xf
 };
 
-enum CONTROLLERS{
+enum Controllers{
     on_board_pc = 1,
     pid_controller
 };
 
-enum ACTUATORS{
+enum Actuators{
     port_motor = 1,
     starboard_motor,
     front_depth_motor,
@@ -147,39 +147,39 @@ enum ACTUATORS{
     sonar_rotator
 };
 
-enum MARKERS{
+enum Markers{
     dropper = 1,
     launcher
 };
 
-enum SONARS{
+enum Sonars{
     passive = 1,
     active
 };
 
-enum SENSORS{
+enum Sensors{
     depth_meter = 1,
     light_sensor,
     leak_sensor
 };
 
-enum POWER{
+enum Power{
     power_distribution = 1,
 };
 
-enum INTERFACES{
+enum Interfaces{
     mission = 1,
     diver_interface,
     led_indicator,
     carte_navigation_exception
 };
 
-enum LIGHTS{
+enum Lights{
     front_light = 1,
     bottom_light
 };
 
-enum CAN2RS232{
+enum Can2Rs232{
     micron_dst_modem = 1
 };
 

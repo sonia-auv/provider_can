@@ -36,7 +36,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include <memory>
-#include "provider_can/exception.h"
+#include "provider_can/can_exceptions.h"
 
 namespace provider_can {
 
@@ -110,7 +110,7 @@ class CanDriver {
   * \param timeout_msec time to wait for a message to be received
   * \return canStatus enum
   */
-  canStatus readMessage(CanMessage* msg, uint32_t timeout_msec);
+  canStatus ReadMessage(CanMessage* msg, uint32_t timeout_msec);
 
   /**
    * Allows the user to read all CAN messages received through a KVaser device
@@ -123,7 +123,7 @@ class CanDriver {
    *                        returned table)
    * \return canStatus
    */
-  canStatus readAllMessages(CanMessage*& msg_table, uint32_t* num_of_messages);
+  canStatus ReadAllMessages(CanMessage*& msg_table, uint32_t* num_of_messages);
 
   /**
   * Allows the user to send one CAN message through a KVaser device
@@ -136,15 +136,15 @@ class CanDriver {
   * \param timeout_msec time to wait for a message to be sent
   * \return canStatus enum
   */
-  canStatus writeMessage(CanMessage msg, uint32_t timeout_msec);
+  canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec);
 
   /**
   * Convert canStatus enum into text to show on terminal
   */
-  void printErrorText(canStatus error);
+  void PrintErrorText(canStatus error);
 
-  canStatus flushTxBuffer();
-  canStatus flushRxBuffer();
+  canStatus FlushTxBuffer();
+  canStatus FlushRxBuffer();
 
   /**
 * Returns number of errors encountered in different processes
@@ -154,19 +154,19 @@ class CanDriver {
 * \param ovErr number of overrun errors
 * \return canStatus enum (canOK or canERR)
 */
-  canStatus getErrorCount(uint32_t* tx_err, uint32_t* rx_err, uint32_t* ov_err);
+  canStatus GetErrorCount(uint32_t* tx_err, uint32_t* rx_err, uint32_t* ov_err);
 
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
-  bool initUsbDevice();
-  canStatus open();
-  canStatus setBusParams();
-  canStatus setBusOff();
-  canStatus setBusOn();
-  canStatus close();
-  canStatus getBusParams(long* freq, unsigned int* tseg1, unsigned int* tseg2,
+  bool InitUsbDevice();
+  canStatus Open();
+  canStatus SetBusParams();
+  canStatus SetBusOff();
+  canStatus SetBusOn();
+  canStatus Close();
+  canStatus GetBusParams(long* freq, unsigned int* tseg1, unsigned int* tseg2,
                          unsigned int* sjw, unsigned int* noSamp);
 
   /**
@@ -175,8 +175,8 @@ class CanDriver {
    * \param lvl number of messages
    * \return canStatus enum (canOK or canERR)
    */
-  canStatus getTxBufLevel(uint32_t* lvl);
-  canStatus getRxBufLevel(uint32_t* lvl);
+  canStatus GetTxBufLevel(uint32_t* lvl);
+  canStatus GetRxBufLevel(uint32_t* lvl);
 
   /**
   * Adds an acceptance filter to CAN device so that we can receive
@@ -191,7 +191,7 @@ class CanDriver {
   *                            canFILTER_SET_CODE_EXT, canFILTER_SET_MASK_EXT
   * \return canStatus enum
   */
-  canStatus setAcceptanceFilter(uint32_t enveloppe, int flag);
+  canStatus SetAcceptanceFilter(uint32_t enveloppe, int flag);
 
   //============================================================================
   // P R I V A T E   M E M B E R S

@@ -4,6 +4,8 @@
     begin                : April 29th, 2008
 *******************************************************************************/
 
+// TODO: Move to lib_atlas
+
 #ifndef PROVIDER_CAN_EXCEPTION_H
 #define PROVIDER_CAN_EXCEPTION_H
 
