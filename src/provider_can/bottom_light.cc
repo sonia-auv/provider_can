@@ -44,7 +44,9 @@ namespace provider_can {
 BottomLight::BottomLight(CanDispatcher *can) {
   can_dispatcher_ = can;
   actual_light_level_ = 0;
-  asked_light_level_ - 0;
+  asked_light_level_ = 0;
+  device_present_ = false;
+  device_fault_ = false;
 }
 
 //------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ void BottomLight::LightProcess() {
     }
 
     if (status == SONIA_DEVICE_FAULT) {
-      device_fault = true;
+      device_fault_ = true;
       can_dispatcher_->GetDeviceFault(lights, bottom_light, fault_message);
     }
   }

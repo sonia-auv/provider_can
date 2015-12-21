@@ -29,7 +29,7 @@
 */
 
 #include "can_dispatcher.h"
-#include <unistd.h>cd
+#include <unistd.h>
 
 namespace provider_can {
 
@@ -162,12 +162,12 @@ namespace provider_can {
           printf("\n\rDevice %X: Fault ", devices_list_[index].global_address);
         }
           // If the ID received corresponds to a ping response
-        else if (devices_list_[index].global_address | PING ==
+        else if ((devices_list_[index].global_address | PING) ==
                                                        rx_raw_buffer_.buffer[j].id) {
           devices_list_[index].ping_response = true;
         }
           // If the ID received corresponds to a parameter response
-        else if (devices_list_[index].global_address | GET_PARAM_REQ ==
+        else if ((devices_list_[index].global_address | GET_PARAM_REQ) ==
                                                        rx_raw_buffer_.buffer[j].id) {
           devices_list_[index].device_parameters[0] = rx_raw_buffer_.buffer[j].data[0]
                                                       | rx_raw_buffer_.buffer[j].data[1] << 8

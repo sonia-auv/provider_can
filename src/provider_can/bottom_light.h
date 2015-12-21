@@ -70,7 +70,7 @@ class BottomLight {
   uint8_t actual_light_level_;    // Light actual state
   uint8_t asked_light_level_;     // set by setLightLevel()
   bool device_present_;           // True if device is present on CAN bus
-  bool device_fault;              // True if a fault has been encountered
+  bool device_fault_;              // True if a fault has been encountered
   uint8_t *fault_message;         // Fault message if device_fault is true
 };
 
