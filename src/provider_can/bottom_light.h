@@ -51,7 +51,7 @@ class BottomLight {
   //============================================================================
   // P U B L I C   C / D T O R S
 
-  BottomLight(CanDispatcher *can);
+  BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher);
 
   ~BottomLight();
 
@@ -66,7 +66,7 @@ class BottomLight {
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  CanDispatcher *can_dispatcher_; // pointer to can controller
+  std::shared_ptr<CanDispatcher> can_dispatcher_; // pointer to can controller
   uint8_t actual_light_level_;    // Light actual state
   uint8_t asked_light_level_;     // set by setLightLevel()
   bool device_present_;           // True if device is present on CAN bus

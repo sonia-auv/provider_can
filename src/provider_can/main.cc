@@ -33,12 +33,14 @@ int main(int argc, char** argv) {
 
   ros::Rate loop_rate(10);
 
-  provider_can::CanDispatcher canD(controllers,on_board_pc,0, BAUD_125K, 10);
-  provider_can::BottomLight bottom_light(&canD);
+  auto can_ptr = std::make_shared<provider_can::CanDispatcher>
+  	  	  	  	  	  (controllers,on_board_pc,0, BAUD_125K, 10);
+
+  provider_can::BottomLight bottom_light(can_ptr);
 
   while (ros::ok()) {
 
-    canD.MainCanProcess();
+    can_ptr->MainCanProcess();
     bottom_light.LightProcess();
 
     ros::spinOnce();

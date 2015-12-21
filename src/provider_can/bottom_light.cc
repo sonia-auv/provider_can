@@ -41,8 +41,8 @@ namespace provider_can {
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-BottomLight::BottomLight(CanDispatcher *can) {
-  can_dispatcher_ = can;
+BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher) {
+  auto can_dispatcher_ = can_dispatcher;
   actual_light_level_ = 0;
   asked_light_level_ = 0;
   device_present_ = false;
