@@ -21,6 +21,7 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
 #include <ros/ros.h>
 #include "can_dispatcher.h"
 #include "bottom_light.h"

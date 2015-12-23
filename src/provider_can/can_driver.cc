@@ -179,6 +179,22 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
+canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
+									uint32_t timeout_msec) {
+  canStatus status;
+  for(std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++){
+	  status = WriteMessage(msg_table[i],timeout_msec);
+	  if (status != canOK)
+		  i = msg_table.size();
+
+  }
+
+
+  return status;
+}
+
+//------------------------------------------------------------------------------
+//
   canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
     canStatus status;
     long int id;
@@ -199,24 +215,22 @@ namespace provider_can {
 //
 
   // TODO: Use shared pointer instead of raw pointer
-  canStatus CanDriver::ReadAllMessages(CanMessage *&msg_table,
-                                       uint32_t *num_of_messages) {
+  canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
     long int id;
     long unsigned int time;
     canStatus status;
+    CanMessage msg;
+    uint32_t num_of_messages = 0;
 
-    delete msg_table;
-
-    status = GetRxBufLevel(num_of_messages);  // get the reception buffer level
+    status = GetRxBufLevel(&num_of_messages);  // get the reception buffer level
 
     if (status == canOK) {
-      msg_table = new CanMessage[*num_of_messages];  // creates table to store
-      // all data
 
-      for (uint32_t i = 0; i < *num_of_messages; i++) {  // storing data
-        status = ReadMessage(&msg_table[i], 0);
+      for (uint32_t i = 0; i < num_of_messages; i++) {  // storing data
+        status = ReadMessage(&msg, 0);
+        msg_table.push_back(msg);
 
-        if (status != canOK) i = *num_of_messages;
+        if (status != canOK) i = num_of_messages;
       }
     }
 

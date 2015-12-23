@@ -35,6 +35,7 @@
 #include <stdint.h>
 #include <sys/times.h>
 #include <vector>
+#include <algorithm>
 #include <memory>
 #include "provider_can/can_driver.h"
 #include "provider_can/can_def.h"
@@ -44,9 +45,7 @@ namespace provider_can {
 //============================================================================
 // T Y P E D E F   A N D   E N U M
 
-// Table sizes
-const int MAX_NUM_OF_DEVICES = 30;
-const int RAW_TX_BUFFER_SIZE = 25;
+// max number of data contained in rx buffer before overflow notification
 const int DISPATCHED_RX_BUFFER_SIZE = 50;
 
 typedef struct {
@@ -61,20 +60,17 @@ typedef struct {
   uint16_t poll_rate = 500;
 } DeviceProperties;
 
+  // This is a base structure which will be filled of
+  // one device's informations. One strcut is initialized
+  // For each device found.
 typedef struct {
-  uint32_t num_of_messages = 0;
-  CanMessage *buffer;
-} RawBuffer;
-
-typedef struct {
-  // device global address (ex: 0x00602000 for PSU)
+  // device's global address (ex: 0x00602000 for PSU)
   uint32_t global_address;
+
   DeviceProperties device_properties;
   uint32_t device_parameters[2];// TODO: Not yet implemented in ELE part
 
-  // number of messages contained in the rx buffer
-  uint8_t num_of_messages;
-  CanMessage rx_buffer[DISPATCHED_RX_BUFFER_SIZE];
+  std::vector<CanMessage> rx_buffer;
 
   // if device has sent a fault
   bool device_fault = false;
@@ -89,6 +85,8 @@ typedef enum {
   SONIA_DEVICE_PRESENT = 1,
   SONIA_DEVICE_FAULT = -1
 } SoniaDeviceStatus;
+
+
 
 
 /**
@@ -251,12 +249,10 @@ class CanDispatcher {
   * \param device_id SONIA Device ID to look for
   * \param unique_id SONIA unique ID to look for
   * \param buffer device's rx_buffer
-  * \param num_of_messages number of messages read
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus FetchMessages(uint8_t device_id, uint8_t unique_id,
-                                  CanMessage *&buffer,
-                                  uint8_t *num_of_messages);
+                                  std::vector<CanMessage> &buffer);
 
   /**
   * The function returns the devices's properties
@@ -280,7 +276,7 @@ class CanDispatcher {
   SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id, uint8_t *&fault);// TODO: To be tested
 
   uint8_t GetNumberOfDevices();
-  uint8_t GetUnknownAddresses(uint32_t *&addresses);
+  void GetUnknownAddresses(std::vector<uint32_t> &addresses);
 
   /**
   * This process has to be called periodically. It handles reading and sending
@@ -321,6 +317,19 @@ class CanDispatcher {
   SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
                                     uint32_t *&params);
 
+  /**
+    * The function returns the device_list_ index value which contains the
+    * selected address/device
+    *
+    * \param address address to look for
+    * \param device_id SONIA Device ID to look for
+    * \param unique_id SONIA unique ID to look for
+    * \param index device_list_ index found
+    * \return SoniaDeviceStatus enum
+    */
+    SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id,
+                                     size_t *index);
+    SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id);
 
 
 private:
@@ -391,9 +400,8 @@ private:
   * \param index device_list_ index found
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus GetDeviceIndex(uint8_t device_id, uint8_t unique_id,
-                                   int *index);
-  SoniaDeviceStatus GetAddressIndex(uint32_t address, int *index);
+  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address, size_t *index);
+  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address);
 
   /**
   * The function sends and RTR on CAN bus with selected address
@@ -421,15 +429,12 @@ private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  // TODO: change table to vector
-  CanDevice
-      devices_list_[MAX_NUM_OF_DEVICES];  // List of devices present on CAN bus
+  std::vector<CanDevice> devices_list_;  // List of devices present on CAN bus
 
-  uint32_t unknown_addresses_table_[MAX_NUM_OF_DEVICES];
-  uint8_t nunknown_addresses_;
+  std::vector<uint32_t> unknown_addresses_table_;
 
-  RawBuffer rx_raw_buffer_;  // Buffer directly taken from KVaser
-  RawBuffer tx_raw_buffer_;
+  std::vector<CanMessage> rx_raw_buffer_;  // Buffer directly taken from KVaser
+  std::vector<CanMessage> tx_raw_buffer_;
 
   uint8_t ndevices_present_;  // Number of devices detected
 
@@ -450,6 +455,16 @@ private:
   uint32_t ovrr_error_;
 
   uint32_t master_id_;  // PC ID
+
+  // Addresses search predicate
+  struct find_address_ : std::unary_function<CanDevice, bool> {
+      DWORD address;
+      find_address_(DWORD address):address(address) { }
+      bool operator()(const CanDevice& m) const {
+          return m.global_address == address;
+      }
+  };
+
 };
 
 }  // namespace provider_can

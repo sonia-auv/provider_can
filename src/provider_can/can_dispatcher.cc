@@ -54,7 +54,6 @@ namespace provider_can {
                                uint32_t baudrate, uint32_t loop_rate)
     : canDriver_(chan, baudrate) {
     ndevices_present_ = 0;
-    nunknown_addresses_ = 0;
     discovery_tries_ = 0;
     loop_rate_ = loop_rate;
 
@@ -67,7 +66,6 @@ namespace provider_can {
     clock_gettime(CLOCK_REALTIME, &id_req_time_);
     clock_gettime(CLOCK_REALTIME, &error_recovery_);
 
-    tx_raw_buffer_.buffer = new CanMessage[RAW_TX_BUFFER_SIZE];
 
     canDriver_.FlushRxBuffer();
     canDriver_.FlushTxBuffer();
@@ -80,17 +78,16 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
   CanDispatcher::~CanDispatcher() {
-    delete tx_raw_buffer_.buffer;
+
   }
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
   canStatus CanDispatcher::ListDevices() {
-    bool new_device_found = true;
     canStatus status;
 
-    nunknown_addresses_ = 0;  // resets unknown addresses discovery.
+    unknown_addresses_table_.clear();  // resets unknown addresses discovery.
 
     status = SendIdRequest();      // Ask ID from every device on CAN bus
     if (status < canOK)
@@ -101,21 +98,17 @@ namespace provider_can {
     if (status < canOK)
       return status;
 
-    for (int j = 0; j < rx_raw_buffer_.num_of_messages; j++) {
-      // For each messages received during sleep,
-      for (int i = 0; i < ndevices_present_; i++) {
-        // For each device found until now
-        if ((rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK) ==
-            devices_list_[i].global_address)  // Verify if the ID has
-          new_device_found = false;           // already been seen. If so,
-        // avoids adding it again.
-      }
-      if (new_device_found)
-        // If the messages contains a new address, adds a device
-        devices_list_[ndevices_present_++].global_address =
-          (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK);
+    // For each messages received during sleep,
+    for (std::vector<CanMessage>::size_type j = 0; j < rx_raw_buffer_.size(); j++) {
+      CanDevice new_device;
+      // If the address of the message has never been seen
+      if(FindDeviceWithAddress(rx_raw_buffer_[j].id) == SONIA_DEVICE_NOT_PRESENT){
+    	//Apending new device to the vector
+    	new_device.global_address =
+    	      	          (rx_raw_buffer_[j].id & DEVICE_MAC_MASK);
 
-      new_device_found = true;  // Ready for next loop
+    	devices_list_.push_back(new_device);
+      }
     }
 
     DispatchMessages();  // Dispatch and saves all received messages
@@ -127,87 +120,84 @@ namespace provider_can {
 //
   void CanDispatcher::DispatchMessages() {
     SoniaDeviceStatus status;
-    int index;
+    size_t index;
 
     // For each message contained in raw buffer
 
-    for (int j = 0; j < rx_raw_buffer_.num_of_messages; j++) {
+    for (std::vector<CanMessage>::size_type j = 0; j < rx_raw_buffer_.size(); j++) {
       // get the device_list index where address is located
-      status = GetAddressIndex(rx_raw_buffer_.buffer[j].id, &index);
+      status = FindDeviceWithAddress(rx_raw_buffer_[j].id, &index);
 
       if (status != SONIA_DEVICE_NOT_PRESENT) {  // If device exists
         // If the ID received correspond to an ID request response
         // saves device's parameters.
-        if (devices_list_[index].global_address == rx_raw_buffer_.buffer[j].id) {
+        if (devices_list_[index].global_address == rx_raw_buffer_[j].id) {
           devices_list_[index].device_properties.firmware_version =
-            (rx_raw_buffer_.buffer[j].data[1] << 8) |
-            rx_raw_buffer_.buffer[j].data[0];
+            (rx_raw_buffer_[j].data[1] << 8) |
+            rx_raw_buffer_[j].data[0];
 
           devices_list_[index].device_properties.uc_signature =
-            (rx_raw_buffer_.buffer[j].data[4] << 16) |
-            (rx_raw_buffer_.buffer[j].data[3] << 8) |
-            rx_raw_buffer_.buffer[j].data[2];
+            (rx_raw_buffer_[j].data[4] << 16) |
+            (rx_raw_buffer_[j].data[3] << 8) |
+            rx_raw_buffer_[j].data[2];
 
           devices_list_[index].device_properties.capabilities =
-            rx_raw_buffer_.buffer[j].data[5];
+            rx_raw_buffer_[j].data[5];
 
           devices_list_[index].device_properties.device_data =
-            rx_raw_buffer_.buffer[j].data[6];
+            rx_raw_buffer_[j].data[6];
         }
           // If the ID received correspond to a device fault
         else if ((devices_list_[index].global_address | DEVICE_FAULT) ==
-                 rx_raw_buffer_.buffer[j].id) {
+                 rx_raw_buffer_[j].id) {
           devices_list_[index].device_fault = true;
-          devices_list_[index].fault_message = rx_raw_buffer_.buffer[j].data;
+          devices_list_[index].fault_message = rx_raw_buffer_[j].data;
           printf("\n\rDevice %X: Fault ", devices_list_[index].global_address);
         }
           // If the ID received corresponds to a ping response
         else if ((devices_list_[index].global_address | PING) ==
-                                                       rx_raw_buffer_.buffer[j].id) {
+                                                       rx_raw_buffer_[j].id) {
           devices_list_[index].ping_response = true;
         }
           // If the ID received corresponds to a parameter response
         else if ((devices_list_[index].global_address | GET_PARAM_REQ) ==
-                                                       rx_raw_buffer_.buffer[j].id) {
-          devices_list_[index].device_parameters[0] = rx_raw_buffer_.buffer[j].data[0]
-                                                      | rx_raw_buffer_.buffer[j].data[1] << 8
-                                                      | rx_raw_buffer_.buffer[j].data[2] << 16
-                                                      | rx_raw_buffer_.buffer[j].data[3] << 24;
-          devices_list_[index].device_parameters[1] = rx_raw_buffer_.buffer[j].data[4]
-                                                      | rx_raw_buffer_.buffer[j].data[5] << 8
-                                                      | rx_raw_buffer_.buffer[j].data[6] << 16
-                                                      | rx_raw_buffer_.buffer[j].data[7] << 24;
+                                                       rx_raw_buffer_[j].id) {
+          devices_list_[index].device_parameters[0] = rx_raw_buffer_[j].data[0]
+                                                      | rx_raw_buffer_[j].data[1] << 8
+                                                      | rx_raw_buffer_[j].data[2] << 16
+                                                      | rx_raw_buffer_[j].data[3] << 24;
+          devices_list_[index].device_parameters[1] = rx_raw_buffer_[j].data[4]
+                                                      | rx_raw_buffer_[j].data[5] << 8
+                                                      | rx_raw_buffer_[j].data[6] << 16
+                                                      | rx_raw_buffer_[j].data[7] << 24;
         }
           // If the ID received correspond to any other message
         else if (devices_list_[index].global_address ==
-                 (rx_raw_buffer_.buffer[j].id & DEVICE_ADDRESS_MASK)) {
+                 (rx_raw_buffer_[j].id & DEVICE_MAC_MASK)) {
           // Avoids buffer overflow
-          if (devices_list_[index].num_of_messages >= DISPATCHED_RX_BUFFER_SIZE) {
-            devices_list_[index].num_of_messages = 0;
+          if (devices_list_[index].rx_buffer.size() >= DISPATCHED_RX_BUFFER_SIZE) {
+            devices_list_[index].rx_buffer.clear();
             printf("\n\rDevice %X: Buffer Overflow. You must empty it faster.",
                    devices_list_[index].global_address);
           }
 
           // Saves message into dispatched devices' buffers.
-          devices_list_[index].rx_buffer[devices_list_[index].num_of_messages++] =
-            rx_raw_buffer_.buffer[j];
+          devices_list_[index].rx_buffer.push_back(rx_raw_buffer_[j]);
         }
 
       } else {  // If address is unknown
         // Adds the address to the unknown addresses table
-        AddUnknownAddress(rx_raw_buffer_.buffer[j].id);
+        AddUnknownAddress(rx_raw_buffer_[j].id);
       }
     }
-    rx_raw_buffer_.num_of_messages =
-      0;  // indicates that all messages have been read and dispatched.
+    rx_raw_buffer_.clear();
   }
 
 //------------------------------------------------------------------------------
 //
   canStatus CanDispatcher::ReadMessages() {
     canStatus status;
-    status = canDriver_.ReadAllMessages(rx_raw_buffer_.buffer,
-                                        &rx_raw_buffer_.num_of_messages);
+    status = canDriver_.ReadAllMessages(rx_raw_buffer_);
 
     return status;
   }
@@ -217,14 +207,10 @@ namespace provider_can {
   canStatus CanDispatcher::SendMessages() {
     canStatus status;
 
-    for (int i = 0; i < tx_raw_buffer_.num_of_messages; i++) {
-      status =
-        canDriver_.WriteMessage(tx_raw_buffer_.buffer[i], CAN_SEND_TIMEOUT);
-      if (status < canOK) i = tx_raw_buffer_.num_of_messages;
-    }
+	status =
+      canDriver_.WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
 
-    tx_raw_buffer_.num_of_messages = 0;
-
+	tx_raw_buffer_.clear();
     return status;
   }
 
@@ -248,9 +234,9 @@ namespace provider_can {
                                                uint8_t unique_id,
                                                uint16_t poll_rate) {
     SoniaDeviceStatus status;
-    int index;
+    size_t index;
 
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {
       devices_list_[index].device_properties.poll_rate = poll_rate;
@@ -263,17 +249,15 @@ namespace provider_can {
 //
   SoniaDeviceStatus CanDispatcher::FetchMessages(uint8_t device_id,
                                                  uint8_t unique_id,
-                                                 CanMessage *&buffer,
-                                                 uint8_t *num_of_messages) {
+                                                 std::vector<CanMessage> &buffer) {
     SoniaDeviceStatus status;
-    int index;
+    size_t index;
 
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {
       buffer = devices_list_[index].rx_buffer;
-      *num_of_messages = devices_list_[index].num_of_messages;
-      devices_list_[index].num_of_messages = 0;
+      devices_list_[index].rx_buffer.clear();
     }
 
     return status;
@@ -284,9 +268,9 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::GetDevicesProperties(
     uint8_t device_id, uint8_t unique_id, DeviceProperties *properties) {
     SoniaDeviceStatus status;
-    int index;
+    size_t index;
 
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT)
       properties = &devices_list_[index].device_properties;
@@ -300,7 +284,7 @@ namespace provider_can {
                                                       uint8_t unique_id,
                                                       uint16_t message_id,
                                                       uint8_t *buffer, uint8_t ndata) {
-    int index;
+    size_t index;
 
     CanMessage message;
     message.id = UNICAST | (device_id << DEVICE_ID_POSITION) |
@@ -309,9 +293,9 @@ namespace provider_can {
     message.dlc = ndata;
     for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-    tx_raw_buffer_.buffer[tx_raw_buffer_.num_of_messages++] = message;
+    tx_raw_buffer_.push_back(message);
 
-    return GetDeviceIndex(device_id, unique_id, &index);
+    return FindDevice(device_id, unique_id, &index);
   }
 
 //------------------------------------------------------------------------------
@@ -325,59 +309,77 @@ namespace provider_can {
     message.dlc = ndata;
     for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-    tx_raw_buffer_.buffer[tx_raw_buffer_.num_of_messages++] = message;
+    tx_raw_buffer_.push_back(message);
   }
 
 //------------------------------------------------------------------------------
 //
-  SoniaDeviceStatus CanDispatcher::GetDeviceIndex(uint8_t device_id,
-                                                  uint8_t unique_id, int *index) {
-    SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
-
+  SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
+                                                  uint8_t unique_id, size_t *index) {
     uint32_t global_address =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
-    for (int i = 0; i < ndevices_present_; i++)
-      if (devices_list_[i].global_address ==
-          (global_address & DEVICE_ADDRESS_MASK)) {
-        *index = i;
-        i = ndevices_present_;
+    return FindDeviceWithAddress(global_address, index);
+  }
+//------------------------------------------------------------------------------
+//
+  SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
+												uint8_t unique_id) {
+	uint32_t global_address =
+      (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
-        if (devices_list_[i].device_fault == true) {
-          status = SONIA_DEVICE_FAULT;
-        } else {
-          status = SONIA_DEVICE_PRESENT;
-        }
-      }
+    return FindDeviceWithAddress(global_address);
+  }
+
+//------------------------------------------------------------------------------
+//
+  SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address, size_t *index) {
+    SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
+
+    uint32_t global_address = address & DEVICE_MAC_MASK;
+
+    auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
+            		  find_address_(global_address & DEVICE_MAC_MASK));
+
+
+
+	if(vec_it != devices_list_.end()){
+      *index = std::distance(devices_list_.begin(), vec_it);
+
+	  if (devices_list_[*index].device_fault == true) {
+		status = SONIA_DEVICE_FAULT;
+	  } else {
+		status = SONIA_DEVICE_PRESENT;
+	  }
+	}
 
     if (status == SONIA_DEVICE_NOT_PRESENT) AddUnknownAddress(global_address);
 
     return status;
   }
-
 //------------------------------------------------------------------------------
 //
-  SoniaDeviceStatus CanDispatcher::GetAddressIndex(uint32_t address, int *index) {
+  SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address) {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
-    uint32_t global_address = address & DEVICE_ADDRESS_MASK;
+    size_t index;
+    uint32_t global_address = address & DEVICE_MAC_MASK;
 
-    for (int i = 0; i < ndevices_present_; i++)
-      if (devices_list_[i].global_address ==
-          (global_address & DEVICE_ADDRESS_MASK)) {
-        *index = i;
-        i = ndevices_present_;
+    auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
+              		  find_address_(global_address & DEVICE_MAC_MASK));
 
-        if (devices_list_[i].device_fault == true) {
-          status = SONIA_DEVICE_FAULT;
-        } else {
-          status = SONIA_DEVICE_PRESENT;
-        }
-      }
+    if(vec_it != devices_list_.end()){
+      index = std::distance(devices_list_.begin(), vec_it);
+  	  if (devices_list_[index].device_fault == true) {
+  		status = SONIA_DEVICE_FAULT;
+  	  } else {
+  		status = SONIA_DEVICE_PRESENT;
+  	  }
+  	}
 
-    if (status == SONIA_DEVICE_NOT_PRESENT) AddUnknownAddress(global_address);
+      if (status == SONIA_DEVICE_NOT_PRESENT) AddUnknownAddress(global_address);
 
-    return status;
+      return status;
   }
 
 //------------------------------------------------------------------------------
@@ -402,8 +404,8 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::GetDeviceFault(uint8_t device_id,
                                                   uint8_t unique_id, uint8_t *&fault) {
     SoniaDeviceStatus status;
-    int index;
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    size_t index;
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {
       devices_list_[index].device_fault = false;
@@ -446,8 +448,8 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::VerifyPingResponse(uint8_t device_id,
                                                       uint8_t unique_id, bool *response) {
     SoniaDeviceStatus status;
-    int index;
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    size_t index;
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT)
       *response = devices_list_[index].ping_response;
@@ -488,23 +490,22 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-  uint8_t CanDispatcher::GetUnknownAddresses(uint32_t *&addresses) {
+  void CanDispatcher::GetUnknownAddresses(std::vector<uint32_t> &addresses) {
     addresses = unknown_addresses_table_;
-    return nunknown_addresses_;
   }
 
 //------------------------------------------------------------------------------
 //
   void CanDispatcher::AddUnknownAddress(uint32_t address) {
-    bool add_address = true;
 
-    for (int i = 0; i < nunknown_addresses_; i++)
-      if (unknown_addresses_table_[i] == (address & DEVICE_ADDRESS_MASK)) {
-        add_address = false;
-        i = nunknown_addresses_;
-      }
+    auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
+                  		  find_address_(address & DEVICE_MAC_MASK));
 
-    if (add_address) unknown_addresses_table_[nunknown_addresses_++] = address;
+    if(vec_it != devices_list_.end()){
+    	unknown_addresses_table_.push_back(address);
+    }
+
+
   }
 
 //------------------------------------------------------------------------------
@@ -565,7 +566,7 @@ namespace provider_can {
       // to find undiscovered devices.
       if (discovery_tries_ <= DISCOVERY_TRIES &&
           (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
-          nunknown_addresses_ != 0) {
+          unknown_addresses_table_.size() != 0) {
         printf("\n\rUnknown devices found. Retrying ID Request");
         ListDevices();
         discovery_tries_++;
@@ -613,10 +614,10 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::GetDeviceParams(uint8_t device_id,
                                                    uint8_t unique_id,
                                                    uint32_t *&params) {
-    int index;
+    size_t index;
     SoniaDeviceStatus status;
 
-    status = GetDeviceIndex(device_id, unique_id, &index);
+    status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT)
       params = devices_list_[index].device_parameters;

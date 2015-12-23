@@ -54,7 +54,7 @@ const uint8_t UNIQUE_ID_POSITION = 12;
 const uint8_t DEVICE_ID_POSITION = 20;
 
 // Mac address mask
-const uint32_t DEVICE_ADDRESS_MASK = 0x0FFFF000;
+const uint32_t DEVICE_MAC_MASK = 0x0FFFF000;
 
 // Messages DLCs
 const uint8_t IDENTIFY_REPLY_DLC = 7;

@@ -60,16 +60,16 @@ BottomLight::~BottomLight() {
 // M E T H O D S   S E C T I O N
 
 void BottomLight::LightProcess() {
-  CanMessage *rx_buffer;
-  uint8_t num_of_messages;
+  std::vector<CanMessage> rx_buffer;
+
   SoniaDeviceStatus status =
-      can_dispatcher_->FetchMessages(lights, bottom_light, rx_buffer, &num_of_messages);
+      can_dispatcher_->FetchMessages(lights, bottom_light, rx_buffer);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
     device_present_ = true;
 
-    if (num_of_messages != 0) {
-      actual_light_level_ = rx_buffer->data[num_of_messages - 1];
+    if (rx_buffer.size() != 0) {
+      actual_light_level_ = rx_buffer[rx_buffer.size() -1].data[0];
       if (asked_light_level_ != actual_light_level_) {
         can_dispatcher_->PushUnicastMessage(lights, bottom_light, SET_LIGHT_MSG,
                                             &asked_light_level_, SET_LIGHT_DLC);

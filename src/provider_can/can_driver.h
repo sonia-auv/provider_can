@@ -31,11 +31,12 @@
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_
 
-#include <canlib.h>
+#include <vector>
 #include <iostream>
 #include <iomanip>
 #include <stdint.h>
 #include <memory>
+#include <canlib.h>
 #include "provider_can/can_exceptions.h"
 
 namespace provider_can {
@@ -123,7 +124,7 @@ class CanDriver {
    *                        returned table)
    * \return canStatus
    */
-  canStatus ReadAllMessages(CanMessage*& msg_table, uint32_t* num_of_messages);
+  canStatus ReadAllMessages(std::vector<CanMessage> &msg_table);
 
   /**
   * Allows the user to send one CAN message through a KVaser device
@@ -137,6 +138,8 @@ class CanDriver {
   * \return canStatus enum
   */
   canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec);
+  canStatus WriteBuffer(std::vector<CanMessage> &msg_table,
+  									uint32_t timeout_msec);
 
   /**
   * Convert canStatus enum into text to show on terminal
@@ -201,8 +204,6 @@ class CanDriver {
   canHandle handle_;
 
   uint32_t baudrate_;
-
-  CanMessage* rx_buffer_;
 
   uint32_t tseg1_;   // Time segment 1
   uint32_t tseg2_;   // Time segment 2
