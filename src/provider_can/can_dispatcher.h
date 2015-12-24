@@ -436,8 +436,6 @@ private:
   std::vector<CanMessage> rx_raw_buffer_;  // Buffer directly taken from KVaser
   std::vector<CanMessage> tx_raw_buffer_;
 
-  uint8_t ndevices_present_;  // Number of devices detected
-
   CanDriver canDriver_;  // Can communication object
 
   timespec ticks_per_sec_;
@@ -456,14 +454,6 @@ private:
 
   uint32_t master_id_;  // PC ID
 
-  // Addresses search predicate
-  struct find_address_ : std::unary_function<CanDevice, bool> {
-      DWORD address;
-      find_address_(DWORD address):address(address) { }
-      bool operator()(const CanDevice& m) const {
-          return m.global_address == address;
-      }
-  };
 
 };
 

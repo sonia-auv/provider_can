@@ -39,9 +39,13 @@ int main(int argc, char** argv) {
 
   provider_can::BottomLight bottom_light(can_ptr);
 
+  uint8_t test = 2;
+
   while (ros::ok()) {
 
     can_ptr->MainCanProcess();
+    can_ptr->PushUnicastMessage(1, 1, 0xF00, &test, 1);
+
     bottom_light.LightProcess();
 
     ros::spinOnce();

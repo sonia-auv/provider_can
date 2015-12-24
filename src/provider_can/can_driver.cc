@@ -107,7 +107,7 @@ namespace provider_can {
       PrintErrorText(status);
       return false;
     }
-
+    printf("\n\rCAN Bus is set to on");
     return true;  // Init success
   }
 
@@ -181,7 +181,7 @@ namespace provider_can {
 //
 canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
 									uint32_t timeout_msec) {
-  canStatus status;
+  canStatus status = canOK;
   for(std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++){
 	  status = WriteMessage(msg_table[i],timeout_msec);
 	  if (status != canOK)
@@ -216,8 +216,7 @@ canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
 
   // TODO: Use shared pointer instead of raw pointer
   canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
-    long int id;
-    long unsigned int time;
+
     canStatus status;
     CanMessage msg;
     uint32_t num_of_messages = 0;

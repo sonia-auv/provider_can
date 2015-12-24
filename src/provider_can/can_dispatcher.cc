@@ -47,13 +47,14 @@ namespace provider_can {
   // Delay to wait for a message to be sent (ms)
   const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
+
+
 //==============================================================================
 // C / D T O R   S E C T I O N
 
   CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
                                uint32_t baudrate, uint32_t loop_rate)
     : canDriver_(chan, baudrate) {
-    ndevices_present_ = 0;
     discovery_tries_ = 0;
     loop_rate_ = loop_rate;
 
@@ -87,8 +88,6 @@ namespace provider_can {
   canStatus CanDispatcher::ListDevices() {
     canStatus status;
 
-    unknown_addresses_table_.clear();  // resets unknown addresses discovery.
-
     status = SendIdRequest();      // Ask ID from every device on CAN bus
     if (status < canOK)
       return status;
@@ -98,8 +97,13 @@ namespace provider_can {
     if (status < canOK)
       return status;
 
+    CanMessage msg;
+    msg.dlc= 7;
+    msg.id = 0x802F00;
+    rx_raw_buffer_.push_back(msg);
+
     // For each messages received during sleep,
-    for (std::vector<CanMessage>::size_type j = 0; j < rx_raw_buffer_.size(); j++) {
+    for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
       CanDevice new_device;
       // If the address of the message has never been seen
       if(FindDeviceWithAddress(rx_raw_buffer_[j].id) == SONIA_DEVICE_NOT_PRESENT){
@@ -113,6 +117,8 @@ namespace provider_can {
 
     DispatchMessages();  // Dispatch and saves all received messages
 
+    unknown_addresses_table_.clear();// resets unknown addresses discovery.
+
     return status;
   }
 
@@ -124,7 +130,7 @@ namespace provider_can {
 
     // For each message contained in raw buffer
 
-    for (std::vector<CanMessage>::size_type j = 0; j < rx_raw_buffer_.size(); j++) {
+    for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
       // get the device_list index where address is located
       status = FindDeviceWithAddress(rx_raw_buffer_[j].id, &index);
 
@@ -284,7 +290,6 @@ namespace provider_can {
                                                       uint8_t unique_id,
                                                       uint16_t message_id,
                                                       uint8_t *buffer, uint8_t ndata) {
-    size_t index;
 
     CanMessage message;
     message.id = UNICAST | (device_id << DEVICE_ID_POSITION) |
@@ -295,7 +300,7 @@ namespace provider_can {
 
     tx_raw_buffer_.push_back(message);
 
-    return FindDevice(device_id, unique_id, &index);
+    return FindDevice(device_id, unique_id);
   }
 
 //------------------------------------------------------------------------------
@@ -336,14 +341,20 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address, size_t *index) {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
+    // predicate used for seeking for a device in device_list_ vector
+    auto add_search_pred = [address](const CanDevice &device){
+        return device.global_address == address;
+    };
+
     uint32_t global_address = address & DEVICE_MAC_MASK;
 
     auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
-            		  find_address_(global_address & DEVICE_MAC_MASK));
+    				add_search_pred);
 
-
-
+    // Seeking for specified address in device_list_
 	if(vec_it != devices_list_.end()){
+
+	  // Calculating the exact index
       *index = std::distance(devices_list_.begin(), vec_it);
 
 	  if (devices_list_[*index].device_fault == true) {
@@ -353,7 +364,9 @@ namespace provider_can {
 	  }
 	}
 
-    if (status == SONIA_DEVICE_NOT_PRESENT) AddUnknownAddress(global_address);
+    if (status == SONIA_DEVICE_NOT_PRESENT){
+    	AddUnknownAddress(global_address);
+    }
 
     return status;
   }
@@ -362,14 +375,26 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address) {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
+    // predicate used for seeking for a device in device_list_ vector
+    auto add_search_pred = [address](const CanDevice &device){
+    	return device.global_address == address;
+    };
+
+    // index of the device found
     size_t index;
+
     uint32_t global_address = address & DEVICE_MAC_MASK;
 
+    // Seeking for specified address in device_list_
     auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
-              		  find_address_(global_address & DEVICE_MAC_MASK));
+    					add_search_pred);
 
+    // If a device is found
     if(vec_it != devices_list_.end()){
+      // Calculating the exact index
       index = std::distance(devices_list_.begin(), vec_it);
+
+      // Look for device_fault
   	  if (devices_list_[index].device_fault == true) {
   		status = SONIA_DEVICE_FAULT;
   	  } else {
@@ -377,7 +402,9 @@ namespace provider_can {
   	  }
   	}
 
-      if (status == SONIA_DEVICE_NOT_PRESENT) AddUnknownAddress(global_address);
+    if (status == SONIA_DEVICE_NOT_PRESENT){
+    	AddUnknownAddress(global_address);
+    }
 
       return status;
   }
@@ -389,7 +416,7 @@ namespace provider_can {
     uint32_t actual_time_ms = actual_time_.tv_nsec / 1000000;
     uint32_t initial_time_ms = initial_time_.tv_nsec / 1000000;
 
-    for (int i = 0; i < ndevices_present_; i++) {
+    for (size_t i = 0; i < devices_list_.size(); i++) {
       if (((actual_time_ms - initial_time_ms) %
            devices_list_[i].device_properties.poll_rate) < ((1.0 /
                                                              (float) loop_rate_)
@@ -485,7 +512,7 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
   uint8_t CanDispatcher::GetNumberOfDevices() {
-    return ndevices_present_;
+    return devices_list_.size();
   }
 
 //------------------------------------------------------------------------------
@@ -498,14 +525,12 @@ namespace provider_can {
 //
   void CanDispatcher::AddUnknownAddress(uint32_t address) {
 
-    auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
-                  		  find_address_(address & DEVICE_MAC_MASK));
+    if(std::find(unknown_addresses_table_.begin(),
+    		unknown_addresses_table_.end(), address & DEVICE_MAC_MASK) ==
+    				unknown_addresses_table_.end()){
 
-    if(vec_it != devices_list_.end()){
     	unknown_addresses_table_.push_back(address);
     }
-
-
   }
 
 //------------------------------------------------------------------------------
@@ -605,7 +630,7 @@ namespace provider_can {
 //
   void CanDispatcher::GetAllDevicesParamsReq(void) {
 
-    for (int i = 0; i < ndevices_present_; i++)
+    for (size_t i = 0; i < devices_list_.size(); i++)
       GetDeviceParameterReq(devices_list_[i].global_address >> 20, devices_list_[i].global_address >> 12);
   }
 
