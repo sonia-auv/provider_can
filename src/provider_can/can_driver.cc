@@ -214,7 +214,6 @@ canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
 //------------------------------------------------------------------------------
 //
 
-  // TODO: Use shared pointer instead of raw pointer
   canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
 
     canStatus status;

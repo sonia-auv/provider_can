@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     can_ptr->MainCanProcess();
     can_ptr->PushUnicastMessage(1, 1, 0xF00, &test, 1);
 
-    bottom_light.LightProcess();
+    bottom_light.Process();
 
     ros::spinOnce();
     loop_rate.sleep();

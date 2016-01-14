@@ -73,7 +73,7 @@ namespace provider_can {
 
     ListDevices();
 
-    GetAllDevicesParamsReq();
+    // GetAllDevicesParamsReq(); // TODO: uncomment when implemented in ELE part
   }
 
 //------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace provider_can {
 
     // For each messages received during sleep,
     for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
-      CanDevice new_device;
+      CanDeviceStruct new_device;
       // If the address of the message has never been seen
       if(FindDeviceWithAddress(rx_raw_buffer_[j].id) == SONIA_DEVICE_NOT_PRESENT){
     	//Apending new device to the vector
@@ -265,6 +265,9 @@ namespace provider_can {
       buffer = devices_list_[index].rx_buffer;
       devices_list_[index].rx_buffer.clear();
     }
+    else{
+      buffer.clear();
+    }
 
     return status;
   }
@@ -275,6 +278,13 @@ namespace provider_can {
     uint8_t device_id, uint8_t unique_id, DeviceProperties *properties) {
     SoniaDeviceStatus status;
     size_t index;
+
+    // The following lines will allow to return nothing if device isn't present
+    properties->capabilities = 0;
+    properties->device_data = 0;
+    properties->firmware_version = 0;
+    properties->poll_rate = 0;
+    properties->uc_signature = 0;
 
     status = FindDevice(device_id, unique_id, &index);
 
@@ -292,6 +302,10 @@ namespace provider_can {
                                                       uint8_t *buffer, uint8_t ndata) {
 
     CanMessage message;
+
+    if(ndata > 8) // DLC cannot be larger than 8!!
+      ndata = 8;
+
     message.id = UNICAST | (device_id << DEVICE_ID_POSITION) |
                  (unique_id << UNIQUE_ID_POSITION) | (message_id & 0x0FFF);
     message.flag = canMSG_EXT;
@@ -309,6 +323,10 @@ namespace provider_can {
                                        uint8_t *buffer, uint8_t ndata) {
 
     CanMessage message;
+
+    if(ndata > 8) // DLC cannot be larger than 8!!
+      ndata = 8;
+
     message.id = master_id_ | (message_id & 0x0FFF);
     message.flag = canMSG_EXT;
     message.dlc = ndata;
@@ -342,7 +360,7 @@ namespace provider_can {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
     // predicate used for seeking for a device in device_list_ vector
-    auto add_search_pred = [address](const CanDevice &device){
+    auto add_search_pred = [address](const CanDeviceStruct &device){
         return device.global_address == address;
     };
 
@@ -376,7 +394,7 @@ namespace provider_can {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
     // predicate used for seeking for a device in device_list_ vector
-    auto add_search_pred = [address](const CanDevice &device){
+    auto add_search_pred = [address](const CanDeviceStruct &device){
     	return device.global_address == address;
     };
 
@@ -411,7 +429,7 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-  void CanDispatcher::PollDevices() {
+/*  void CanDispatcher::PollDevices() {
 
     uint32_t actual_time_ms = actual_time_.tv_nsec / 1000000;
     uint32_t initial_time_ms = initial_time_.tv_nsec / 1000000;
@@ -424,7 +442,7 @@ namespace provider_can {
         SendRTR(devices_list_[i].global_address);
       }
     }
-  }
+  }*/
 
 //------------------------------------------------------------------------------
 //
@@ -480,6 +498,8 @@ namespace provider_can {
 
     if (status != SONIA_DEVICE_NOT_PRESENT)
       *response = devices_list_[index].ping_response;
+    else
+      *response = false;
 
     devices_list_[index].ping_response = false;
 
@@ -585,7 +605,7 @@ namespace provider_can {
       }
 
       // Sends RTR to devices if asked
-      PollDevices();
+      // PollDevices();  // TODO: uncomment when implemented in ELE part
 
       // verifying if devices where not found. if so, sends ID requests to try
       // to find undiscovered devices.
@@ -602,11 +622,11 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-  SoniaDeviceStatus CanDispatcher::SetDeviceParameterReq(uint8_t device_id,
+ /* SoniaDeviceStatus CanDispatcher::SetDeviceParameterReq(uint8_t device_id,
                                                          uint8_t unique_id,
                                                          uint8_t param_number,
                                                          uint32_t param_value) {
-    /*uint8_t *msg;
+    uint8_t *msg;
 
     msg[0] = param_number;
     msg[1] = (uint8_t)(param_value >> 24);
@@ -614,29 +634,29 @@ namespace provider_can {
     msg[3] = (uint8_t)(param_value >> 8);
     msg[4] = (uint8_t)(param_value);
 
-    return (pushUnicastMessage(device_id, unique_id, SET_PARAM_REQ, msg, SET_PARAMETER_DLC));*/
-  }
+    return (pushUnicastMessage(device_id, unique_id, SET_PARAM_REQ, msg, SET_PARAMETER_DLC));
+  }*/
 
 //------------------------------------------------------------------------------
 //
-  SoniaDeviceStatus CanDispatcher::GetDeviceParameterReq(uint8_t device_id,
+  /*SoniaDeviceStatus CanDispatcher::GetDeviceParameterReq(uint8_t device_id,
                                                          uint8_t unique_id) {
-    /*uint8_t *msg;
+    uint8_t *msg;
 
-    return (pushUnicastMessage(device_id, unique_id, GET_PARAM_REQ, msg, SET_PARAMETER_DLC));*/
-  }
+    return (pushUnicastMessage(device_id, unique_id, GET_PARAM_REQ, msg, SET_PARAMETER_DLC));
+  }*/
 
 //------------------------------------------------------------------------------
 //
-  void CanDispatcher::GetAllDevicesParamsReq(void) {
+ /* void CanDispatcher::GetAllDevicesParamsReq(void) {
 
     for (size_t i = 0; i < devices_list_.size(); i++)
       GetDeviceParameterReq(devices_list_[i].global_address >> 20, devices_list_[i].global_address >> 12);
-  }
+  }*/
 
 //------------------------------------------------------------------------------
 //
-  SoniaDeviceStatus CanDispatcher::GetDeviceParams(uint8_t device_id,
+  /*SoniaDeviceStatus CanDispatcher::GetDeviceParams(uint8_t device_id,
                                                    uint8_t unique_id,
                                                    uint32_t *&params) {
     size_t index;
@@ -648,6 +668,6 @@ namespace provider_can {
       params = devices_list_[index].device_parameters;
 
     return status;
-  }
+  }*/
 
 }

@@ -33,13 +33,16 @@
 
 #include <memory>
 #include <vector>
+#include <cstring>
+#include <iostream>
 #include "provider_can/can_dispatcher.h"
 #include "provider_can/can_def.h"
+#include "provider_can/can_device.h"
 
 namespace provider_can {
 
 
-class BottomLight {
+class BottomLight : CanDevice {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
@@ -48,6 +51,7 @@ class BottomLight {
 
   const static uint16_t SET_LIGHT_MSG;
   const static uint16_t SET_LIGHT_DLC;
+  const static std::string NAME;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -59,20 +63,24 @@ class BottomLight {
   //============================================================================
   // P U B L I C   M E T H O D S
 
-  void SetLightLevel(uint8_t level);
-  void LightProcess();
-  void ResetLight();
+  /**
+   * reimplemented method from CanDevice class
+   */
+  void Process();
+
+  /**
+   * unique light device functions
+   */
+  void SetLevel(uint8_t level);
+  uint8_t GetLevel();
+
 
  private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  std::shared_ptr<CanDispatcher> can_dispatcher_; // pointer to can controller
   uint8_t actual_light_level_;    // Light actual state
   uint8_t asked_light_level_;     // set by setLightLevel()
-  bool device_present_;           // True if device is present on CAN bus
-  bool device_fault_;              // True if a fault has been encountered
-  uint8_t *fault_message;    // Fault message if device_fault is true
 };
 
 }  // namespace provider_can

@@ -28,6 +28,7 @@
 * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "bottom_light.h"
 
 namespace provider_can {
@@ -35,68 +36,54 @@ namespace provider_can {
 //==============================================================================
 // S T A T I C   M E M B E R S
 
-  const uint16_t BottomLight::SET_LIGHT_MSG = 0xF00;
-  const uint16_t BottomLight::SET_LIGHT_DLC = 1;
+const uint16_t BottomLight::SET_LIGHT_MSG = 0xF00;
+const uint16_t BottomLight::SET_LIGHT_DLC = 1;
+const std::string BottomLight::NAME = "Bottom Light";
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher) {
-  can_dispatcher_ = can_dispatcher;
+BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher):
+          CanDevice(lights,bottom_light,can_dispatcher, NAME){
   actual_light_level_ = 0;
   asked_light_level_ = 0;
-  device_present_ = false;
-  device_fault_ = false;
+
 }
 
 //------------------------------------------------------------------------------
 //
 
 BottomLight::~BottomLight() {
-
 }
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
-void BottomLight::LightProcess() {
+void BottomLight::Process() {
   std::vector<CanMessage> rx_buffer;
 
-  SoniaDeviceStatus status =
-      can_dispatcher_->FetchMessages(lights, bottom_light, rx_buffer);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT) {
-    device_present_ = true;
+  if(DevicePresenceCheck()) {
+    rx_buffer = FetchMessages();
 
     if (rx_buffer.size() != 0) {
-      actual_light_level_ = rx_buffer[rx_buffer.size() -1].data[0];
+      actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
       if (asked_light_level_ != actual_light_level_) {
-        can_dispatcher_->PushUnicastMessage(lights, bottom_light, SET_LIGHT_MSG,
-                                            &asked_light_level_, SET_LIGHT_DLC);
+        PushMessage(SET_LIGHT_MSG, &asked_light_level_, SET_LIGHT_DLC);
       }
     }
-
-    if (status == SONIA_DEVICE_FAULT) {
-      device_fault_ = true;
-      can_dispatcher_->GetDeviceFault(lights, bottom_light, fault_message);
-    }
   }
-  else {
-    device_present_ = false;
-  }
-
 }
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::SetLightLevel(uint8_t level) {
+void BottomLight::SetLevel(uint8_t level) {
   asked_light_level_ = level;
 }
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::ResetLight() {
-  can_dispatcher_->SendResetRequest(lights, bottom_light);
+uint8_t BottomLight::GetLevel() {
+  return actual_light_level_;
 }
 
 } // namespace provider_can

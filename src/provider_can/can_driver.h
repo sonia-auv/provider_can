@@ -27,6 +27,7 @@
  * You should have received a copy of the GNU General Public License
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
+// TODO: use a thread in this function so that messages read are pushed as a subject to other classes
 
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_

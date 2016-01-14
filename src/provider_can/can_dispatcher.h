@@ -78,7 +78,7 @@ typedef struct {
 
   // If device answered from a ping request
   bool ping_response = false;
-} CanDevice;
+} CanDeviceStruct;
 
 typedef enum {
   SONIA_DEVICE_NOT_PRESENT = 0,
@@ -283,6 +283,7 @@ class CanDispatcher {
   * messages.
   *
   */
+  // TODO: put this function in a separate thread
   void MainCanProcess();
 
 
@@ -300,8 +301,8 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: Not yet implemented in ELE part
-  SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
-                                          uint8_t param_number, uint32_t param_value);
+  //SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
+  //                                        uint8_t param_number, uint32_t param_value);
   /**
   * This allows the user to read the permanent parameters set in devices'
   * flash memory.
@@ -314,8 +315,8 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: not yet implemented in ELE part
-  SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
-                                    uint32_t *&params);
+  //SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
+  //                                  uint32_t *&params);
 
   /**
     * The function returns the device_list_ index value which contains the
@@ -356,7 +357,7 @@ private:
   * specific device. Default poll_rate is 100ms.
   *
   */
-  void PollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
+  // void PollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
                        // dans l'élé du sub
 
   /**
@@ -423,13 +424,13 @@ private:
   * Allows to read permanent parameters set in the devices
   */
   // TODO: not yet implemented in ELE part
-  void GetAllDevicesParamsReq(void);
-  SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
+  // void GetAllDevicesParamsReq(void);
+  // SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
 
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  std::vector<CanDevice> devices_list_;  // List of devices present on CAN bus
+  std::vector<CanDeviceStruct> devices_list_;  // List of devices present on CAN bus
 
   std::vector<uint32_t> unknown_addresses_table_;
 
