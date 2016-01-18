@@ -58,7 +58,7 @@ CanDevice::CanDevice(DeviceClass device_id,
 DeviceProperties CanDevice::GetProperties() {
   DeviceProperties properties;
 
-  can_dispatcher_->GetDevicesProperties(device_id_,unique_id_,&properties);
+  can_dispatcher_->GetDevicesProperties(device_id_,unique_id_,properties);
 
   return properties;
 

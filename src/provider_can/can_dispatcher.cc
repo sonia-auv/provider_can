@@ -270,21 +270,21 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
   SoniaDeviceStatus CanDispatcher::GetDevicesProperties(
-    uint8_t device_id, uint8_t unique_id, DeviceProperties *properties) {
+    uint8_t device_id, uint8_t unique_id, DeviceProperties &properties) {
     SoniaDeviceStatus status;
     size_t index;
 
     // The following lines will allow to return nothing if device isn't present
-    properties->capabilities = 0;
-    properties->device_data = 0;
-    properties->firmware_version = 0;
-    properties->poll_rate = 0;
-    properties->uc_signature = 0;
+    properties.capabilities = 0;
+    properties.device_data = 0;
+    properties.firmware_version = 0;
+    properties.poll_rate = 0;
+    properties.uc_signature = 0;
 
     status = FindDevice(device_id, unique_id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT)
-      properties = &devices_list_[index].device_properties;
+      properties = devices_list_[index].device_properties;
 
     return status;
   }

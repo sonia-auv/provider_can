@@ -263,7 +263,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus GetDevicesProperties(uint8_t device_id, uint8_t unique_id,
-                                         DeviceProperties *properties);
+                                         DeviceProperties &properties);
 
   /**
   * The function clears the specified device fault flag and returns the

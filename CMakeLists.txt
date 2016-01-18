@@ -22,7 +22,7 @@ set( provider_can_SRC_DIR "src" )
 # C A T K I N   C O N F I G U R A T I O N
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
+  roscpp 
   rospy
   std_msgs
   message_generation
