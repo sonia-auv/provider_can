@@ -47,7 +47,7 @@ BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher):
           CanDevice(lights,bottom_light,can_dispatcher, NAME){
   actual_light_level_ = 200; // ensure we turn off the light at startup
   asked_light_level_ = 0;
-
+  SetLevel(0);
 }
 
 //------------------------------------------------------------------------------

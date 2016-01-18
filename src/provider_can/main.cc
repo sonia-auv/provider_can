@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
   	  	  	  	  	  (controllers,on_board_pc,0, BAUD_125K, 10);
 
   provider_can::BottomLight bottom_light(can_ptr);
-  bottom_light.SetLevel(0);
 
   while (ros::ok()) {
 

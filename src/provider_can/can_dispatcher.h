@@ -37,6 +37,7 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <pthread.h>
 #include "provider_can/can_driver.h"
 #include "provider_can/can_def.h"
 
@@ -160,6 +161,8 @@ class CanDispatcher {
   static const uint8_t ERROR_RECOVERY_DELAY;
   // Delay to wait for a message to be sent (ms)
   static const uint32_t CAN_SEND_TIMEOUT;
+
+  static const uint32_t THREAD_INTERVAL_US;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -455,7 +458,7 @@ private:
 
   uint32_t master_id_;  // PC ID
 
-
+  pthread_t can_dispatcher_process_;
 };
 
 }  // namespace provider_can
