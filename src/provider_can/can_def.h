@@ -113,7 +113,7 @@ enum TorpedoLauncherParams{
 
 
 //============================================================================
-// D E V I C E S   T Y P E S
+// D E V I C E S   I D
 enum DeviceClass{
     controllers = 1,
     actuators,
@@ -176,7 +176,7 @@ enum Interfaces{
 
 enum Lights{
     front_light = 1,
-    bottom_light
+    bottom_light = 5
 };
 
 enum Can2Rs232{

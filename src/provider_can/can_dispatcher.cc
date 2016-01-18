@@ -97,11 +97,6 @@ namespace provider_can {
     if (status < canOK)
       return status;
 
-    CanMessage msg;
-    msg.dlc= 7;
-    msg.id = 0x802F00;
-    rx_raw_buffer_.push_back(msg);
-
     // For each messages received during sleep,
     for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
       CanDeviceStruct new_device;
@@ -359,19 +354,18 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address, size_t *index) {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
+    address = address & DEVICE_MAC_MASK;
+
     // predicate used for seeking for a device in device_list_ vector
     auto add_search_pred = [address](const CanDeviceStruct &device){
         return device.global_address == address;
     };
-
-    uint32_t global_address = address & DEVICE_MAC_MASK;
 
     auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
     				add_search_pred);
 
     // Seeking for specified address in device_list_
 	if(vec_it != devices_list_.end()){
-
 	  // Calculating the exact index
       *index = std::distance(devices_list_.begin(), vec_it);
 
@@ -383,7 +377,7 @@ namespace provider_can {
 	}
 
     if (status == SONIA_DEVICE_NOT_PRESENT){
-    	AddUnknownAddress(global_address);
+    	AddUnknownAddress(address);
     }
 
     return status;
@@ -393,6 +387,8 @@ namespace provider_can {
   SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address) {
     SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
+    address = address & DEVICE_MAC_MASK;
+
     // predicate used for seeking for a device in device_list_ vector
     auto add_search_pred = [address](const CanDeviceStruct &device){
     	return device.global_address == address;
@@ -400,8 +396,6 @@ namespace provider_can {
 
     // index of the device found
     size_t index;
-
-    uint32_t global_address = address & DEVICE_MAC_MASK;
 
     // Seeking for specified address in device_list_
     auto vec_it = std::find_if(devices_list_.begin(),devices_list_.end(),
@@ -421,7 +415,7 @@ namespace provider_can {
   	}
 
     if (status == SONIA_DEVICE_NOT_PRESENT){
-    	AddUnknownAddress(global_address);
+    	AddUnknownAddress(address);
     }
 
       return status;

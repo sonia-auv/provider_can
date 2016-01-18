@@ -45,7 +45,7 @@ const std::string BottomLight::NAME = "Bottom Light";
 
 BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher):
           CanDevice(lights,bottom_light,can_dispatcher, NAME){
-  actual_light_level_ = 0;
+  actual_light_level_ = 200; // ensure we turn off the light at startup
   asked_light_level_ = 0;
 
 }
@@ -67,9 +67,10 @@ void BottomLight::Process() {
 
     if (rx_buffer.size() != 0) {
       actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
-      if (asked_light_level_ != actual_light_level_) {
-        PushMessage(SET_LIGHT_MSG, &asked_light_level_, SET_LIGHT_DLC);
-      }
+    }
+    if (asked_light_level_ != actual_light_level_) {
+      PushMessage(SET_LIGHT_MSG, &asked_light_level_, SET_LIGHT_DLC);
+      actual_light_level_ = asked_light_level_;
     }
   }
 }
