@@ -37,7 +37,7 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
-#include <pthread.h>
+#include <thread>
 #include "provider_can/can_driver.h"
 #include "provider_can/can_def.h"
 
@@ -206,7 +206,7 @@ class CanDispatcher {
   SoniaDeviceStatus SendSleepRequest(uint8_t device_id, uint8_t unique_id);
   SoniaDeviceStatus SendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
 
-  SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id);// TODO: To be tested
+  SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id);
   SoniaDeviceStatus VerifyPingResponse(uint8_t device_id, uint8_t unique_id, bool *response);
 
   /**
@@ -235,7 +235,7 @@ class CanDispatcher {
   * \param buffer message content
   * \param ndata message length
   */
-  void PushBroadMessage(uint16_t message_id, uint8_t *buffer,// TODO: to be tested
+  void PushBroadMessage(uint16_t message_id, uint8_t *buffer,
                                          uint8_t ndata);
 
   /**
@@ -286,7 +286,6 @@ class CanDispatcher {
   * messages.
   *
   */
-  // TODO: put this function in a separate thread
   void MainCanProcess();
 
 
@@ -440,7 +439,8 @@ private:
   std::vector<CanMessage> rx_raw_buffer_;  // Buffer directly taken from KVaser
   std::vector<CanMessage> tx_raw_buffer_;
 
-  CanDriver canDriver_;  // Can communication object
+  CanDriver can_driver_;  // Can communication object
+  std::thread main_thread_;
 
   timespec ticks_per_sec_;
   timespec actual_time_;

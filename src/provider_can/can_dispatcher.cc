@@ -47,20 +47,24 @@ namespace provider_can {
   // Delay to wait for a message to be sent (ms)
   const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
+  const uint32_t CanDispatcher:: THREAD_INTERVAL_US = 10000;
+
 
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
   CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                               uint32_t baudrate, uint32_t loop_rate)
-    : canDriver_(chan, baudrate) {
+                               uint32_t baudrate, uint32_t loop_rate):
+      can_driver_(chan, baudrate),
+      main_thread_(&CanDispatcher::MainCanProcess, this)
+  {
     discovery_tries_ = 0;
     loop_rate_ = loop_rate;
 
     master_id_ = (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
-    canDriver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+    can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
 
     clock_gettime(CLOCK_REALTIME, &actual_time_);
     clock_gettime(CLOCK_REALTIME, &initial_time_);
@@ -68,10 +72,12 @@ namespace provider_can {
     clock_gettime(CLOCK_REALTIME, &error_recovery_);
 
 
-    canDriver_.FlushRxBuffer();
-    canDriver_.FlushTxBuffer();
+    can_driver_.FlushRxBuffer();
+    can_driver_.FlushTxBuffer();
 
     ListDevices();
+
+
 
     // GetAllDevicesParamsReq(); // TODO: uncomment when implemented in ELE part
   }
@@ -198,7 +204,7 @@ namespace provider_can {
 //
   canStatus CanDispatcher::ReadMessages() {
     canStatus status;
-    status = canDriver_.ReadAllMessages(rx_raw_buffer_);
+    status = can_driver_.ReadAllMessages(rx_raw_buffer_);
 
     return status;
   }
@@ -209,7 +215,7 @@ namespace provider_can {
     canStatus status;
 
 	status =
-      canDriver_.WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
+        can_driver_.WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
 
 	tx_raw_buffer_.clear();
     return status;
@@ -226,7 +232,7 @@ namespace provider_can {
     msg.flag = canMSG_EXT;
     msg.time = 0;
 
-    return (canDriver_.WriteMessage(msg, 1));
+    return (can_driver_.WriteMessage(msg, 1));
   }
 
 //------------------------------------------------------------------------------
@@ -520,7 +526,7 @@ namespace provider_can {
     msg.flag = canMSG_RTR;
     msg.time = 0;
 
-    canDriver_.WriteMessage(msg, 1);
+    can_driver_.WriteMessage(msg, 1);
   }
 
 //------------------------------------------------------------------------------
@@ -551,66 +557,75 @@ namespace provider_can {
 //
   void CanDispatcher::MainCanProcess() {
     canStatus status;
-    clock_gettime(CLOCK_REALTIME, &actual_time_);
+
+    while(1) {
+      clock_gettime(CLOCK_REALTIME, &actual_time_);
 
 
-    // verifying CAN errors
-    if (tx_error_ >= 50 || rx_error_ >= 50) {
-      printf("\rToo many errors encountered (tx: %d, rx: %d, ovrr: %d). Verify "
-               "KVaser connectivity. "
-               "Stopping "
-               "CAN until problem is "
-               "solved", tx_error_, rx_error_, ovrr_error_);
+      // verifying CAN errors
+      if (tx_error_ >= 50 || rx_error_ >= 50) {
+        printf(
+            "\rToo many errors encountered (tx: %d, rx: %d, ovrr: %d). Verify "
+                "KVaser connectivity. "
+                "Stopping "
+                "CAN until problem is "
+                "solved",
+            tx_error_,
+            rx_error_,
+            ovrr_error_);
 
-      if ((actual_time_.tv_sec - error_recovery_.tv_sec) >= ERROR_RECOVERY_DELAY) {
-        printf("\n\rRetrying a recovery\n");
+        if ((actual_time_.tv_sec - error_recovery_.tv_sec)
+            >= ERROR_RECOVERY_DELAY) {
+          printf("\n\rRetrying a recovery\n");
 
-        error_recovery_ = actual_time_;
-        canDriver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+          error_recovery_ = actual_time_;
+          can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+        }
       }
-    }
-      // normal process
-    else {
+        // normal process
+      else {
 
-      // reading from CAN bus
-      status = ReadMessages();
+        // reading from CAN bus
+        status = ReadMessages();
 
-      // verifying errors
-      if (status < canOK) {
-        printf("\n\r");
-        canDriver_.PrintErrorText(status);
-        canDriver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_,
-               ovrr_error_);
+        // verifying errors
+        if (status < canOK) {
+          printf("\n\r");
+          can_driver_.PrintErrorText(status);
+          can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+          printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_,
+                 ovrr_error_);
+        }
+
+        // Dispatching read messages
+        DispatchMessages();
+
+        // sending messages contained in tx_buffer
+        status = SendMessages();
+
+        // verifying errors
+        if (status < canOK) {
+          printf("\n\r");
+          can_driver_.PrintErrorText(status);
+          can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+          printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
+        }
+
+        // Sends RTR to devices if asked
+        // PollDevices();  // TODO: uncomment when implemented in ELE part
+
+        // verifying if devices where not found. if so, sends ID requests to try
+        // to find undiscovered devices.
+        if (discovery_tries_ <= DISCOVERY_TRIES &&
+            (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
+            unknown_addresses_table_.size() != 0) {
+          printf("\n\rUnknown devices found. Retrying ID Request");
+          ListDevices();
+          discovery_tries_++;
+          id_req_time_ = actual_time_;
+        }
       }
-
-      // Dispatching read messages
-      DispatchMessages();
-
-      // sending messages contained in tx_buffer
-      status = SendMessages();
-
-      // verifying errors
-      if (status < canOK) {
-        printf("\n\r");
-        canDriver_.PrintErrorText(status);
-        canDriver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
-      }
-
-      // Sends RTR to devices if asked
-      // PollDevices();  // TODO: uncomment when implemented in ELE part
-
-      // verifying if devices where not found. if so, sends ID requests to try
-      // to find undiscovered devices.
-      if (discovery_tries_ <= DISCOVERY_TRIES &&
-          (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
-          unknown_addresses_table_.size() != 0) {
-        printf("\n\rUnknown devices found. Retrying ID Request");
-        ListDevices();
-        discovery_tries_++;
-        id_req_time_ = actual_time_;
-      }
+      usleep(THREAD_INTERVAL_US);
     }
   }
 

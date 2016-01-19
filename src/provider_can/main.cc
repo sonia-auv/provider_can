@@ -40,11 +40,7 @@ int main(int argc, char** argv) {
   provider_can::BottomLight bottom_light(can_ptr);
 
   while (ros::ok()) {
-
-    can_ptr->MainCanProcess();
-
     bottom_light.Process();
-
     ros::spinOnce();
     loop_rate.sleep();
   }

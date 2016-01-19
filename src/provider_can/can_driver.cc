@@ -76,7 +76,8 @@ namespace provider_can {
     unsigned short version = 0;
     version = canGetVersion();
 
-    std::cout << "Canlib version = " << (version >> 8) << "." << (version & 0xFF)
+    std::cout << "\nCanlib version = " << (version >> 8) << "." << (version &
+        0xFF)
     << std::endl;
 
     return (canStatus) handle_;
