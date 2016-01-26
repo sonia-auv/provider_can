@@ -1,7 +1,7 @@
 /**
  * \file	main.cc
  * \author	Alexi Demers <alexidemers@gmail.com>
- * \date	30/11/2015
+ * \date	26/01/2016
  * \copyright Copyright (c) 2015 S.O.N.I.A. All rights reserved.
  * \section LICENSE
  *
@@ -23,7 +23,9 @@
 
 #include <memory>
 #include <ros/ros.h>
-#include "provider_can/can_node.h"
+#include "can_node.h"
+#include <memory>
+#include <vector>
 
 int main(int argc, char** argv) {
 
@@ -31,10 +33,10 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
   ros::Rate loop_rate(100);
 
-  provider_can::CanNode can();
+  auto can_node_ptr = std::make_shared<provider_can::CanNode>();
 
   while (ros::ok()) {
-    can.ProcessMessages();
+    can_node_ptr->ProcessMessages();
     ros::spinOnce();
     loop_rate.sleep();
   }
