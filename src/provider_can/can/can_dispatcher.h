@@ -65,7 +65,7 @@ typedef struct {
   // The number attributed to the method to be accessed
   uint8_t method_number;
   // the value to pass as a parameter to the method
-  uint32_t parameter_value;
+  float parameter_value;
 } ComputerMessage;
 
   // This is a base structure which will be filled of

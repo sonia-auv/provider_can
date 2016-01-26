@@ -161,7 +161,16 @@ namespace provider_can {
                  rx_raw_buffer_[j].id) {
           devices_list_[index].device_fault = true;
           devices_list_[index].fault_message = rx_raw_buffer_[j].data;
-          printf("\n\rDevice %X: Fault ", devices_list_[index].global_address);
+
+          // printing fault received
+          printf("\n\rDevice %X: Fault %C%C%C%C%C%C%C%C", devices_list_[index]
+              .global_address,rx_raw_buffer_[j].data[0],rx_raw_buffer_[j]
+              .data[1],rx_raw_buffer_[j].data[2],rx_raw_buffer_[j]
+              .data[3],rx_raw_buffer_[j].data[4],rx_raw_buffer_[j]
+              .data[5],rx_raw_buffer_[j].data[6],rx_raw_buffer_[j]
+              .data[7]);
+
+
         }
           // If the ID received corresponds to a ping response
         else if ((devices_list_[index].global_address | PING) ==

@@ -186,6 +186,11 @@ enum Can2Rs232{
 //============================================================================
 // D E V I C E S   M E T H O D S   N U M B E R S
 
+enum CommonMethods{
+  ping_req = 100,
+
+};
+
 enum BotLightMethods{
   set_level = 0
 };

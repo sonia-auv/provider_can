@@ -36,7 +36,7 @@ catkin_package(
 		INCLUDE_DIRS ${provider_can_SRC_DIR}
 		LIBRARIES
 		CATKIN_DEPENDS roscpp lib_atlas
-)
+) 
 
 #===============================================================================
 # I N C L U D E   F I L E S

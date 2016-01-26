@@ -46,9 +46,15 @@ namespace provider_can {
  */
 class CanNode {
 
+  using Ptr = std::shared_ptr<CanNode>;
+
   public:
   //============================================================================
   // P U B L I C   C / D T O R S
+
+  /**
+   * Initialize all new devices objects  in this constructor
+   */
   CanNode();
 
   ~CanNode();
@@ -56,14 +62,19 @@ class CanNode {
   //============================================================================
   // P U B L I C   M E T H O D S
 
+  /**
+   * Call this process periodically in the main. Its function is to call
+   * all devices processes for messages processing
+   */
   void ProcessMessages(void);
 
   private:
 
   //============================================================================
   // P R I V A T E   M E M B E R S
-  BottomLight::Ptr bottom_light_;
+
   CanDispatcher::Ptr can_ptr;
+  std::vector<CanDevice::Ptr> can_devices_vector_;
 
 };
 

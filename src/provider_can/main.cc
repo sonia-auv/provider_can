@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "provider_can");
   ros::NodeHandle nh;
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(20);
 
   auto can_node_ptr = std::make_shared<provider_can::CanNode>();
 

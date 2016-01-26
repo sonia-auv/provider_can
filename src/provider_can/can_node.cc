@@ -39,7 +39,9 @@ namespace provider_can {
     can_ptr = std::make_shared<provider_can::CanDispatcher>
       (controllers,on_board_pc,0, BAUD_125K, 10);
 
-    bottom_light_ = std::make_shared<provider_can::BottomLight>(can_ptr);
+    // initialize all new devices here
+    can_devices_vector_.push_back(std::make_shared<provider_can::BottomLight>
+                                     (can_ptr));
   }
 //------------------------------------------------------------------------------
 //
@@ -52,7 +54,9 @@ namespace provider_can {
 // M E T H O D S   S E C T I O N
 
   void CanNode::ProcessMessages(void) {
-    bottom_light_->Process();
+    for(uint8_t i = 0; i < can_devices_vector_.size(); i++)
+      can_devices_vector_[i]->Process();\
+
   }
 
 

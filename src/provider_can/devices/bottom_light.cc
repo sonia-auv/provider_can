@@ -72,6 +72,7 @@ void BottomLight::Process() {
       // Collects the last message received (previous messages can be bypassed)
       actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
     }
+
     // If a new light level has been asked
     if (asked_light_level_ != actual_light_level_) {
       // sets light level
@@ -85,11 +86,20 @@ void BottomLight::Process() {
     // loops through all PC messages received
     for(uint8_t i = 0; i < pc_messages_buffer.size(); i++){
       // if messages askes to call set_level function
-      if(pc_messages_buffer[i].method_number == set_level){
-        SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
+      switch(pc_messages_buffer[i].method_number){
+        case set_level:
+          SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
+          break;
+        case ping_req:
+          Ping();
+          break;
+        default:
+          break;
       }
     }
 
+    //TODO: tested les ping_response pour les pusher dans un message ROS
+    //TODO: push lintensite de la lumiere dans un message ROS
   }
 }
 
