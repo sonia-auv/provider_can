@@ -36,15 +36,15 @@ namespace provider_can {
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-CanDevice::CanDevice(DeviceClass device_id,
-                     uint8_t unique_id,
-                     std::shared_ptr<CanDispatcher> can_dispatcher,
-                     std::string name){
-  device_id_ = device_id;
-  unique_id_ = unique_id;
-  can_dispatcher_ = can_dispatcher;
-  name_ = name;
-}
+  CanDevice::CanDevice(DeviceClass device_id,
+                       uint8_t unique_id,
+                       std::shared_ptr<CanDispatcher> can_dispatcher,
+                       std::string name){
+    device_id_ = device_id;
+    unique_id_ = unique_id;
+    can_dispatcher_ = can_dispatcher;
+    name_ = name;
+  }
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
@@ -55,61 +55,61 @@ CanDevice::CanDevice(DeviceClass device_id,
 
 //------------------------------------------------------------------------------
 //
-DeviceProperties CanDevice::GetProperties() {
-  DeviceProperties properties;
+  DeviceProperties CanDevice::GetProperties() {
+    DeviceProperties properties;
 
-  can_dispatcher_->GetDevicesProperties(device_id_,unique_id_,properties);
+    can_dispatcher_->GetDevicesProperties(device_id_,unique_id_,properties);
 
-  return properties;
+    return properties;
 
-}
-
-//------------------------------------------------------------------------------
-//
-std::string CanDevice::GetName() {
-  return name_;
-}
-
-//------------------------------------------------------------------------------
-//
-uint8_t* CanDevice::GetFault(){
-    uint8_t *fault;
-  if(can_dispatcher_->GetDeviceFault(device_id_,unique_id_,fault)
-     == SONIA_DEVICE_FAULT){
-    return fault;
   }
-  else
-    return NULL;
-}
 
 //------------------------------------------------------------------------------
 //
-bool CanDevice::GetPingStatus(){
-  bool response;
-  if(can_dispatcher_->VerifyPingResponse(device_id_,unique_id_,&response)
-     != SONIA_DEVICE_NOT_PRESENT)
-    return response;
-  else
-    return false;
-}
+  std::string CanDevice::GetName() {
+    return name_;
+  }
+
+//------------------------------------------------------------------------------
+//
+  uint8_t* CanDevice::GetFault(){
+      uint8_t *fault;
+    if(can_dispatcher_->GetDeviceFault(device_id_,unique_id_,fault)
+       == SONIA_DEVICE_FAULT){
+      return fault;
+    }
+    else
+      return NULL;
+  }
+
+//------------------------------------------------------------------------------
+//
+  bool CanDevice::GetPingStatus(){
+    bool response;
+    if(can_dispatcher_->VerifyPingResponse(device_id_,unique_id_,&response)
+       != SONIA_DEVICE_NOT_PRESENT)
+      return response;
+    else
+      return false;
+  }
 
 //------------------------------------------------------------------------------
 //
 
-void CanDevice::Ping(){
-  can_dispatcher_->PingDevice(device_id_,unique_id_);
-}
+  void CanDevice::Ping(){
+    can_dispatcher_->PingDevice(device_id_,unique_id_);
+  }
 
 //------------------------------------------------------------------------------
 //
 
-bool CanDevice::DevicePresenceCheck(){
-  if(can_dispatcher_->FindDevice(device_id_,unique_id_)
-            != SONIA_DEVICE_NOT_PRESENT)
-    return true;
-  else
-    return false;
-}
+  bool CanDevice::DevicePresenceCheck(){
+    if(can_dispatcher_->FindDevice(device_id_,unique_id_)
+              != SONIA_DEVICE_NOT_PRESENT)
+      return true;
+    else
+      return false;
+  }
 
 //------------------------------------------------------------------------------
 //
@@ -134,9 +134,18 @@ void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata)
 //------------------------------------------------------------------------------
 //
   std::vector<CanMessage> CanDevice::FetchMessages(){
-  std::vector<CanMessage> buffer;
-  can_dispatcher_->FetchMessages(device_id_,unique_id_,buffer);
-  return buffer;
-}
+    std::vector<CanMessage> buffer;
+    can_dispatcher_->FetchMessages(device_id_,unique_id_,buffer);
+    return buffer;
+  }
+//------------------------------------------------------------------------------
+//
+
+  std::vector<ComputerMessage> CanDevice::FetchComputerMessages(){
+    std::vector<ComputerMessage> buffer;
+    can_dispatcher_->FetchComputerMessages(device_id_,unique_id_,buffer);
+    return buffer;
+  }
+
 
 }

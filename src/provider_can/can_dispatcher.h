@@ -61,6 +61,13 @@ typedef struct {
   uint16_t poll_rate = 500;
 } DeviceProperties;
 
+typedef struct {
+  // The number attributed to the method to be accessed
+  uint8_t method_number;
+  // the value to pass as a parameter to the method
+  uint32_t parameter_value;
+} ComputerMessage;
+
   // This is a base structure which will be filled of
   // one device's informations. One strcut is initialized
   // For each device found.
@@ -72,6 +79,7 @@ typedef struct {
   uint32_t device_parameters[2];// TODO: Not yet implemented in ELE part
 
   std::vector<CanMessage> rx_buffer;
+  std::vector<ComputerMessage> pc_messages_buffer;
 
   // if device has sent a fault
   bool device_fault = false;
@@ -161,8 +169,10 @@ class CanDispatcher {
   static const uint8_t ERROR_RECOVERY_DELAY;
   // Delay to wait for a message to be sent (ms)
   static const uint32_t CAN_SEND_TIMEOUT;
-
+  // thread execution interval
   static const uint32_t THREAD_INTERVAL_US;
+  // PC message buffer size
+  static const uint32_t PC_BUFFER_SIZE;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -281,12 +291,37 @@ class CanDispatcher {
   uint8_t GetNumberOfDevices();
   void GetUnknownAddresses(std::vector<uint32_t> &addresses);
 
+
+
   /**
-  * This process has to be called periodically. It handles reading and sending
-  * messages.
+  * This function is set as a service into ROS. Call it with the corresponding
+  * method number of the device you want to set a parameter. Parameters can
+  * be motor speed, light intensity, etc. Methods numbers are defined in
+  * can_def for each existing device.
   *
+  * \param device_id SONIA Device ID to look for
+  * \param unique_id SONIA unique ID to look for
+  * \param method_number the specific number of the method to call
+  * \param parameter_value parameter to pass to the method
+  * \return SoniaDeviceStatus enum
   */
-  void MainCanProcess();
+  // TODO: set this function as a service to ROS
+  SoniaDeviceStatus CallDeviceMethod(uint8_t device_id, uint8_t unique_id,
+                                     uint8_t method_number,
+                                     float parameter_value);
+
+  /**
+  * This function fetches messages received from ROS for a specific
+  * device.
+  *
+  * \param device_id SONIA Device ID to look for
+  * \param unique_id SONIA unique ID to look for
+  * \param buffer messages received from computer
+  * \return SoniaDeviceStatus enum
+  */
+  SoniaDeviceStatus FetchComputerMessages(uint8_t device_id,
+                                          uint8_t unique_id,
+                                          std::vector<ComputerMessage> &buffer);
 
 
   /**
@@ -338,6 +373,12 @@ class CanDispatcher {
 private:
   //============================================================================
   // P R I V A T E   M E T H O D S
+
+  /**
+  * This is the main thread for can processing
+  *
+  */
+  void MainCanProcess();
 
   /**
   * Allows the user to send an ID request to devices on SONIA's CAN bus.

@@ -145,6 +145,13 @@ namespace provider_can {
     std::vector<CanMessage> FetchMessages();
 
     /**
+     * Collects messages received from computer for that device
+     *
+     * \param buffer device's rx_buffer
+     */
+    std::vector<ComputerMessage> FetchComputerMessages();
+
+    /**
      * Pushes a message to the device
      *
      * \param buffer message content

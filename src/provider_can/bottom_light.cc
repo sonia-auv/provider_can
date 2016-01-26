@@ -30,6 +30,7 @@
 
 
 #include "bottom_light.h"
+#include "can_dispatcher.h"
 
 namespace provider_can {
 
@@ -61,17 +62,35 @@ BottomLight::~BottomLight() {
 
 void BottomLight::Process() {
   std::vector<CanMessage> rx_buffer;
+  std::vector<ComputerMessage> pc_messages_buffer;
 
   if(DevicePresenceCheck()) {
+    // fetching CAN messages
     rx_buffer = FetchMessages();
 
+    // if messages have been received
     if (rx_buffer.size() != 0) {
+      // Collects the last message received (previous messages can be bypassed)
       actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
     }
+    // If a new light level has been asked
     if (asked_light_level_ != actual_light_level_) {
+      // sets light level
       PushMessage(SET_LIGHT_MSG, &asked_light_level_, SET_LIGHT_DLC);
       actual_light_level_ = asked_light_level_;
     }
+
+    // fetching pc messages (ROS)
+    pc_messages_buffer = FetchComputerMessages();
+
+    // loops through all PC messages received
+    for(uint8_t i = 0; i < pc_messages_buffer.size(); i++){
+      // if messages askes to call set_level function
+      if(pc_messages_buffer[i].method_number == set_level){
+        SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
+      }
+    }
+
   }
 }
 

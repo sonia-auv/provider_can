@@ -49,6 +49,8 @@ namespace provider_can {
 
   const uint32_t CanDispatcher:: THREAD_INTERVAL_US = 10000;
 
+  const uint32_t CanDispatcher:: PC_BUFFER_SIZE = 25;
+
 
 
 //==============================================================================
@@ -627,6 +629,53 @@ namespace provider_can {
       }
       usleep(THREAD_INTERVAL_US);
     }
+  }
+//------------------------------------------------------------------------------
+//
+
+
+SoniaDeviceStatus CanDispatcher::CallDeviceMethod(uint8_t device_id,
+                                                  uint8_t unique_id,
+                                                  uint8_t method_number,
+                                                  float parameter_value){
+  SoniaDeviceStatus status;
+  ComputerMessage msg = {
+    msg.method_number = method_number,
+    msg.parameter_value = parameter_value
+  };
+  size_t index;
+  status = FindDevice(device_id, unique_id, &index);
+
+  if(status != SONIA_DEVICE_NOT_PRESENT)
+    if(devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE)
+      devices_list_[index].pc_messages_buffer.push_back(msg);
+    else
+      printf("\n\rDevice %X: Dedicated ROS service called to fast for the "
+               "update rate. Following messages will be dropped.",
+             devices_list_[index].global_address);
+
+  return status;
+}
+//------------------------------------------------------------------------------
+//
+
+  SoniaDeviceStatus CanDispatcher::FetchComputerMessages(uint8_t device_id,
+                                                 uint8_t unique_id,
+                                                 std::vector<ComputerMessage> &buffer) {
+    SoniaDeviceStatus status;
+    size_t index;
+
+    status = FindDevice(device_id, unique_id, &index);
+
+    if (status != SONIA_DEVICE_NOT_PRESENT) {
+      buffer = devices_list_[index].pc_messages_buffer;
+      devices_list_[index].pc_messages_buffer.clear();
+    }
+    else{
+      buffer.clear();
+    }
+
+    return status;
   }
 
 //------------------------------------------------------------------------------

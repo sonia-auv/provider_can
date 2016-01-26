@@ -183,4 +183,11 @@ enum Can2Rs232{
     micron_dst_modem = 1
 };
 
+//============================================================================
+// D E V I C E S   M E T H O D S   N U M B E R S
+
+enum BotLightMethods{
+  set_level = 0
+};
+
 #endif
