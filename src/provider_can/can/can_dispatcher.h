@@ -38,8 +38,8 @@
 #include <algorithm>
 #include <memory>
 #include <thread>
-#include "provider_can/can_driver.h"
-#include "provider_can/can_def.h"
+#include "provider_can/can/can_driver.h"
+#include "provider_can/can/can_def.h"
 
 namespace provider_can {
 

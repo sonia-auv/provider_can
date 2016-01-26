@@ -34,8 +34,8 @@
 #include <memory>
 #include <vector>
 #include <cstring>
-#include "provider_can/can_dispatcher.h"
-#include "provider_can/can_def.h"
+#include "provider_can/can/can_dispatcher.h"
+#include "provider_can/can/can_def.h"
 
 namespace provider_can {
 

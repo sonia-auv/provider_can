@@ -23,8 +23,9 @@
 
 #include <memory>
 #include <ros/ros.h>
-#include "can_dispatcher.h"
-#include "bottom_light.h"
+#include "provider_can/can/can_dispatcher.h"
+#include "provider_can/devices/bottom_light.h"
+#include "provider_can/can/can_def.h"
 
 int main(int argc, char** argv) {
 
@@ -32,7 +33,7 @@ int main(int argc, char** argv) {
 
   ros::NodeHandle nh;
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(100);
 
   auto can_ptr = std::make_shared<provider_can::CanDispatcher>
   	  	  	  	  	  (controllers,on_board_pc,0, BAUD_125K, 10);
@@ -41,6 +42,7 @@ int main(int argc, char** argv) {
 
   while (ros::ok()) {
     bottom_light.Process();
+
     ros::spinOnce();
     loop_rate.sleep();
   }

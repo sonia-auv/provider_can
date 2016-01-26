@@ -29,7 +29,6 @@
  */
 
 #include "can_device.h"
-#include "can_dispatcher.h"
 
 namespace provider_can {
 

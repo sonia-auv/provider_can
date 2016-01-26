@@ -35,9 +35,8 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
-#include "provider_can/can_dispatcher.h"
-#include "provider_can/can_def.h"
-#include "provider_can/can_device.h"
+#include "provider_can/can/can_def.h"
+#include "provider_can/devices/can_device.h"
 
 namespace provider_can {
 

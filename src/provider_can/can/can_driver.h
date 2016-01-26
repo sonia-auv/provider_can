@@ -38,7 +38,7 @@
 #include <stdint.h>
 #include <memory>
 #include <canlib.h>
-#include "provider_can/can_exceptions.h"
+#include "provider_can/can/can_exceptions.h"
 
 namespace provider_can {
 
