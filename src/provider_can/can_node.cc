@@ -1,8 +1,15 @@
 /**
- * \file	main.cc
+ * \file	can_node.cc
  * \author	Alexi Demers <alexidemers@gmail.com>
- * \date	30/11/2015
+ * \date	26/01/2016
+ *
+ * \copyright Copyright (c) 2015 Copyright
+ *
+ * \section LICENSE http://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Changes by: S.O.N.I.A.
  * \copyright Copyright (c) 2015 S.O.N.I.A. All rights reserved.
+ *
  * \section LICENSE
  *
  * This file is part of S.O.N.I.A. software.
@@ -21,23 +28,32 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <ros/ros.h>
-#include "provider_can/can_node.h"
+#include "can_node.h"
 
-int main(int argc, char** argv) {
+namespace provider_can {
 
-  ros::init(argc, argv, "provider_can");
-  ros::NodeHandle nh;
-  ros::Rate loop_rate(100);
+//==============================================================================
+// C / D T O R   S E C T I O N
 
-  provider_can::CanNode can();
+  CanNode::CanNode() {
+    can_ptr = std::make_shared<provider_can::CanDispatcher>
+      (controllers,on_board_pc,0, BAUD_125K, 10);
 
-  while (ros::ok()) {
-    can.ProcessMessages();
-    ros::spinOnce();
-    loop_rate.sleep();
+    bottom_light_ = std::make_shared<provider_can::BottomLight>(can_ptr);
+  }
+//------------------------------------------------------------------------------
+//
+
+  CanNode::~CanNode() {
+
   }
 
-  return (0);
+//==============================================================================
+// M E T H O D S   S E C T I O N
+
+  void CanNode::ProcessMessages(void) {
+    bottom_light_->Process();
+  }
+
+
 }
