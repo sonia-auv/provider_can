@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <memory>
 #include <thread>
+#include <ros/ros.h>
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can/can_def.h"
 
@@ -305,10 +306,9 @@ class CanDispatcher {
   * \param parameter_value parameter to pass to the method
   * \return SoniaDeviceStatus enum
   */
-  // TODO: set this function as a service to ROS
-  SoniaDeviceStatus CallDeviceMethod(uint8_t device_id, uint8_t unique_id,
-                                     uint8_t method_number,
-                                     float parameter_value);
+
+  bool CallDeviceMethod(provider_can::Request &req,
+                        provider_can::Response &res);
 
   /**
   * This function fetches messages received from ROS for a specific

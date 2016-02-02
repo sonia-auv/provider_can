@@ -35,6 +35,8 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include <ros/node_handle.h>
+#include <lib_atlas/ros/service_server_manager.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -55,7 +57,7 @@ class CanNode {
   /**
    * Initialize all new devices objects  in this constructor
    */
-  CanNode();
+  CanNode(atlas::NodeHandlePtr nh);
 
   ~CanNode();
 

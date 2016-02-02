@@ -643,17 +643,15 @@ namespace provider_can {
 //
 
 
-SoniaDeviceStatus CanDispatcher::CallDeviceMethod(uint8_t device_id,
-                                                  uint8_t unique_id,
-                                                  uint8_t method_number,
-                                                  float parameter_value){
+bool CanDispatcher::CallDeviceMethod(Mreq &req,
+                                     provider_can::Response &res){
   SoniaDeviceStatus status;
   ComputerMessage msg = {
-    msg.method_number = method_number,
-    msg.parameter_value = parameter_value
+    msg.method_number = req.method_number,
+    msg.parameter_value = req.parameter_value
   };
   size_t index;
-  status = FindDevice(device_id, unique_id, &index);
+  status = FindDevice(req.device_id, req.unique_id, &index);
 
   if(status != SONIA_DEVICE_NOT_PRESENT)
     if(devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE)
@@ -663,7 +661,8 @@ SoniaDeviceStatus CanDispatcher::CallDeviceMethod(uint8_t device_id,
                "update rate. Following messages will be dropped.",
              devices_list_[index].global_address);
 
-  return status;
+  res.device_status = status;
+  return true;
 }
 //------------------------------------------------------------------------------
 //

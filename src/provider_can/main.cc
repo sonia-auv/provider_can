@@ -23,17 +23,20 @@
 
 #include <memory>
 #include <ros/ros.h>
+#include <lib_atlas/ros/service_server_manager.h>
 #include "can_node.h"
+
 #include <memory>
 #include <vector>
 
 int main(int argc, char** argv) {
 
   ros::init(argc, argv, "provider_can");
-  ros::NodeHandle nh;
+  atlas::NodeHandlePtr nh = std::make_shared<ros::NodeHandle>();
+
   ros::Rate loop_rate(20);
 
-  auto can_node_ptr = std::make_shared<provider_can::CanNode>();
+  auto can_node_ptr = std::make_shared<provider_can::CanNode>(nh);
 
   while (ros::ok()) {
     can_node_ptr->ProcessMessages();

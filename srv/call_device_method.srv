@@ -1,0 +1,6 @@
+uint8 device_id
+uint8 unique_id
+uint8 method_number
+float64 parameter_value
+---
+uint8 device_status
