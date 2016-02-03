@@ -28,13 +28,15 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "can_device.h"
+#include "provider_can/devices/can_device.h"
 
 namespace provider_can {
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 CanDevice::CanDevice(DeviceClass device_id, uint8_t unique_id,
                      std::shared_ptr<CanDispatcher> can_dispatcher,
                      std::string name) {
@@ -47,9 +49,12 @@ CanDevice::CanDevice(DeviceClass device_id, uint8_t unique_id,
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
-/*void CanDevice::Reset() {
+/*
+//------------------------------------------------------------------------------
+//void CanDevice::Reset() {
   can_dispatcher_->SendResetRequest(device_id_, unique_id_);
-}*/
+}
+ */
 
 //------------------------------------------------------------------------------
 //
@@ -89,12 +94,10 @@ bool CanDevice::GetPingStatus() {
 
 //------------------------------------------------------------------------------
 //
-
 void CanDevice::Ping() { can_dispatcher_->PingDevice(device_id_, unique_id_); }
 
 //------------------------------------------------------------------------------
 //
-
 bool CanDevice::DevicePresenceCheck() {
   if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
       SONIA_DEVICE_NOT_PRESENT)
@@ -103,19 +106,21 @@ bool CanDevice::DevicePresenceCheck() {
     return false;
 }
 
+/*
 //------------------------------------------------------------------------------
 //
-
-/*void CanDevice::SleepMode(){
+void CanDevice::SleepMode(){
   can_dispatcher_->SendSleepRequest(device_id_,unique_id_);
-}*/
+}
+*/
 
+/*
 //------------------------------------------------------------------------------
 //
-
-/*void CanDevice::WakeUp(){
+void CanDevice::WakeUp(){
   can_dispatcher_->SendWakeUpRequest(device_id_,unique_id_);
-}*/
+}
+*/
 
 //------------------------------------------------------------------------------
 //
@@ -132,12 +137,13 @@ std::vector<CanMessage> CanDevice::FetchMessages() {
   can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
   return buffer;
 }
+
 //------------------------------------------------------------------------------
 //
-
 std::vector<ComputerMessage> CanDevice::FetchComputerMessages() {
   std::vector<ComputerMessage> buffer;
   can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, buffer);
   return buffer;
 }
-}
+
+} // namespace provider_can

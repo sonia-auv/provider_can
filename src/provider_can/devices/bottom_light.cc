@@ -42,6 +42,8 @@ const std::string BottomLight::NAME = "Bottom Light";
 //==============================================================================
 // C / D T O R   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher)
     : CanDevice(lights, bottom_light, can_dispatcher, NAME) {
   actual_light_level_ = 200;  // ensure we turn off the light at startup
@@ -51,14 +53,15 @@ BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher)
 
 //------------------------------------------------------------------------------
 //
-
 BottomLight::~BottomLight() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 void BottomLight::Process() {
-  std::vector<CanMessage> rx_buffer;
+  std::vector<> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
 
   if (DevicePresenceCheck()) {

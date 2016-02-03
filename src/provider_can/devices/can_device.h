@@ -163,7 +163,7 @@ class CanDevice {
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  uint8_t *fault_message;  // Fault message if device_fault is true
+  uint8_t *fault_message_;  // Fault message if device_fault is true
   std::string name_;       // device's name
 
   DeviceClass device_id_;

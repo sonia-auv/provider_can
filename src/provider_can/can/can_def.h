@@ -101,6 +101,7 @@ enum TorpedoLauncherParams { torpedo_launch_time = 0, torpedo_max_pressure };
 
 //============================================================================
 // D E V I C E S   I D
+
 enum DeviceClass {
   controllers = 1,
   actuators,

@@ -54,6 +54,8 @@ const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
 //==============================================================================
 // C / D T O R   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
                              uint32_t chan, uint32_t baudrate,
                              uint32_t loop_rate)
@@ -87,6 +89,8 @@ CanDispatcher::~CanDispatcher() {}
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 canStatus CanDispatcher::ListDevices() {
   canStatus status;
 

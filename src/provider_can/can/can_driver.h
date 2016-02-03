@@ -93,6 +93,7 @@ class CanDriver {
    * \param samp The number of sampling points; can be 1 or 3.
    */
   CanDriver(uint32_t chan, uint32_t baudrate);
+
   CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
             uint32_t jump, uint32_t samp);
 

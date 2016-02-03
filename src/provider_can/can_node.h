@@ -28,8 +28,8 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROVIDER_CAN_CAN_NODE_H
-#define PROVIDER_CAN_CAN_NODE_H
+#ifndef PROVIDER_CAN_CAN_NODE_H_
+#define PROVIDER_CAN_CAN_NODE_H_
 
 #include <memory>
 #include <vector>
@@ -43,10 +43,14 @@
 #include "provider_can/devices/bottom_light.h"
 
 namespace provider_can {
+
 /**
  * This class contains the main process for can_provider
  */
 class CanNode {
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
+
   using Ptr = std::shared_ptr<CanNode>;
 
  public:
@@ -56,7 +60,7 @@ class CanNode {
   /**
    * Initialize all new devices objects  in this constructor
    */
-  CanNode(atlas::NodeHandlePtr nh);
+  CanNode(std::shared_ptr<ros::NodeHandle> nh);
 
   ~CanNode();
 
@@ -73,10 +77,11 @@ class CanNode {
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  CanDispatcher::Ptr can_ptr;
+  CanDispatcher::Ptr can_ptr_;
+
   std::vector<CanDevice::Ptr> can_devices_vector_;
 };
 
 }  // namespace provider_can
 
-#endif  // PROVIDER_CAN_CAN_NODE_H
+#endif  // PROVIDER_CAN_CAN_NODE_H_

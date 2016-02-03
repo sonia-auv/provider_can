@@ -35,6 +35,8 @@ namespace provider_can {
 //==============================================================================
 // C / D T O R   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
     : baudrate_(baudrate),
       channel_(chan),
@@ -47,6 +49,8 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
   }
 }
 
+//------------------------------------------------------------------------------
+//
 CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
                      uint32_t ts2, uint32_t jump, uint32_t samp)
     : channel_(chan),
@@ -69,7 +73,10 @@ CanDriver::~CanDriver() {
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
-canStatus CanDriver::Open(void) {
+
+//------------------------------------------------------------------------------
+//
+canStatus CanDriver::Open() {
   handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
   // CAN channel handler
 
@@ -84,7 +91,7 @@ canStatus CanDriver::Open(void) {
 
 //------------------------------------------------------------------------------
 //
-bool CanDriver::InitUsbDevice(void) {
+bool CanDriver::InitUsbDevice() {
   canStatus status;
 
   status = Open();  // Open CAN channel
@@ -169,11 +176,14 @@ canStatus CanDriver::Close() {
 //
 canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec) {
   canStatus status;
-  if (timeout_msec == 0)
-    status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
-  else
+  if (timeout_msec == 0) {
+    status = canWrite(handle_, msg.id, msg.data, msg
+        .dlc, msg.flag);
+  }
+  else {
     status = canWriteWait(handle_, msg.id, msg.data, msg.dlc, msg.flag,
                           timeout_msec);
+  }
   return status;
 }
 
@@ -197,11 +207,15 @@ canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
   long int id;
   long unsigned int time;
 
-  if (timeout_msec == 0)
-    status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
-  else
-    status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time,
+  if (timeout_msec == 0) {
+    status = canRead(handle_, &id, &msg->data,
+                     &msg->dlc, &msg->flag, &time);
+  }
+  else {
+    status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag,
+                         &time,
                          timeout_msec);
+  }
 
   msg->id = id;
   msg->time = time;
@@ -223,7 +237,9 @@ canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
       status = ReadMessage(&msg, 0);
       msg_table.push_back(msg);
 
-      if (status != canOK) i = num_of_messages;
+      if (status != canOK) {
+        i = num_of_messages;
+      }
     }
   }
 
@@ -238,11 +254,13 @@ void CanDriver::PrintErrorText(canStatus error) {
 
   canGetErrorText(error, errMsg, sizeof(errMsg));
 
-  if (error != canOK)
+  if (error != canOK) {
     std::cout << " ERROR "
-              << "(" << errMsg << ")" << std::endl;
-  else
+        << "(" << errMsg << ")" << std::endl;
+  }
+  else {
     std::cout << "(" << errMsg << ")";
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -66,6 +66,7 @@ class BottomLight : public CanDevice {
    * unique light device functions
    */
   void SetLevel(uint8_t level);
+
   uint8_t GetLevel();
 
  private:

@@ -28,34 +28,39 @@
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "can_node.h"
+#include "provider_can/can_node.h"
 
 namespace provider_can {
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-CanNode::CanNode(atlas::NodeHandlePtr nh) {
-  can_ptr = std::make_shared<provider_can::CanDispatcher>(
+//------------------------------------------------------------------------------
+//
+CanNode::CanNode(std::shared_ptr<ros::NodeHandle> nh) {
+  can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
       controllers, on_board_pc, 0, BAUD_125K, 10);
 
   // initialize all new devices here
   can_devices_vector_.push_back(
-      std::make_shared<provider_can::BottomLight>(can_ptr));
+      std::make_shared<provider_can::BottomLight>(can_ptr_));
 
   ros::ServiceServer service =
-      nh->advertiseService("call_device_method", can_ptr->CallDeviceMethod);
+      nh->advertiseService("call_device_method", can_ptr_->CallDeviceMethod);
 }
+
 //------------------------------------------------------------------------------
 //
-
 CanNode::~CanNode() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
+//------------------------------------------------------------------------------
+//
 void CanNode::ProcessMessages(void) {
   for (uint8_t i = 0; i < can_devices_vector_.size(); i++)
     can_devices_vector_[i]->Process();
 }
-}
+
+} // namespace provider_can
