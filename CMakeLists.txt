@@ -32,24 +32,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 
-
-
-#===============================================================================
-# I N C L U D E   F I L E S
-#
-# Get all the files of the projects.
-file(GLOB_RECURSE provider_can_FILES "${provider_can_SRC_DIR}/*.cc"
-		"${provider_can_SRC_DIR}/*.h")
-
-# Include all the directories where source can be found.
-include_directories(
-		${provider_can_SRC_DIR}
-		${catkin_INCLUDE_DIRS}
-)
-
-#===============================================================================
-# G E N E R A T E   M E S S A G E S   &   S E R V I C E S
-
 add_service_files(
 		DIRECTORY srv
 		FILES
@@ -57,14 +39,21 @@ add_service_files(
 
 generate_messages(DEPENDENCIES std_msgs std_srvs)
 
-#===============================================================================
-# C R E A T E   C A T K I N   P A C K A G E
-
-# Declare a catkin package
 catkin_package(
 		INCLUDE_DIRS ${provider_can_SRC_DIR}
 		LIBRARIES
 		CATKIN_DEPENDS roscpp lib_atlas
+)
+
+#===============================================================================
+# I N C L U D E   F I L E S
+
+file(GLOB_RECURSE provider_can_FILES "${provider_can_SRC_DIR}/*.cc"
+		"${provider_can_SRC_DIR}/*.h")
+
+include_directories(
+		${provider_can_SRC_DIR}
+		${catkin_INCLUDE_DIRS}
 )
 
 #==========================================================================
