@@ -35,32 +35,27 @@ namespace provider_can {
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-  CanNode::CanNode(atlas::NodeHandlePtr nh) {
-    can_ptr = std::make_shared<provider_can::CanDispatcher>
-      (controllers,on_board_pc,0, BAUD_125K, 10);
+CanNode::CanNode(atlas::NodeHandlePtr nh) {
+  can_ptr = std::make_shared<provider_can::CanDispatcher>(
+      controllers, on_board_pc, 0, BAUD_125K, 10);
 
-    // initialize all new devices here
-    can_devices_vector_.push_back(std::make_shared<provider_can::BottomLight>
-                                     (can_ptr));
+  // initialize all new devices here
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::BottomLight>(can_ptr));
 
-    ros::ServiceServer service = nh->advertiseService("call_device_method",
-                                                      can_ptr->CallDeviceMethod);
-  }
+  ros::ServiceServer service =
+      nh->advertiseService("call_device_method", can_ptr->CallDeviceMethod);
+}
 //------------------------------------------------------------------------------
 //
 
-  CanNode::~CanNode() {
-
-  }
+CanNode::~CanNode() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
-  void CanNode::ProcessMessages(void) {
-    for(uint8_t i = 0; i < can_devices_vector_.size(); i++)
-      can_devices_vector_[i]->Process();\
-
-  }
-
-
+void CanNode::ProcessMessages(void) {
+  for (uint8_t i = 0; i < can_devices_vector_.size(); i++)
+    can_devices_vector_[i]->Process();
+}
 }

@@ -40,7 +40,6 @@
 
 namespace provider_can {
 
-
 class BottomLight : public CanDevice {
  public:
   //==========================================================================
@@ -69,7 +68,6 @@ class BottomLight : public CanDevice {
   void SetLevel(uint8_t level);
   uint8_t GetLevel();
 
-
  private:
   //============================================================================
   // P R I V A T E   M E M B E R S
@@ -78,8 +76,8 @@ class BottomLight : public CanDevice {
   const static uint16_t SET_LIGHT_DLC;
   const static std::string NAME;
 
-  uint8_t actual_light_level_;    // Light actual state
-  uint8_t asked_light_level_;     // set by setLightLevel()
+  uint8_t actual_light_level_;  // Light actual state
+  uint8_t asked_light_level_;   // set by setLightLevel()
 };
 
 }  // namespace provider_can

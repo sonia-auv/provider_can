@@ -30,7 +30,6 @@
 #include <vector>
 
 int main(int argc, char** argv) {
-
   ros::init(argc, argv, "provider_can");
   atlas::NodeHandlePtr nh = std::make_shared<ros::NodeHandle>();
 

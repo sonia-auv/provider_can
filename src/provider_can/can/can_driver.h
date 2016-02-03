@@ -27,7 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
  */
-// TODO: use a thread in this function so that messages read are pushed as a subject to other classes
+// TODO: use a thread in this function so that messages read are pushed as a
+// subject to other classes
 
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_
@@ -125,7 +126,7 @@ class CanDriver {
    *                        returned table)
    * \return canStatus
    */
-  canStatus ReadAllMessages(std::vector<CanMessage> &msg_table);
+  canStatus ReadAllMessages(std::vector<CanMessage>& msg_table);
 
   /**
   * Allows the user to send one CAN message through a KVaser device
@@ -139,8 +140,8 @@ class CanDriver {
   * \return canStatus enum
   */
   canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec);
-  canStatus WriteBuffer(std::vector<CanMessage> &msg_table,
-  									uint32_t timeout_msec);
+  canStatus WriteBuffer(std::vector<CanMessage>& msg_table,
+                        uint32_t timeout_msec);
 
   /**
   * Convert canStatus enum into text to show on terminal

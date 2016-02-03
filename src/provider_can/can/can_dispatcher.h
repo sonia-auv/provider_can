@@ -69,15 +69,15 @@ typedef struct {
   float parameter_value;
 } ComputerMessage;
 
-  // This is a base structure which will be filled of
-  // one device's informations. One strcut is initialized
-  // For each device found.
+// This is a base structure which will be filled of
+// one device's informations. One strcut is initialized
+// For each device found.
 typedef struct {
   // device's global address (ex: 0x00602000 for PSU)
   uint32_t global_address;
 
   DeviceProperties device_properties;
-  uint32_t device_parameters[2];// TODO: Not yet implemented in ELE part
+  uint32_t device_parameters[2];  // TODO: Not yet implemented in ELE part
 
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
@@ -96,9 +96,6 @@ typedef enum {
   SONIA_DEVICE_FAULT = -1
 } SoniaDeviceStatus;
 
-
-
-
 /**
  * The CanDispatcher class is the core of CAN communication. It handles all
  * the SONIA's can standard and dispatch messages for future processing. This
@@ -107,14 +104,17 @@ typedef enum {
  * ping responses or ID requests are processed directly in this class.
  *
  * IMPORTANT NOTE: Almost every function of this class returns SoniaDeviceStatus
- * enum. This notifies the user if the requested device exists or not or encountered
+ * enum. This notifies the user if the requested device exists or not or
+ encountered
  * a fault. You must always verify the value of this return parameter to know if
  * your device is present or not. CanDispatcher will handle sending ID requests
  * to try to find an undiscovered device if it finds that something is wrong.
  *
  * How to use:
- * 1. Call the constructor specifying PC's device and unique ID, CAN channel, baudrate
- * and loop_rate (which is the number of times per second the main process is called).
+ * 1. Call the constructor specifying PC's device and unique ID, CAN channel,
+ baudrate
+ * and loop_rate (which is the number of times per second the main process is
+ called).
  *
  * NOTE: existing Device and unique IDs are listed in can_def.h
  *
@@ -136,7 +136,8 @@ typedef enum {
     }
 
  * 4. To read messages from can, call fetchMessages(). the parameters of this
- * function allows to select from which device we want to read messages received.
+ * function allows to select from which device we want to read messages
+ received.
  *
  * 5. To send message to a specific device, call pushUnicastMessage().
  *
@@ -144,9 +145,11 @@ typedef enum {
  * use pushBroadMessage(). These messages are not related to specific devices.
  * Every device on CAN by may read it.
  *
- * 7. getDevicesProperties allows to retrieve some properties of a specific device.
+ * 7. getDevicesProperties allows to retrieve some properties of a specific
+ device.
  *
- * 8. Can Devices may have permanent parameters set in their flash memory. set and
+ * 8. Can Devices may have permanent parameters set in their flash memory. set
+ and
  * getDeviceParams allows to read or modify these parameters. A list of possible
  * parameters is found in can_def.h.
  *
@@ -218,7 +221,8 @@ class CanDispatcher {
   SoniaDeviceStatus SendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
 
   SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id);
-  SoniaDeviceStatus VerifyPingResponse(uint8_t device_id, uint8_t unique_id, bool *response);
+  SoniaDeviceStatus VerifyPingResponse(uint8_t device_id, uint8_t unique_id,
+                                       bool *response);
 
   /**
   * This function allows to send a message to a specific device.
@@ -235,19 +239,19 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus PushUnicastMessage(uint8_t device_id, uint8_t unique_id,
-                                uint16_t message_id, uint8_t *buffer,
-                                uint8_t ndata);
+                                       uint16_t message_id, uint8_t *buffer,
+                                       uint8_t ndata);
 
   /**
-  * The function allows to send broadcast messages using PC address. The messages
+  * The function allows to send broadcast messages using PC address. The
+  *messages
   * are not related to specific devices, but to anyone who reads it.
   *
   * \param message_id SONIA message ID
   * \param buffer message content
   * \param ndata message length
   */
-  void PushBroadMessage(uint16_t message_id, uint8_t *buffer,
-                                         uint8_t ndata);
+  void PushBroadMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata);
 
   /**
   * The function returns the rx_buffer of the selected device
@@ -287,12 +291,11 @@ class CanDispatcher {
   * \param unique_id SONIA unique ID to look for
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id, uint8_t *&fault);// TODO: To be tested
+  SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id,
+                                   uint8_t *&fault);  // TODO: To be tested
 
   uint8_t GetNumberOfDevices();
   void GetUnknownAddresses(std::vector<uint32_t> &addresses);
-
-
 
   /**
   * This function is set as a service into ROS. Call it with the corresponding
@@ -319,13 +322,12 @@ class CanDispatcher {
   * \param buffer messages received from computer
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus FetchComputerMessages(uint8_t device_id,
-                                          uint8_t unique_id,
+  SoniaDeviceStatus FetchComputerMessages(uint8_t device_id, uint8_t unique_id,
                                           std::vector<ComputerMessage> &buffer);
 
-
   /**
-  * This allows the user to set permanent parameters to can devices. These parameters
+  * This allows the user to set permanent parameters to can devices. These
+  *parameters
   * are saved in device's flash memory and their value will be kept until it is
   * manually changed.
   *
@@ -338,8 +340,10 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: Not yet implemented in ELE part
-  //SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t unique_id,
-  //                                        uint8_t param_number, uint32_t param_value);
+  // SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t
+  // unique_id,
+  //                                        uint8_t param_number, uint32_t
+  //                                        param_value);
   /**
   * This allows the user to read the permanent parameters set in devices'
   * flash memory.
@@ -352,7 +356,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   // TODO: not yet implemented in ELE part
-  //SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
+  // SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
   //                                  uint32_t *&params);
 
   /**
@@ -365,12 +369,11 @@ class CanDispatcher {
     * \param index device_list_ index found
     * \return SoniaDeviceStatus enum
     */
-    SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id,
-                                     size_t *index);
-    SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id,
+                               size_t *index);
+  SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id);
 
-
-private:
+ private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
@@ -401,7 +404,7 @@ private:
   *
   */
   // void PollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
-                       // dans l'élé du sub
+  // dans l'élé du sub
 
   /**
   * Sends an ID request on CAN bus and list all addresses received.
@@ -468,12 +471,14 @@ private:
   */
   // TODO: not yet implemented in ELE part
   // void GetAllDevicesParamsReq(void);
-  // SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t unique_id);
+  // SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t
+  // unique_id);
 
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  std::vector<CanDeviceStruct> devices_list_;  // List of devices present on CAN bus
+  std::vector<CanDeviceStruct>
+      devices_list_;  // List of devices present on CAN bus
 
   std::vector<uint32_t> unknown_addresses_table_;
 

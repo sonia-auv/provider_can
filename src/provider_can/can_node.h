@@ -47,10 +47,9 @@ namespace provider_can {
  * This class contains the main process for can_provider
  */
 class CanNode {
-
   using Ptr = std::shared_ptr<CanNode>;
 
-  public:
+ public:
   //============================================================================
   // P U B L I C   C / D T O R S
 
@@ -70,16 +69,14 @@ class CanNode {
    */
   void ProcessMessages(void);
 
-  private:
-
+ private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
   CanDispatcher::Ptr can_ptr;
   std::vector<CanDevice::Ptr> can_devices_vector_;
-
 };
 
-}// namespace provider_can
+}  // namespace provider_can
 
-#endif //PROVIDER_CAN_CAN_NODE_H
+#endif  // PROVIDER_CAN_CAN_NODE_H

@@ -28,7 +28,6 @@
 * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "bottom_light.h"
 
 namespace provider_can {
@@ -43,9 +42,9 @@ const std::string BottomLight::NAME = "Bottom Light";
 //==============================================================================
 // C / D T O R   S E C T I O N
 
-BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher):
-          CanDevice(lights,bottom_light,can_dispatcher, NAME){
-  actual_light_level_ = 200; // ensure we turn off the light at startup
+BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher)
+    : CanDevice(lights, bottom_light, can_dispatcher, NAME) {
+  actual_light_level_ = 200;  // ensure we turn off the light at startup
   asked_light_level_ = 0;
   SetLevel(0);
 }
@@ -53,8 +52,7 @@ BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher):
 //------------------------------------------------------------------------------
 //
 
-BottomLight::~BottomLight() {
-}
+BottomLight::~BottomLight() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
@@ -63,7 +61,7 @@ void BottomLight::Process() {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
 
-  if(DevicePresenceCheck()) {
+  if (DevicePresenceCheck()) {
     // fetching CAN messages
     rx_buffer = FetchMessages();
 
@@ -84,9 +82,9 @@ void BottomLight::Process() {
     pc_messages_buffer = FetchComputerMessages();
 
     // loops through all PC messages received
-    for(uint8_t i = 0; i < pc_messages_buffer.size(); i++){
+    for (uint8_t i = 0; i < pc_messages_buffer.size(); i++) {
       // if messages askes to call set_level function
-      switch(pc_messages_buffer[i].method_number){
+      switch (pc_messages_buffer[i].method_number) {
         case set_level:
           SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
           break;
@@ -98,21 +96,17 @@ void BottomLight::Process() {
       }
     }
 
-    //TODO: tested les ping_response pour les pusher dans un message ROS
-    //TODO: push lintensite de la lumiere dans un message ROS
+    // TODO: tested les ping_response pour les pusher dans un message ROS
+    // TODO: push lintensite de la lumiere dans un message ROS
   }
 }
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::SetLevel(uint8_t level) {
-  asked_light_level_ = level;
-}
+void BottomLight::SetLevel(uint8_t level) { asked_light_level_ = level; }
 
 //------------------------------------------------------------------------------
 //
-uint8_t BottomLight::GetLevel() {
-  return actual_light_level_;
-}
+uint8_t BottomLight::GetLevel() { return actual_light_level_; }
 
-} // namespace provider_can
+}  // namespace provider_can

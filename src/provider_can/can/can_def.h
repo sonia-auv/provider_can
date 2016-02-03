@@ -67,132 +67,96 @@ const uint8_t SLEEP_REQUEST_DLC = 0;
 const uint8_t WAKEUP_REQUEST_DLC = 0;
 const uint8_t RESET_REQUEST_DLC = 0;
 
-
-
-
 //============================================================================
 // D E V I C E S   P A R A M E T E R S
 
 // These are the parameter numbers for each device. It may be passed to
 // setParameterReq function or it is used to select device_parameters table
 // index for each param.
-enum MotorsParams{
+enum MotorsParams {
 
 };
 
-enum DepthMeterParams{
-  voltage_offset_abs = 0,
-  voltage_offset_rel
-};
+enum DepthMeterParams { voltage_offset_abs = 0, voltage_offset_rel };
 
-enum DroppersParams{
-  droppers_drop_time = 0
-};
+enum DroppersParams { droppers_drop_time = 0 };
 
-enum GrabberParams{
+enum GrabberParams {
 
 };
 
-enum LedIndicatorParams{
+enum LedIndicatorParams {
 
 };
 
-enum LightParams{
+enum LightParams {
 
 };
 
-enum SonarRotatorParams{
+enum SonarRotatorParams {
 
 };
 
-enum TorpedoLauncherParams{
-  torpedo_launch_time = 0,
-  torpedo_max_pressure
-};
-
-
+enum TorpedoLauncherParams { torpedo_launch_time = 0, torpedo_max_pressure };
 
 //============================================================================
 // D E V I C E S   I D
-enum DeviceClass{
-    controllers = 1,
-    actuators,
-    markers,
-    sonars,
-    sensors,
-    power,
-    interfaces,
-    lights,
-    can2rs232,
+enum DeviceClass {
+  controllers = 1,
+  actuators,
+  markers,
+  sonars,
+  sensors,
+  power,
+  interfaces,
+  lights,
+  can2rs232,
 };
 
-enum MessageType{
-    global = 0x0,
-    application = 0xf
+enum MessageType { global = 0x0, application = 0xf };
+
+enum Controllers { on_board_pc = 1, pid_controller };
+
+enum Actuators {
+  port_motor = 1,
+  starboard_motor,
+  front_depth_motor,
+  back_depth_motor,
+  front_heading_motor,
+  back_heading_motor,
+  grabber,
+  sonar_rotator
 };
 
-enum Controllers{
-    on_board_pc = 1,
-    pid_controller
+enum Markers { dropper = 1, launcher };
+
+enum Sonars { passive = 1, active };
+
+enum Sensors { depth_meter = 1, light_sensor, leak_sensor };
+
+enum Power {
+  power_distribution = 1,
 };
 
-enum Actuators{
-    port_motor = 1,
-    starboard_motor,
-    front_depth_motor,
-    back_depth_motor,
-    front_heading_motor,
-    back_heading_motor,
-    grabber,
-    sonar_rotator
+enum Interfaces {
+  mission = 1,
+  diver_interface,
+  led_indicator,
+  carte_navigation_exception
 };
 
-enum Markers{
-    dropper = 1,
-    launcher
-};
+enum Lights { front_light = 1, bottom_light = 5 };
 
-enum Sonars{
-    passive = 1,
-    active
-};
-
-enum Sensors{
-    depth_meter = 1,
-    light_sensor,
-    leak_sensor
-};
-
-enum Power{
-    power_distribution = 1,
-};
-
-enum Interfaces{
-    mission = 1,
-    diver_interface,
-    led_indicator,
-    carte_navigation_exception
-};
-
-enum Lights{
-    front_light = 1,
-    bottom_light = 5
-};
-
-enum Can2Rs232{
-    micron_dst_modem = 1
-};
+enum Can2Rs232 { micron_dst_modem = 1 };
 
 //============================================================================
 // D E V I C E S   M E T H O D S   N U M B E R S
 
-enum CommonMethods{
+enum CommonMethods {
   ping_req = 100,
 
 };
 
-enum BotLightMethods{
-  set_level = 0
-};
+enum BotLightMethods { set_level = 0 };
 
 #endif
