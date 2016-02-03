@@ -61,6 +61,9 @@ BottomLight::~BottomLight() {}
 //------------------------------------------------------------------------------
 //
 void BottomLight::Process() {
+  // TODO Alexi: I did not understand what you meant here, just commenting for
+  // compilation
+  /**
   std::vector<> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
 
@@ -102,6 +105,7 @@ void BottomLight::Process() {
     // TODO: tested les ping_response pour les pusher dans un message ROS
     // TODO: push lintensite de la lumiere dans un message ROS
   }
+  */
 }
 
 //------------------------------------------------------------------------------

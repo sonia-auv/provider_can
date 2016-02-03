@@ -39,6 +39,7 @@
 #include <memory>
 #include <thread>
 #include <ros/ros.h>
+#include <sonia_msgs/SendCanMessage.h>
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can/can_def.h"
 
@@ -295,6 +296,7 @@ class CanDispatcher {
                                    uint8_t *&fault);  // TODO: To be tested
 
   uint8_t GetNumberOfDevices();
+  
   void GetUnknownAddresses(std::vector<uint32_t> &addresses);
 
   /**
@@ -310,8 +312,8 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
 
-  bool CallDeviceMethod(provider_can::Request &req,
-                        provider_can::Response &res);
+  bool CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
+                        sonia_msgs::SendCanMessage::Response &res);
 
   /**
   * This function fetches messages received from ROS for a specific

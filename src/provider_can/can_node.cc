@@ -46,7 +46,8 @@ CanNode::CanNode(std::shared_ptr<ros::NodeHandle> nh) {
       std::make_shared<provider_can::BottomLight>(can_ptr_));
 
   ros::ServiceServer service =
-      nh->advertiseService("call_device_method", can_ptr_->CallDeviceMethod);
+      nh->advertiseService("call_device_method",
+  &CanDispatcher::CallDeviceMethod, can_ptr_.get());
 }
 
 //------------------------------------------------------------------------------

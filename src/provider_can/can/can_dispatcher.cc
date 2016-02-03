@@ -344,6 +344,7 @@ SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
 
   return FindDeviceWithAddress(global_address, index);
 }
+
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
@@ -388,6 +389,7 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address,
 
   return status;
 }
+
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address) {
@@ -624,10 +626,11 @@ void CanDispatcher::MainCanProcess() {
     usleep(THREAD_INTERVAL_US);
   }
 }
+
 //------------------------------------------------------------------------------
 //
-
-bool CanDispatcher::CallDeviceMethod(Mreq &req, provider_can::Response &res) {
+bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
+                                     sonia_msgs::SendCanMessage::Response &res) {
   SoniaDeviceStatus status;
   ComputerMessage msg = {msg.method_number = req.method_number,
                          msg.parameter_value = req.parameter_value};
@@ -646,9 +649,9 @@ bool CanDispatcher::CallDeviceMethod(Mreq &req, provider_can::Response &res) {
   res.device_status = status;
   return true;
 }
+
 //------------------------------------------------------------------------------
 //
-
 SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
     uint8_t device_id, uint8_t unique_id,
     std::vector<ComputerMessage> &buffer) {
