@@ -1,8 +1,13 @@
-/*******************************************************************************
-    copyright            : (C) 2008 S.O.N.I.A. Project
-    author               : David Mercier <david.mercier@gmail.com>
-    begin                : April 29th, 2008
-*******************************************************************************/
+/**
+ * \file	can_exceptions.h
+ * \author	David Mercier <david.mercier@gmail.com>
+ * \date	29/04/2008
+ *
+ * \copyright	Copyright (c) 2015 SONIA AUV ETS. All rights reserved.
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
+ */
+
 
 // TODO: Move to lib_atlas
 

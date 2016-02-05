@@ -3,31 +3,12 @@
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	07/12/2015
  *
- * \copyright Copyright (c) 2015 Copyright
- *
- * \section LICENSE http://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Changes by: S.O.N.I.A.
- * \copyright Copyright (c) 2015 S.O.N.I.A. All rights reserved.
- *
- * \section LICENSE
- *
- * This file is part of S.O.N.I.A. software.
- *
- * S.O.N.I.A. software is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * S.O.N.I.A. software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with S.O.N.I.A. software. If not, see <http://www.gnu.org/licenses/>.
+ * \copyright	Copyright (c) 2015 SONIA AUV ETS. All rights reserved.
+ * Use of this source code is governed by the MIT license that can be
+ * found in the LICENSE file.
  */
-// TODO: Ajouter la fonctionnalité set et get_parameter
+
+// TODO: add set and GetParameter functionnalities
 
 #ifndef PROVIDER_CAN_CAN_DISPATCHER_H_
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
@@ -39,7 +20,7 @@
 #include <memory>
 #include <thread>
 #include <ros/ros.h>
-#include <sonia_msgs/SendCanMessage.h>
+#include "sonia_msgs/SendCanMessage.h"
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can/can_def.h"
 
@@ -405,7 +386,7 @@ class CanDispatcher {
   * specific device. Default poll_rate is 100ms.
   *
   */
-  // void PollDevices();  // TODO: la fonctionnalité RTR devra être implémentée
+  // void PollDevices();  // TODO: RTR functionnality should be implemented in ELE
   // dans l'élé du sub
 
   /**
