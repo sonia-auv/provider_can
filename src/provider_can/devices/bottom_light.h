@@ -15,6 +15,7 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include "provider_can/BottomLightMsg.h"
 #include "provider_can/can/can_def.h"
 #include "provider_can/devices/can_device.h"
 
@@ -30,7 +31,8 @@ class BottomLight : public CanDevice {
   //============================================================================
   // P U B L I C   C / D T O R S
 
-  BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher);
+  BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher,
+              std::shared_ptr<ros::NodeHandle> nh);
 
   ~BottomLight();
 
@@ -59,6 +61,9 @@ class BottomLight : public CanDevice {
 
   uint8_t actual_light_level_;  // Light actual state
   uint8_t asked_light_level_;   // set by setLightLevel()
+
+  ros::Publisher bottom_light_pub_;
+
 };
 
 }  // namespace provider_can

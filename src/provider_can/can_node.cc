@@ -23,10 +23,11 @@ CanNode::CanNode(std::shared_ptr<ros::NodeHandle> nh) {
 
   // initialize all new devices here
   can_devices_vector_.push_back(
-      std::make_shared<provider_can::BottomLight>(can_ptr_));
+      std::make_shared<provider_can::BottomLight>(can_ptr_,nh));
 
+  // initializing service for devices methods calling
   ros::ServiceServer service =
-      nh->advertiseService("CallDeviceMethod",
+      nh->advertiseService("call_device_method",
   &CanDispatcher::CallDeviceMethod, can_ptr_.get());
 }
 

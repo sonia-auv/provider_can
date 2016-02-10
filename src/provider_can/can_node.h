@@ -25,7 +25,8 @@
 namespace provider_can {
 
 /**
- * This class contains the main process for can_provider
+ * This class contains the main process for can_provider. it calls all devices'
+ * processes and enables service for method calling
  */
 class CanNode {
   //==========================================================================

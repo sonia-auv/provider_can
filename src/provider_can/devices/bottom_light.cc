@@ -25,11 +25,15 @@ const std::string BottomLight::NAME = "Bottom Light";
 
 //------------------------------------------------------------------------------
 //
-BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher)
+BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher,
+                         std::shared_ptr<ros::NodeHandle> nh)
     : CanDevice(lights, bottom_light, can_dispatcher, NAME) {
   actual_light_level_ = 200;  // ensure we turn off the light at startup
   asked_light_level_ = 0;
   SetLevel(0);
+
+  bottom_light_pub_ =
+    nh->advertise<provider_can::BottomLightMsg>("bottom_light_msgs", 100);
 }
 
 //------------------------------------------------------------------------------
@@ -45,6 +49,11 @@ void BottomLight::Process() {
 
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
+  provider_can::BottomLightMsg::Ptr
+    bottom_light_msg(new provider_can::BottomLightMsg);
+
+  // default value: no ping received
+  bottom_light_msg->ping_rcvd = (uint8_t)false;
 
   if (DevicePresenceCheck()) {
     // fetching CAN messages
@@ -54,6 +63,8 @@ void BottomLight::Process() {
     if (rx_buffer.size() != 0) {
       // Collects the last message received (previous messages can be bypassed)
       actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
+      bottom_light_msg->intensity = actual_light_level_;
+      bottom_light_pub_.publish(bottom_light_msg);
     }
 
     // If a new light level has been asked
@@ -81,8 +92,11 @@ void BottomLight::Process() {
       }
     }
 
-    // TODO: verify ping responses and send to ros msg
-    // TODO: send light intensity to ros msg
+    // if ping has been received
+    if(GetPingStatus()){
+      bottom_light_msg->ping_rcvd = true;
+      bottom_light_pub_.publish(bottom_light_msg);
+    }
   }
 
 }
