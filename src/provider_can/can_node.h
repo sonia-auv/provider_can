@@ -16,6 +16,8 @@
 #include <cstring>
 #include <iostream>
 #include <ros/node_handle.h>
+#include <lib_atlas/macros.h>
+#include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/ros/service_server_manager.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
@@ -28,11 +30,14 @@ namespace provider_can {
  * This class contains the main process for can_provider. it calls all devices'
  * processes and enables service for method calling
  */
-class CanNode {
+class CanNode : public atlas::Runnable {
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<CanNode>;
+  using ConstPtr = std::shared_ptr<const CanNode>;
+  using PtrList = std::vector<CanNode::Ptr>;
+  using ConstPtrList = std::vector<CanNode::ConstPtr>;
 
  public:
   //============================================================================
@@ -41,9 +46,9 @@ class CanNode {
   /**
    * Initialize all new devices objects  in this constructor
    */
-  CanNode(std::shared_ptr<ros::NodeHandle> nh);
+  explicit CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-  ~CanNode();
+  ~CanNode() ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
@@ -52,11 +57,13 @@ class CanNode {
    * Call this process periodically in the main. Its function is to call
    * all devices processes for messages processing
    */
-  void ProcessMessages(void);
+  void Run() ATLAS_NOEXCEPT override;
 
  private:
   //============================================================================
   // P R I V A T E   M E M B E R S
+
+  ros::NodeHandlePtr nh_;
 
   CanDispatcher::Ptr can_ptr_;
 

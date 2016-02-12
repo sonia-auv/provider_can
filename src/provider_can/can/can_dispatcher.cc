@@ -8,9 +8,7 @@
  * found in the LICENSE file.
  */
 
-
 #include "can_dispatcher.h"
-
 
 namespace provider_can {
 
@@ -610,8 +608,9 @@ void CanDispatcher::MainCanProcess() {
 
 //------------------------------------------------------------------------------
 //
-bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
-                                     sonia_msgs::SendCanMessage::Response &res) {
+bool CanDispatcher::CallDeviceMethod(
+    sonia_msgs::SendCanMessage::Request &req,
+    sonia_msgs::SendCanMessage::Response &res) {
   SoniaDeviceStatus status;
   ComputerMessage msg = {msg.method_number = req.method_number,
                          msg.parameter_value = req.parameter_value};

@@ -13,7 +13,8 @@
 
 #include <memory>
 #include <vector>
-#include <cstring>
+#include <string>
+#include <lib_atlas/macros.h>
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/can/can_def.h"
 
@@ -38,8 +39,11 @@ class CanDevice {
   //============================================================================
   // P U B L I C   C / D T O R S
 
-  CanDevice(DeviceClass device_class, uint8_t device_type,
-            std::shared_ptr<CanDispatcher> can_dispatcher, std::string name);
+  explicit CanDevice(const DeviceClass &device_id, uint8_t unique_id,
+            const CanDispatcher::Ptr &can_dispatcher, const std::string
+                     &name) ATLAS_NOEXCEPT;
+
+  ~CanDevice() ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
@@ -55,7 +59,7 @@ class CanDevice {
    *
    * \returns std::string name of the device
    */
-  std::string GetName();
+  const std::string &GetName() const ATLAS_NOEXCEPT;
 
   /**
    * returns a structure containing device properties
@@ -94,18 +98,21 @@ class CanDevice {
 
   /**
    * Sends a reset message to the device
+   * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void Reset(); // TODO: devra etre rendue fonctionnelle dans l'ELE
+  // void Reset();
 
   /**
    * Sends a sleep request to the device
+   * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void SleepMode(); // TODO: devra etre rendue fonctionnelle dans l'ELE
+  // void SleepMode();
 
   /**
    * Sends a wake up request to the device
+   * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void WakeUp(); // TODO: devra etre rendue fonctionnelle dans l'ELE
+  // void WakeUp();
 
   // TODO: to be added: GetDeviceParams, SetDeviceParams et SetPollRate
   // lorsqu'implementees dans
@@ -113,9 +120,7 @@ class CanDevice {
 
  protected:
   //============================================================================
-  // P R O T E C T E D   M E M B E R S
-
-  std::shared_ptr<CanDispatcher> can_dispatcher_;  // pointer to can controller
+  // P R O T E C T E D   M E T H O D S
 
   /**
    * Collects messages received for that device
@@ -139,16 +144,30 @@ class CanDevice {
    */
   void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata);
 
+  //============================================================================
+  // P R O T E C T E D   M E M B E R S
+
+  std::shared_ptr<CanDispatcher> can_dispatcher_;  // pointer to can controller
+
  private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
   uint8_t *fault_message_;  // Fault message if device_fault is true
-  std::string name_;       // device's name
+  std::string name_;        // device's name
 
   DeviceClass device_id_;
   uint8_t unique_id_;
 };
+
+//==============================================================================
+// I N L I N E   F U N C T I O N S   D E F I N I T I O N S
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE const std::string &CanDevice::GetName() const ATLAS_NOEXCEPT {
+  return
+      name_; }
 
 }  // namespace provider_can
 

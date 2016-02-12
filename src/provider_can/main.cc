@@ -16,15 +16,11 @@
 int main(int argc, char** argv) {
   ros::init(argc, argv, "provider_can");
 
-  auto nh = std::make_shared<ros::NodeHandle>();
-  auto can_node_ptr = std::make_shared<provider_can::CanNode>(nh);
-
-  ros::Rate loop_rate(20);
+  ros::NodeHandlePtr nh(new ros::NodeHandle("~"));
+  provider_can::CanNode can_node_ptr(nh);
 
   while (ros::ok()) {
-    can_node_ptr->ProcessMessages();
     ros::spinOnce();
-    loop_rate.sleep();
   }
 
   return 0;

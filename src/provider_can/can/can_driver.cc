@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "can_driver.h"
 
 namespace provider_can {
@@ -158,10 +157,8 @@ canStatus CanDriver::Close() {
 canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec) {
   canStatus status;
   if (timeout_msec == 0) {
-    status = canWrite(handle_, msg.id, msg.data, msg
-        .dlc, msg.flag);
-  }
-  else {
+    status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
+  } else {
     status = canWriteWait(handle_, msg.id, msg.data, msg.dlc, msg.flag,
                           timeout_msec);
   }
@@ -189,12 +186,9 @@ canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
   long unsigned int time;
 
   if (timeout_msec == 0) {
-    status = canRead(handle_, &id, &msg->data,
-                     &msg->dlc, &msg->flag, &time);
-  }
-  else {
-    status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag,
-                         &time,
+    status = canRead(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time);
+  } else {
+    status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time,
                          timeout_msec);
   }
 
@@ -237,9 +231,8 @@ void CanDriver::PrintErrorText(canStatus error) {
 
   if (error != canOK) {
     std::cout << " ERROR "
-        << "(" << errMsg << ")" << std::endl;
-  }
-  else {
+              << "(" << errMsg << ")" << std::endl;
+  } else {
     std::cout << "(" << errMsg << ")";
   }
 }

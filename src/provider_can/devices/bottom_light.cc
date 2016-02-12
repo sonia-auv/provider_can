@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "bottom_light.h"
 
 namespace provider_can {
@@ -25,15 +24,15 @@ const std::string BottomLight::NAME = "Bottom Light";
 
 //------------------------------------------------------------------------------
 //
-BottomLight::BottomLight(std::shared_ptr<CanDispatcher> can_dispatcher,
-                         std::shared_ptr<ros::NodeHandle> nh)
+BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
+                         const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(lights, bottom_light, can_dispatcher, NAME) {
   actual_light_level_ = 200;  // ensure we turn off the light at startup
   asked_light_level_ = 0;
   SetLevel(0);
 
   bottom_light_pub_ =
-    nh->advertise<provider_can::BottomLightMsg>("bottom_light_msgs", 100);
+      nh->advertise<provider_can::BottomLightMsg>("bottom_light_msgs", 100);
 }
 
 //------------------------------------------------------------------------------
@@ -46,14 +45,13 @@ BottomLight::~BottomLight() {}
 //------------------------------------------------------------------------------
 //
 void BottomLight::Process() {
-
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
-  provider_can::BottomLightMsg::Ptr
-    bottom_light_msg(new provider_can::BottomLightMsg);
+  provider_can::BottomLightMsg::Ptr bottom_light_msg(
+      new provider_can::BottomLightMsg);
 
   // default value: no ping received
-  bottom_light_msg->ping_rcvd = (uint8_t)false;
+  bottom_light_msg->ping_rcvd = (uint8_t) false;
 
   if (DevicePresenceCheck()) {
     // fetching CAN messages
@@ -93,12 +91,11 @@ void BottomLight::Process() {
     }
 
     // if ping has been received
-    if(GetPingStatus()){
+    if (GetPingStatus()) {
       bottom_light_msg->ping_rcvd = true;
       bottom_light_pub_.publish(bottom_light_msg);
     }
   }
-
 }
 
 //------------------------------------------------------------------------------

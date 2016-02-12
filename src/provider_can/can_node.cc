@@ -17,32 +17,37 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-CanNode::CanNode(std::shared_ptr<ros::NodeHandle> nh) {
+CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
+    : nh_(nh),
+      can_ptr_(nullptr),
+      can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
       controllers, on_board_pc, 0, BAUD_125K, 10);
 
   // initialize all new devices here
   can_devices_vector_.push_back(
-      std::make_shared<provider_can::BottomLight>(can_ptr_,nh));
+      std::make_shared<provider_can::BottomLight>(can_ptr_, nh_));
 
   // initializing service for devices methods calling
-  ros::ServiceServer service =
-      nh->advertiseService("call_device_method",
-  &CanDispatcher::CallDeviceMethod, can_ptr_.get());
+  ros::ServiceServer service = nh_->advertiseService(
+      "call_device_method", &CanDispatcher::CallDeviceMethod, can_ptr_.get());
 }
 
 //------------------------------------------------------------------------------
 //
-CanNode::~CanNode() {}
+CanNode::~CanNode() ATLAS_NOEXCEPT {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
 //------------------------------------------------------------------------------
 //
-void CanNode::ProcessMessages(void) {
-  for (uint8_t i = 0; i < can_devices_vector_.size(); i++)
-    can_devices_vector_[i]->Process();
+void CanNode::Run() ATLAS_NOEXCEPT {
+  while (IsRunning()) {
+    for (auto &device : can_devices_vector_) {
+      device->Process();
+    }
+  }
 }
 
-} // namespace provider_can
+}  // namespace provider_can

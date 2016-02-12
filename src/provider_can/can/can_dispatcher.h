@@ -277,7 +277,7 @@ class CanDispatcher {
                                    uint8_t *&fault);  // TODO: To be tested
 
   uint8_t GetNumberOfDevices();
-  
+
   void GetUnknownAddresses(std::vector<uint32_t> &addresses);
 
   /**
@@ -386,7 +386,8 @@ class CanDispatcher {
   * specific device. Default poll_rate is 100ms.
   *
   */
-  // void PollDevices();  // TODO: RTR functionnality should be implemented in ELE
+  // void PollDevices();  // TODO: RTR functionnality should be implemented in
+  // ELE
   // dans l'élé du sub
 
   /**

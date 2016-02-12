@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-
 // TODO: Move to lib_atlas
 
 #ifndef PROVIDER_CAN_EXCEPTION_H

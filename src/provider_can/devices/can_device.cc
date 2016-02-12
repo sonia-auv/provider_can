@@ -17,14 +17,18 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-CanDevice::CanDevice(DeviceClass device_id, uint8_t unique_id,
-                     std::shared_ptr<CanDispatcher> can_dispatcher,
-                     std::string name) {
-  device_id_ = device_id;
-  unique_id_ = unique_id;
-  can_dispatcher_ = can_dispatcher;
-  name_ = name;
-}
+CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
+                     const CanDispatcher::Ptr &can_dispatcher,
+                     const std::string &name) ATLAS_NOEXCEPT :
+    device_id_(device_id),
+    unique_id_(unique_id),
+    can_dispatcher_(can_dispatcher),
+    name_(name)
+{}
+
+//------------------------------------------------------------------------------
+//
+CanDevice::~CanDevice() ATLAS_NOEXCEPT {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
@@ -45,10 +49,6 @@ DeviceProperties CanDevice::GetProperties() {
 
   return properties;
 }
-
-//------------------------------------------------------------------------------
-//
-std::string CanDevice::GetName() { return name_; }
 
 //------------------------------------------------------------------------------
 //
@@ -126,4 +126,4 @@ std::vector<ComputerMessage> CanDevice::FetchComputerMessages() {
   return buffer;
 }
 
-} // namespace provider_can
+}  // namespace provider_can
