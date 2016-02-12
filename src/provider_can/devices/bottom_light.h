@@ -63,6 +63,7 @@ class BottomLight : public CanDevice {
   uint8_t asked_light_level_;   // set by setLightLevel()
 
   ros::Publisher bottom_light_pub_;
+
 };
 
 }  // namespace provider_can

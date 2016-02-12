@@ -9,7 +9,6 @@
  */
 
 #include <memory>
-#include <vector>
 #include <ros/ros.h>
 #include "provider_can/can_node.h"
 
@@ -18,6 +17,7 @@ int main(int argc, char** argv) {
 
   ros::NodeHandlePtr nh(new ros::NodeHandle("~"));
   provider_can::CanNode can_node_ptr(nh);
+  can_node_ptr.Start();
 
   while (ros::ok()) {
     ros::spinOnce();
