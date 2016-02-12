@@ -20,6 +20,7 @@ namespace provider_can {
 CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : nh_(nh),
       can_ptr_(nullptr),
+      call_device_srv_(),
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
       controllers, on_board_pc, 0, BAUD_125K, 10);
@@ -29,7 +30,7 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       std::make_shared<provider_can::BottomLight>(can_ptr_, nh_));
 
   // initializing service for devices methods calling
-  ros::ServiceServer service = nh_->advertiseService(
+  call_device_srv_ = nh_->advertiseService(
       "call_device_method", &CanDispatcher::CallDeviceMethod, can_ptr_.get());
 }
 
