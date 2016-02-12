@@ -20,6 +20,7 @@
 #include <memory>
 #include <thread>
 #include <ros/ros.h>
+#include <lib_atlas/macros.h>
 #include "sonia_msgs/SendCanMessage.h"
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can/can_def.h"
@@ -143,6 +144,9 @@ class CanDispatcher {
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<CanDispatcher>;
+  using ConstPtr = std::shared_ptr<const CanDispatcher>;
+  using PtrList = std::vector<CanDispatcher::Ptr>;
+  using ConstPtrList = std::vector<CanDispatcher::ConstPtr>;
 
   // Delay after an ID request before listing devices
   static const uint32_t ID_REQ_WAIT;
@@ -167,11 +171,11 @@ class CanDispatcher {
   // param loop_rate main process loop rate. Must be the same as ROS loop_rate
   // param device_id PC ID
   // param unique_id PC ID
-  CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                uint32_t baudrate, uint32_t loop_rate);
+  explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
+                uint32_t baudrate, uint32_t loop_rate)ATLAS_NOEXCEPT;
 
   // Destructor
-  ~CanDispatcher();
+  ~CanDispatcher()ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
@@ -189,7 +193,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus SetPollRate(uint8_t device_id, uint8_t unique_id,
-                                uint16_t poll_rate);
+                                uint16_t poll_rate)ATLAS_NOEXCEPT;
 
   /**
   * The next functions sends SONIA specific messages to selected device
@@ -198,13 +202,13 @@ class CanDispatcher {
   * \param unique_id SONIA unique ID to look for
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus SendResetRequest(uint8_t device_id, uint8_t unique_id);
-  SoniaDeviceStatus SendSleepRequest(uint8_t device_id, uint8_t unique_id);
-  SoniaDeviceStatus SendWakeUpRequest(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus SendResetRequest(uint8_t device_id, uint8_t unique_id)ATLAS_NOEXCEPT;
+  SoniaDeviceStatus SendSleepRequest(uint8_t device_id, uint8_t unique_id)ATLAS_NOEXCEPT;
+  SoniaDeviceStatus SendWakeUpRequest(uint8_t device_id, uint8_t unique_id)ATLAS_NOEXCEPT;
 
-  SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id);
+  SoniaDeviceStatus PingDevice(uint8_t device_id, uint8_t unique_id)ATLAS_NOEXCEPT;
   SoniaDeviceStatus VerifyPingResponse(uint8_t device_id, uint8_t unique_id,
-                                       bool *response);
+                                       bool *response)ATLAS_NOEXCEPT;
 
   /**
   * This function allows to send a message to a specific device.
@@ -222,7 +226,7 @@ class CanDispatcher {
   */
   SoniaDeviceStatus PushUnicastMessage(uint8_t device_id, uint8_t unique_id,
                                        uint16_t message_id, uint8_t *buffer,
-                                       uint8_t ndata);
+                                       uint8_t ndata)ATLAS_NOEXCEPT;
 
   /**
   * The function allows to send broadcast messages using PC address. The
@@ -233,7 +237,7 @@ class CanDispatcher {
   * \param buffer message content
   * \param ndata message length
   */
-  void PushBroadMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata);
+  void PushBroadMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata)ATLAS_NOEXCEPT;
 
   /**
   * The function returns the rx_buffer of the selected device
@@ -252,7 +256,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus FetchMessages(uint8_t device_id, uint8_t unique_id,
-                                  std::vector<CanMessage> &buffer);
+                                  std::vector<CanMessage> &buffer)ATLAS_NOEXCEPT;
 
   /**
   * The function returns the devices's properties
@@ -263,7 +267,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus GetDevicesProperties(uint8_t device_id, uint8_t unique_id,
-                                         DeviceProperties &properties);
+                                         DeviceProperties &properties)ATLAS_NOEXCEPT;
 
   /**
   * The function clears the specified device fault flag and returns the
@@ -274,11 +278,11 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id,
-                                   uint8_t *&fault);  // TODO: To be tested
+                                   uint8_t *&fault)ATLAS_NOEXCEPT;
 
-  uint8_t GetNumberOfDevices();
+  uint8_t GetNumberOfDevices()ATLAS_NOEXCEPT;
 
-  void GetUnknownAddresses(std::vector<uint32_t> &addresses);
+  void GetUnknownAddresses(std::vector<uint32_t> &addresses)ATLAS_NOEXCEPT;
 
   /**
   * This function is set as a service into ROS. Call it with the corresponding
@@ -294,7 +298,7 @@ class CanDispatcher {
   */
 
   bool CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
-                        sonia_msgs::SendCanMessage::Response &res);
+                        sonia_msgs::SendCanMessage::Response &res)ATLAS_NOEXCEPT;
 
   /**
   * This function fetches messages received from ROS for a specific
@@ -306,7 +310,7 @@ class CanDispatcher {
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus FetchComputerMessages(uint8_t device_id, uint8_t unique_id,
-                                          std::vector<ComputerMessage> &buffer);
+                                          std::vector<ComputerMessage> &buffer)ATLAS_NOEXCEPT;
 
   /**
   * This allows the user to set permanent parameters to can devices. These
@@ -353,8 +357,8 @@ class CanDispatcher {
     * \return SoniaDeviceStatus enum
     */
   SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id,
-                               size_t *index);
-  SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id);
+                               size_t *index)ATLAS_NOEXCEPT;
+  SoniaDeviceStatus FindDevice(uint8_t device_id, uint8_t unique_id)ATLAS_NOEXCEPT;
 
  private:
   //============================================================================
@@ -364,7 +368,7 @@ class CanDispatcher {
   * This is the main thread for can processing
   *
   */
-  void MainCanProcess();
+  void MainCanProcess()ATLAS_NOEXCEPT;
 
   /**
   * Allows the user to send an ID request to devices on SONIA's CAN bus.
@@ -373,7 +377,7 @@ class CanDispatcher {
   * ID request. This function does not handle the responses to the ID request.
   *
   */
-  canStatus SendIdRequest();
+  canStatus SendIdRequest()ATLAS_NOEXCEPT;
 
   /**
   * Sends RTR to devices at rate specified in DeviceProperties struct, for every
@@ -401,17 +405,17 @@ class CanDispatcher {
   * be created
   * for it and if it sends other messages, they will be dropped.
   */
-  canStatus ListDevices();
+  canStatus ListDevices()ATLAS_NOEXCEPT;
 
   /**
   * Reads all messages received on CAN bus and stores them into rx_raw_buffer_
   */
-  canStatus ReadMessages();
+  canStatus ReadMessages()ATLAS_NOEXCEPT;
 
   /**
   * sends all messages contained in tx_raw_buffer_
   */
-  canStatus SendMessages();
+  canStatus SendMessages()ATLAS_NOEXCEPT;
 
   /**
   * Dispatch all messages contained into rx_raw_buffer_ to each respective
@@ -419,7 +423,7 @@ class CanDispatcher {
   * This function also filters ID_request responses and device_fault
   * messages to set DeviceProperties struct.
   */
-  void DispatchMessages();
+  void DispatchMessages()ATLAS_NOEXCEPT;
 
   /**
   * The function returns the device_list_ index value which contains the
@@ -431,15 +435,15 @@ class CanDispatcher {
   * \param index device_list_ index found
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address, size_t *index);
-  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address);
+  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address, size_t *index)ATLAS_NOEXCEPT;
+  SoniaDeviceStatus FindDeviceWithAddress(uint32_t address)ATLAS_NOEXCEPT;
 
   /**
   * The function sends and RTR on CAN bus with selected address
   *
   * \param address ID of the RTR
   */
-  void SendRTR(uint32_t address);
+  void SendRTR(uint32_t address)ATLAS_NOEXCEPT;
 
   /**
   * Adds an address to the unknown addresses table. If unknown
@@ -448,7 +452,7 @@ class CanDispatcher {
   *
   * \param address
   */
-  void AddUnknownAddress(uint32_t address);
+  void AddUnknownAddress(uint32_t address)ATLAS_NOEXCEPT;
 
   /**
   * Allows to read permanent parameters set in the devices

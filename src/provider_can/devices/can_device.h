@@ -35,6 +35,9 @@ class CanDevice {
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<CanDevice>;
+  using ConstPtr = std::shared_ptr<const CanDevice>;
+  using PtrList = std::vector<CanDevice::Ptr>;
+  using ConstPtrList = std::vector<CanDevice::ConstPtr>;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -66,7 +69,7 @@ class CanDevice {
    *
    * \return DeviceProperties
    */
-  DeviceProperties GetProperties();
+  const DeviceProperties &GetProperties() const ATLAS_NOEXCEPT;
 
   /**
    * returns a pointer to the device fault, if a fault has been received. If
@@ -74,7 +77,7 @@ class CanDevice {
    *
    * \return pointer to the fault, 8 characters long
    */
-  uint8_t *GetFault();
+  const uint8_t *GetFault() const ATLAS_NOEXCEPT;
 
   /**
    * Returns if a ping response has been received or not since last call of
@@ -82,19 +85,19 @@ class CanDevice {
    *
    * \returns true or false if response has been received or not
    */
-  bool GetPingStatus();
+  bool GetPingStatus() const ATLAS_NOEXCEPT;
 
   /**
    * Sends a ping message to the device
    */
-  void Ping();
+  void Ping() const ATLAS_NOEXCEPT;
 
   /**
    * Verifies if the device is present on the can bus.
    *
    * \returns true or false if device is present or not
    */
-  bool DevicePresenceCheck();
+  bool DevicePresenceCheck() const ATLAS_NOEXCEPT;
 
   /**
    * Sends a reset message to the device
@@ -127,14 +130,14 @@ class CanDevice {
    *
    * \param buffer device's rx_buffer
    */
-  std::vector<CanMessage> FetchMessages();
+  const std::vector<CanMessage> &FetchMessages() const ATLAS_NOEXCEPT;
 
   /**
    * Collects messages received from computer for that device
    *
    * \param buffer device's rx_buffer
    */
-  std::vector<ComputerMessage> FetchComputerMessages();
+  const std::vector<ComputerMessage> &FetchComputerMessages() const ATLAS_NOEXCEPT;
 
   /**
    * Pushes a message to the device
@@ -142,7 +145,7 @@ class CanDevice {
    * \param buffer message content
    * \param ndata message length
    */
-  void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata);
+  void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata) const ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R O T E C T E D   M E M B E R S
@@ -160,6 +163,8 @@ class CanDevice {
   uint8_t unique_id_;
 };
 
+
+
 //==============================================================================
 // I N L I N E   F U N C T I O N S   D E F I N I T I O N S
 
@@ -168,6 +173,101 @@ class CanDevice {
 ATLAS_INLINE const std::string &CanDevice::GetName() const ATLAS_NOEXCEPT {
   return
       name_; }
+  /*
+//------------------------------------------------------------------------------
+//ATLAS_INLINE void CanDevice::Reset() {
+  can_dispatcher_->SendResetRequest(device_id_, unique_id_);
+}
+ */
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE const DeviceProperties &CanDevice::GetProperties() const ATLAS_NOEXCEPT{
+    DeviceProperties properties;
+
+    can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
+
+    return properties;
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE const uint8_t *CanDevice::GetFault() const ATLAS_NOEXCEPT {
+    uint8_t *fault;
+    if (can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault) ==
+        SONIA_DEVICE_FAULT) {
+      return fault;
+    } else
+      return NULL;
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE bool CanDevice::GetPingStatus() const ATLAS_NOEXCEPT {
+    bool response;
+    if (can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &response) !=
+        SONIA_DEVICE_NOT_PRESENT)
+      return response;
+    else
+      return false;
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE void CanDevice::Ping() const ATLAS_NOEXCEPT {
+    can_dispatcher_->PingDevice(device_id_, unique_id_);
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE bool CanDevice::DevicePresenceCheck() const ATLAS_NOEXCEPT {
+    if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
+        SONIA_DEVICE_NOT_PRESENT)
+      return true;
+    else
+      return false;
+  }
+
+/*
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE void CanDevice::SleepMode() const ATLAS_NOEXCEPT {
+  can_dispatcher_->SendSleepRequest(device_id_,unique_id_);
+}
+*/
+
+/*
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE void CanDevice::WakeUp() const ATLAS_NOEXCEPT {
+  can_dispatcher_->SendWakeUpRequest(device_id_,unique_id_);
+}
+*/
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
+                              uint8_t ndata) const ATLAS_NOEXCEPT {
+    can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, message_id,
+                                        buffer, ndata);
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE  const std::vector<CanMessage> &CanDevice::FetchMessages() const ATLAS_NOEXCEPT {
+    std::vector<CanMessage> buffer;
+    can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
+    return buffer;
+  }
+
+//------------------------------------------------------------------------------
+//
+ATLAS_INLINE const std::vector<ComputerMessage> &CanDevice::FetchComputerMessages() const ATLAS_NOEXCEPT {
+    std::vector<ComputerMessage> buffer;
+    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, buffer);
+    return buffer;
+  }
+
 
 }  // namespace provider_can
 

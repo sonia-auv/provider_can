@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <memory>
 #include <canlib.h>
+#include <lib_atlas/macros.h>
 #include "provider_can/can/can_exceptions.h"
 
 namespace provider_can {
@@ -50,6 +51,9 @@ class CanDriver {
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<CanDriver>;
+  using ConstPtr = std::shared_ptr<const CanDriver>;
+  using PtrList = std::vector<CanDriver::Ptr>;
+  using ConstPtrList = std::vector<CanDriver::ConstPtr>;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -73,13 +77,13 @@ class CanDriver {
    * \param jump The Synchronization Jump Width; can be 1,2,3, or 4.
    * \param samp The number of sampling points; can be 1 or 3.
    */
-  CanDriver(uint32_t chan, uint32_t baudrate);
+  explicit CanDriver(uint32_t chan, uint32_t baudrate);
 
-  CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
+  explicit CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
             uint32_t jump, uint32_t samp);
 
   // Destructor
-  ~CanDriver();
+  ~CanDriver()ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
@@ -95,7 +99,7 @@ class CanDriver {
   * \param timeout_msec time to wait for a message to be received
   * \return canStatus enum
   */
-  canStatus ReadMessage(CanMessage* msg, uint32_t timeout_msec);
+  canStatus ReadMessage(CanMessage* msg, uint32_t timeout_msec)ATLAS_NOEXCEPT;
 
   /**
    * Allows the user to read all CAN messages received through a KVaser device
@@ -108,7 +112,7 @@ class CanDriver {
    *                        returned table)
    * \return canStatus
    */
-  canStatus ReadAllMessages(std::vector<CanMessage>& msg_table);
+  canStatus ReadAllMessages(std::vector<CanMessage>& msg_table)ATLAS_NOEXCEPT;
 
   /**
   * Allows the user to send one CAN message through a KVaser device
@@ -121,17 +125,17 @@ class CanDriver {
   * \param timeout_msec time to wait for a message to be sent
   * \return canStatus enum
   */
-  canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec);
+  canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec)ATLAS_NOEXCEPT;
   canStatus WriteBuffer(std::vector<CanMessage>& msg_table,
-                        uint32_t timeout_msec);
+                        uint32_t timeout_msec)ATLAS_NOEXCEPT;
 
   /**
   * Convert canStatus enum into text to show on terminal
   */
-  void PrintErrorText(canStatus error);
+  void PrintErrorText(canStatus error)ATLAS_NOEXCEPT;
 
-  canStatus FlushTxBuffer();
-  canStatus FlushRxBuffer();
+  canStatus FlushTxBuffer()ATLAS_NOEXCEPT;
+  canStatus FlushRxBuffer()ATLAS_NOEXCEPT;
 
   /**
 * Returns number of errors encountered in different processes
@@ -141,20 +145,20 @@ class CanDriver {
 * \param ovErr number of overrun errors
 * \return canStatus enum (canOK or canERR)
 */
-  canStatus GetErrorCount(uint32_t* tx_err, uint32_t* rx_err, uint32_t* ov_err);
+  canStatus GetErrorCount(uint32_t* tx_err, uint32_t* rx_err, uint32_t* ov_err)ATLAS_NOEXCEPT;
 
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
-  bool InitUsbDevice();
-  canStatus Open();
-  canStatus SetBusParams();
-  canStatus SetBusOff();
-  canStatus SetBusOn();
-  canStatus Close();
+  bool InitUsbDevice()ATLAS_NOEXCEPT;
+  canStatus Open()ATLAS_NOEXCEPT;
+  canStatus SetBusParams()ATLAS_NOEXCEPT;
+  canStatus SetBusOff()ATLAS_NOEXCEPT;
+  canStatus SetBusOn()ATLAS_NOEXCEPT;
+  canStatus Close()ATLAS_NOEXCEPT;
   canStatus GetBusParams(long* freq, unsigned int* tseg1, unsigned int* tseg2,
-                         unsigned int* sjw, unsigned int* noSamp);
+                         unsigned int* sjw, unsigned int* noSamp)ATLAS_NOEXCEPT;
 
   /**
    * gets the number of messages contained in the selected buffer
@@ -162,8 +166,8 @@ class CanDriver {
    * \param lvl number of messages
    * \return canStatus enum (canOK or canERR)
    */
-  canStatus GetTxBufLevel(uint32_t* lvl);
-  canStatus GetRxBufLevel(uint32_t* lvl);
+  canStatus GetTxBufLevel(uint32_t* lvl)ATLAS_NOEXCEPT;
+  canStatus GetRxBufLevel(uint32_t* lvl)ATLAS_NOEXCEPT;
 
   /**
   * Adds an acceptance filter to CAN device so that we can receive
@@ -178,7 +182,7 @@ class CanDriver {
   *                            canFILTER_SET_CODE_EXT, canFILTER_SET_MASK_EXT
   * \return canStatus enum
   */
-  canStatus SetAcceptanceFilter(uint32_t enveloppe, int flag);
+  canStatus SetAcceptanceFilter(uint32_t enveloppe, int flag)ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S

@@ -27,6 +27,9 @@ class BottomLight : public CanDevice {
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<BottomLight>;
+  using ConstPtr = std::shared_ptr<const BottomLight>;
+  using PtrList = std::vector<BottomLight::Ptr>;
+  using ConstPtrList = std::vector<BottomLight::ConstPtr>;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -49,7 +52,7 @@ class BottomLight : public CanDevice {
    */
   void SetLevel(uint8_t level);
 
-  uint8_t GetLevel();
+  uint8_t GetLevel() const;
 
  private:
   //============================================================================

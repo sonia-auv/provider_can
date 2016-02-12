@@ -21,23 +21,6 @@ class ExceptionCanDeviceNotFound : public std::exception {
   virtual const char *what() const throw() { return "CAN device not found"; }
 };
 
-class ExceptionInvalidServerSocket : public std::exception {
-  virtual const char *what() const throw() {
-    return "Unable to instantiate the ServerSocket";
-  }
-};
-
-class ExceptionConfigFileNotFound : public std::exception {
-  virtual const char *what() const throw() { return "Config file not found"; }
-};
-
-class ExceptionConfigKeyNotFound : public std::exception {
-  virtual const char *what() const throw() { return "Config key not found"; }
-};
-
-class ExceptionPropertyNotFound : public std::exception {
-  virtual const char *what() const throw() { return "Property not found"; }
-};
 }
 
 #endif  // EXCEPTION_H

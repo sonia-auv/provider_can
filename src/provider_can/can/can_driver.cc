@@ -56,7 +56,7 @@ CanDriver::~CanDriver() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::Open() {
+canStatus CanDriver::Open()ATLAS_NOEXCEPT {
   handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
   // CAN channel handler
 
@@ -71,7 +71,7 @@ canStatus CanDriver::Open() {
 
 //------------------------------------------------------------------------------
 //
-bool CanDriver::InitUsbDevice() {
+bool CanDriver::InitUsbDevice()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = Open();  // Open CAN channel
@@ -100,7 +100,7 @@ bool CanDriver::InitUsbDevice() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusParams() {
+canStatus CanDriver::SetBusParams()ATLAS_NOEXCEPT {
   canStatus status;
 
   switch (baudrate_) {
@@ -124,7 +124,7 @@ canStatus CanDriver::SetBusParams() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusOff() {
+canStatus CanDriver::SetBusOff()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOff(handle_);
@@ -134,7 +134,7 @@ canStatus CanDriver::SetBusOff() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusOn() {
+canStatus CanDriver::SetBusOn()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOn(handle_);
@@ -144,7 +144,7 @@ canStatus CanDriver::SetBusOn() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::Close() {
+canStatus CanDriver::Close()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canClose(handle_);
@@ -154,7 +154,8 @@ canStatus CanDriver::Close() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec) {
+canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec)
+  ATLAS_NOEXCEPT {
   canStatus status;
   if (timeout_msec == 0) {
     status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
@@ -168,7 +169,7 @@ canStatus CanDriver::WriteMessage(CanMessage msg, uint32_t timeout_msec) {
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
-                                 uint32_t timeout_msec) {
+                                 uint32_t timeout_msec)ATLAS_NOEXCEPT {
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
@@ -180,7 +181,8 @@ canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
+canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec)
+  ATLAS_NOEXCEPT{
   canStatus status;
   long int id;
   long unsigned int time;
@@ -200,7 +202,8 @@ canStatus CanDriver::ReadMessage(CanMessage *msg, uint32_t timeout_msec) {
 //------------------------------------------------------------------------------
 //
 
-canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
+canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table)
+ATLAS_NOEXCEPT{
   canStatus status;
   CanMessage msg;
   uint32_t num_of_messages = 0;
@@ -223,7 +226,7 @@ canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) {
 
 //------------------------------------------------------------------------------
 //
-void CanDriver::PrintErrorText(canStatus error) {
+void CanDriver::PrintErrorText(canStatus error)ATLAS_NOEXCEPT {
   char errMsg[128];
   errMsg[0] = '\0';
 
@@ -239,7 +242,8 @@ void CanDriver::PrintErrorText(canStatus error) {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe, int flag) {
+canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe, int flag)
+  ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canAccept(handle_, enveloppe, flag);
@@ -250,7 +254,7 @@ canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe, int flag) {
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
-                                   uint32_t *ov_err) {
+                                   uint32_t *ov_err)ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
@@ -260,7 +264,7 @@ canStatus CanDriver::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::GetRxBufLevel(uint32_t *lvl) {
+canStatus CanDriver::GetRxBufLevel(uint32_t *lvl)ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_RX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -270,7 +274,7 @@ canStatus CanDriver::GetRxBufLevel(uint32_t *lvl) {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::GetTxBufLevel(uint32_t *lvl) {
+canStatus CanDriver::GetTxBufLevel(uint32_t *lvl)ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_TX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -280,7 +284,7 @@ canStatus CanDriver::GetTxBufLevel(uint32_t *lvl) {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::FlushRxBuffer() {
+canStatus CanDriver::FlushRxBuffer()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_RX_BUFFER, 0, 0);
@@ -290,7 +294,7 @@ canStatus CanDriver::FlushRxBuffer() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::FlushTxBuffer() {
+canStatus CanDriver::FlushTxBuffer()ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_TX_BUFFER, 0, 0);
@@ -302,7 +306,7 @@ canStatus CanDriver::FlushTxBuffer() {
 //
 canStatus CanDriver::GetBusParams(long *freq, unsigned int *tseg1,
                                   unsigned int *tseg2, unsigned int *sjw,
-                                  unsigned int *no_samp) {
+                                  unsigned int *no_samp)ATLAS_NOEXCEPT {
   canStatus status;
   uint32_t dummy;
 

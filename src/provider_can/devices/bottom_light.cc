@@ -8,6 +8,7 @@
  * found in the LICENSE file.
  */
 
+#include <provider_can/BottomLightMsg.h>
 #include "bottom_light.h"
 
 namespace provider_can {
@@ -78,10 +79,10 @@ void BottomLight::Process() {
     for (uint8_t i = 0; i < pc_messages_buffer.size(); i++) {
       // if messages askes to call set_level function
       switch (pc_messages_buffer[i].method_number) {
-        case set_level:
+        case BotLightMethods::set_level:
           SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
           break;
-        case ping_req:
+        case CommonMethods::ping_req:
           Ping();
           break;
         default:
@@ -94,6 +95,14 @@ void BottomLight::Process() {
       ros_msg.ping_rcvd = true;
       bottom_light_pub_.publish(ros_msg);
     }
+
+    // if a fault has been received
+    const uint8_t *fault = GetFault();
+    if (fault != NULL) {
+      for(uint8_t i=0; i < 8; i++)
+        ros_msg.fault[i] = fault[i];
+      bottom_light_pub_.publish(ros_msg);
+    }
   }
 }
 
@@ -103,6 +112,6 @@ void BottomLight::SetLevel(uint8_t level) { asked_light_level_ = level; }
 
 //------------------------------------------------------------------------------
 //
-uint8_t BottomLight::GetLevel() { return actual_light_level_; }
+uint8_t BottomLight::GetLevel() const { return actual_light_level_; }
 
 }  // namespace provider_can
