@@ -21,6 +21,7 @@
 #include <thread>
 #include <ros/ros.h>
 #include <lib_atlas/macros.h>
+#include <lib_atlas/pattern/runnable.h>
 #include "sonia_msgs/SendCanMessage.h"
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can/can_def.h"
@@ -138,7 +139,7 @@ typedef enum {
  *
  */
 
-class CanDispatcher {
+class CanDispatcher: public atlas::Runnable {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
@@ -375,10 +376,10 @@ class CanDispatcher {
   // P R I V A T E   M E T H O D S
 
   /**
-  * This is the main thread for can processing
-  *
-  */
-  void MainCanProcess() ATLAS_NOEXCEPT;
+   * Call this process periodically in the main. Its function is to call
+   * all devices processes for messages processing
+   */
+    void Run() ATLAS_NOEXCEPT override;
 
   /**
   * Allows the user to send an ID request to devices on SONIA's CAN bus.
@@ -503,7 +504,6 @@ class CanDispatcher {
 
   uint32_t master_id_;  // PC ID
 
-  pthread_t can_dispatcher_process_;
 };
 
 }  // namespace provider_can

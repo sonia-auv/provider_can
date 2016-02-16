@@ -25,6 +25,7 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
       controllers, on_board_pc, 0, BAUD_125K, 10);
+  can_ptr_->Start();
 
   // initialize all new devices here
   can_devices_vector_.push_back(

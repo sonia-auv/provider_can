@@ -38,8 +38,7 @@ const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
                              uint32_t chan, uint32_t baudrate,
                              uint32_t loop_rate) ATLAS_NOEXCEPT
-    : can_driver_(chan, baudrate),
-      main_thread_(&CanDispatcher::MainCanProcess, this) {
+    : can_driver_(chan, baudrate) {
   discovery_tries_ = 0;
   loop_rate_ = loop_rate;
 
@@ -539,7 +538,7 @@ void CanDispatcher::AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::MainCanProcess() ATLAS_NOEXCEPT {
+void CanDispatcher::Run() ATLAS_NOEXCEPT {
   canStatus status;
 
   while (1) {

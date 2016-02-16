@@ -44,14 +44,14 @@ class BottomLight : public CanDevice {
   /**
    * reimplemented method from CanDevice class
    */
-  void Process();
+  void Process()ATLAS_NOEXCEPT;
 
   /**
    * unique light device functions
    */
-  void SetLevel(uint8_t level);
+  void SetLevel(uint8_t level)ATLAS_NOEXCEPT;
 
-  uint8_t GetLevel() const;
+  uint8_t GetLevel() const ATLAS_NOEXCEPT;
 
  private:
   //============================================================================

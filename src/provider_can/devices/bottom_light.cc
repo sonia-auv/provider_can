@@ -45,7 +45,7 @@ BottomLight::~BottomLight() {}
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::Process() {
+void BottomLight::Process()ATLAS_NOEXCEPT {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
   sonia_msgs::BottomLightMsg ros_msg;
@@ -107,10 +107,10 @@ void BottomLight::Process() {
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::SetLevel(uint8_t level) { asked_light_level_ = level; }
+void BottomLight::SetLevel(uint8_t level) ATLAS_NOEXCEPT{ asked_light_level_ = level; }
 
 //------------------------------------------------------------------------------
 //
-uint8_t BottomLight::GetLevel() const { return actual_light_level_; }
+uint8_t BottomLight::GetLevel() const ATLAS_NOEXCEPT { return actual_light_level_; }
 
 }  // namespace provider_can
