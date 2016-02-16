@@ -69,7 +69,7 @@ class CanDevice {
    *
    * \return DeviceProperties
    */
-  const DeviceProperties &GetProperties() const ATLAS_NOEXCEPT;
+  DeviceProperties GetProperties() const ATLAS_NOEXCEPT;
 
   /**
    * returns a pointer to the device fault, if a fault has been received. If
@@ -130,14 +130,14 @@ class CanDevice {
    *
    * \param buffer device's rx_buffer
    */
-  const std::vector<CanMessage> &FetchMessages() const ATLAS_NOEXCEPT;
+  std::vector<CanMessage> FetchMessages() const ATLAS_NOEXCEPT;
 
   /**
    * Collects messages received from computer for that device
    *
    * \param buffer device's rx_buffer
    */
-  const std::vector<ComputerMessage> &FetchComputerMessages() const ATLAS_NOEXCEPT;
+  std::vector<ComputerMessage> FetchComputerMessages() const ATLAS_NOEXCEPT;
 
   /**
    * Pushes a message to the device
@@ -182,13 +182,11 @@ ATLAS_INLINE const std::string &CanDevice::GetName() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE const DeviceProperties &CanDevice::GetProperties() const ATLAS_NOEXCEPT{
-    DeviceProperties properties;
-
-    can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
-
-    return properties;
-  }
+ATLAS_INLINE DeviceProperties CanDevice::GetProperties() const ATLAS_NOEXCEPT {
+  DeviceProperties properties;
+  can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
+  return properties;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -254,20 +252,21 @@ ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE  const std::vector<CanMessage> &CanDevice::FetchMessages() const ATLAS_NOEXCEPT {
-    std::vector<CanMessage> buffer;
-    can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
-    return buffer;
-  }
+ATLAS_INLINE std::vector<CanMessage> CanDevice::FetchMessages() const
+    ATLAS_NOEXCEPT {
+  std::vector<CanMessage> buffer;
+  can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
+  return buffer;
+}
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE const std::vector<ComputerMessage> &CanDevice::FetchComputerMessages() const ATLAS_NOEXCEPT {
-    std::vector<ComputerMessage> buffer;
-    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, buffer);
-    return buffer;
-  }
-
+ATLAS_INLINE std::vector<ComputerMessage> CanDevice::FetchComputerMessages()
+    const ATLAS_NOEXCEPT {
+  std::vector<ComputerMessage> buffer;
+  can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, buffer);
+  return buffer;
+}
 
 }  // namespace provider_can
 
