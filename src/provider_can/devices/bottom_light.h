@@ -36,7 +36,7 @@ class BottomLight : public CanDevice {
   explicit BottomLight(const CanDispatcher::Ptr &can_dispatcher,
                        const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-  ~BottomLight();
+  virtual ~BottomLight();
 
   //============================================================================
   // P U B L I C   M E T H O D S

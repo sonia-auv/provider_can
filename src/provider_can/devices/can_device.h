@@ -46,7 +46,7 @@ class CanDevice {
                      const CanDispatcher::Ptr &can_dispatcher,
                      const std::string &name) ATLAS_NOEXCEPT;
 
-  ~CanDevice() ATLAS_NOEXCEPT;
+  virtual ~CanDevice() ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
