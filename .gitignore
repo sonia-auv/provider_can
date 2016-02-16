@@ -79,6 +79,7 @@ msg/_*.py
 # eclipse stuff
 .project
 .cproject
+Debug/
 
 # qcreator stuff
 CMakeLists.txt.user
