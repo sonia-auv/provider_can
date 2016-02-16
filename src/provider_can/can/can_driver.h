@@ -21,6 +21,7 @@
 #include <memory>
 #include <canlib.h>
 #include <lib_atlas/macros.h>
+#include <lib_atlas/exceptions/io_exception.h>
 #include "provider_can/can/can_exceptions.h"
 
 namespace provider_can {

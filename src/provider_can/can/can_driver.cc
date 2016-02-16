@@ -25,7 +25,7 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
       sjw_(1),
       noSamp_(16) {
   if (!InitUsbDevice()) {
-    throw ExceptionCanDeviceNotFound();
+    throw atlas::IOException("Can Device not found");
   }
 }
 
@@ -40,7 +40,7 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
       sjw_(jump),
       noSamp_(samp) {
   if (!InitUsbDevice()) {
-    throw ExceptionCanDeviceNotFound();
+	  throw atlas::IOException("Can Device not found");
   }
 }
 
