@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/BottomLightMsg.h>
 #include "provider_can/can_node.h"
 
 namespace provider_can {
@@ -30,6 +29,8 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
   // initialize all new devices here
   can_devices_vector_.push_back(
       std::make_shared<provider_can::BottomLight>(can_ptr_, nh_));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::PowerSupply>(can_ptr_, nh_));
 
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(

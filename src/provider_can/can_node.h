@@ -23,6 +23,7 @@
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 #include "provider_can/devices/bottom_light.h"
+#include "provider_can/devices/power_supply.h"
 
 namespace provider_can {
 
