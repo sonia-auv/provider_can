@@ -15,8 +15,11 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include <ros/ros.h>
 #include "provider_can/can/can_def.h"
+#include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
+
 
 namespace provider_can {
 
@@ -44,7 +47,7 @@ class BottomLight : public CanDevice {
   /**
    * reimplemented method from CanDevice class
    */
-  void Process()ATLAS_NOEXCEPT;
+  void Process()ATLAS_NOEXCEPT override;
 
   /**
    * unique light device functions

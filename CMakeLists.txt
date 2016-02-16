@@ -25,7 +25,7 @@
 # G L O B A L   P R O J E C T   C O N F I G U R A T I O N
 
 cmake_minimum_required(VERSION 2.8.3)
-
+ 
 project(provider_can)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -52,7 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 
-catkin_package(
+catkin_package( 
     INCLUDE_DIRS ${provider_can_SRC_DIR}
     LIBRARIES
     CATKIN_DEPENDS roscpp std_msgs lib_atlas sonia_msgs
@@ -66,9 +66,9 @@ file(GLOB_RECURSE provider_can_FILES "${provider_can_SRC_DIR}/*.cc"
 
 list(REMOVE_ITEM provider_can_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/${provider_can_SRC_DIR}/${PROJECT_NAME}/main.cc)
-
+ 
 include_directories(
-    ${catkin_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS} 
     ${provider_can_SRC_DIR}
     ${lib_atlas_INCLUDE_DIRS}
 )
