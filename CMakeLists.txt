@@ -50,14 +50,6 @@ find_package(catkin REQUIRED COMPONENTS
     sonia_msgs
     )
 
-add_message_files(
-        DIRECTORY msg
-        FILES
-        BottomLightMsg.msg
-)
-
-generate_messages(DEPENDENCIES std_msgs)
-
 find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)
 
 catkin_package(
@@ -65,8 +57,6 @@ catkin_package(
     LIBRARIES
     CATKIN_DEPENDS roscpp std_msgs lib_atlas sonia_msgs
 )
-
-
 
 #===============================================================================
 # I N C L U D E   F I L E S

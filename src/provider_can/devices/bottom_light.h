@@ -15,7 +15,7 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
-#include "provider_can/BottomLightMsg.h"
+#include <sonia_msgs/BottomLightMsg.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/devices/can_device.h"
 
