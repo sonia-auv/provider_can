@@ -19,6 +19,7 @@
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/ros/service_server_manager.h>
+#include "provider_can/can_configuration.h"
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -64,6 +65,8 @@ class CanNode : public atlas::Runnable {
   // P R I V A T E   M E M B E R S
 
   ros::NodeHandlePtr nh_;
+
+  CanConfiguration conf_;
 
   CanDispatcher::Ptr can_ptr_;
 

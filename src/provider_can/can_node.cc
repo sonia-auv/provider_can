@@ -20,11 +20,12 @@ namespace provider_can {
 //
 CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : nh_(nh),
+      conf_(nh),
       can_ptr_(nullptr),
       call_device_srv_(),
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
-      controllers, on_board_pc, 0, BAUD_125K, 10);
+      conf_.device_id, conf_.unique_id, conf_.channel, conf_.baudrate, conf_.loop_rate);
   can_ptr_->Start();
 
   // initialize all new devices here

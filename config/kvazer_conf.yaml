@@ -1,0 +1,7 @@
+#********** Driver Parameters ************
+
+driver/baudrate: -4 # From canlib values
+driver/device_id: 1
+driver/unique_id: 1
+driver/loop_rate: 10
+driver/channel: 0
