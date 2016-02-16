@@ -34,21 +34,21 @@ namespace provider_can {
 //
 CanConfiguration::CanConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : baudrate(-4),
- device_id(1),
- unique_id(1),
- loop_rate(10),
- channel(0),
+      device_id(1),
+      unique_id(1),
+      loop_rate(10),
+      channel(0),
       nh_(nh) {}
 
 //------------------------------------------------------------------------------
 //
 CanConfiguration::CanConfiguration(const CanConfiguration &rhs) ATLAS_NOEXCEPT {
   baudrate = rhs.baudrate;
-      device_id = rhs.device_id;
-      unique_id = rhs.unique_id;
-      loop_rate = rhs.loop_rate;
-      channel = rhs.channel;
-nh_ = rhs.nh_;
+  device_id = rhs.device_id;
+  unique_id = rhs.unique_id;
+  loop_rate = rhs.loop_rate;
+  channel = rhs.channel;
+  nh_ = rhs.nh_;
 }
 
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ CanConfiguration::~CanConfiguration() ATLAS_NOEXCEPT {}
 //------------------------------------------------------------------------------
 //
 void CanConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
-FindParameter("driver/baudrate", baudrate);
+  FindParameter("driver/baudrate", baudrate);
   FindParameter("driver/device_id", device_id);
   FindParameter("driver/unique_id", unique_id);
   FindParameter("driver/loop_rate", loop_rate);
@@ -73,12 +73,11 @@ FindParameter("driver/baudrate", baudrate);
 template <typename Tp_>
 void CanConfiguration::FindParameter(const std::string &str,
                                      Tp_ &p) ATLAS_NOEXCEPT {
-if (nh_->hasParam(str)) {
-nh_->getParam(str, p);
-} else {
-ROS_WARN_STREAM("Did not find " << str
-<< ". Using default value instead.");
-}
+  if (nh_->hasParam(str)) {
+    nh_->getParam(str, p);
+  } else {
+    ROS_WARN_STREAM("Did not find " << str << ". Using default value instead.");
+  }
 }
 
 }  // namespace provider_can

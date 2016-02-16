@@ -20,7 +20,6 @@
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 
-
 namespace provider_can {
 
 class BottomLight : public CanDevice {
@@ -47,12 +46,12 @@ class BottomLight : public CanDevice {
   /**
    * reimplemented method from CanDevice class
    */
-  void Process()ATLAS_NOEXCEPT override;
+  void Process() ATLAS_NOEXCEPT override;
 
   /**
    * unique light device functions
    */
-  void SetLevel(uint8_t level)ATLAS_NOEXCEPT;
+  void SetLevel(uint8_t level) ATLAS_NOEXCEPT;
 
   uint8_t GetLevel() const ATLAS_NOEXCEPT;
 

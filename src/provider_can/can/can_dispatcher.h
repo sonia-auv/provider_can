@@ -139,7 +139,7 @@ typedef enum {
  *
  */
 
-class CanDispatcher: public atlas::Runnable {
+class CanDispatcher : public atlas::Runnable {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
@@ -379,7 +379,7 @@ class CanDispatcher: public atlas::Runnable {
    * Call this process periodically in the main. Its function is to call
    * all devices processes for messages processing
    */
-    void Run() ATLAS_NOEXCEPT override;
+  void Run() ATLAS_NOEXCEPT override;
 
   /**
   * Allows the user to send an ID request to devices on SONIA's CAN bus.
@@ -503,7 +503,6 @@ class CanDispatcher: public atlas::Runnable {
   uint32_t ovrr_error_;
 
   uint32_t master_id_;  // PC ID
-
 };
 
 }  // namespace provider_can

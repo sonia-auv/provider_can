@@ -28,10 +28,8 @@ const std::string BottomLight::NAME = "Bottom Light";
 BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(lights, bottom_light, can_dispatcher, NAME),
-	  actual_light_level_(200),
-	  asked_light_level_(0)
-	  {
-
+      actual_light_level_(200),
+      asked_light_level_(0) {
   SetLevel(0);
 
   bottom_light_pub_ =
@@ -47,7 +45,7 @@ BottomLight::~BottomLight() {}
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::Process()ATLAS_NOEXCEPT {
+void BottomLight::Process() ATLAS_NOEXCEPT {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
   sonia_msgs::BottomLightMsg ros_msg;
@@ -109,10 +107,14 @@ void BottomLight::Process()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-void BottomLight::SetLevel(uint8_t level) ATLAS_NOEXCEPT{ asked_light_level_ = level; }
+void BottomLight::SetLevel(uint8_t level) ATLAS_NOEXCEPT {
+  asked_light_level_ = level;
+}
 
 //------------------------------------------------------------------------------
 //
-uint8_t BottomLight::GetLevel() const ATLAS_NOEXCEPT { return actual_light_level_; }
+uint8_t BottomLight::GetLevel() const ATLAS_NOEXCEPT {
+  return actual_light_level_;
+}
 
 }  // namespace provider_can

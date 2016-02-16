@@ -40,7 +40,7 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
       sjw_(jump),
       noSamp_(samp) {
   if (!InitUsbDevice()) {
-	  throw atlas::IOException("Can Device not found");
+    throw atlas::IOException("Can Device not found");
   }
 }
 
@@ -56,7 +56,7 @@ CanDriver::~CanDriver() {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::Open()  ATLAS_NOEXCEPT {
+canStatus CanDriver::Open() ATLAS_NOEXCEPT {
   handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
   // CAN channel handler
 
@@ -100,7 +100,7 @@ bool CanDriver::InitUsbDevice() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusParams()  const ATLAS_NOEXCEPT {
+canStatus CanDriver::SetBusParams() const ATLAS_NOEXCEPT {
   canStatus status;
 
   switch (baudrate_) {
@@ -124,7 +124,7 @@ canStatus CanDriver::SetBusParams()  const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusOff() const  ATLAS_NOEXCEPT {
+canStatus CanDriver::SetBusOff() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOff(handle_);
@@ -134,7 +134,7 @@ canStatus CanDriver::SetBusOff() const  ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::SetBusOn() const  ATLAS_NOEXCEPT {
+canStatus CanDriver::SetBusOn() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOn(handle_);
@@ -144,7 +144,7 @@ canStatus CanDriver::SetBusOn() const  ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::Close() const  ATLAS_NOEXCEPT {
+canStatus CanDriver::Close() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canClose(handle_);
@@ -155,7 +155,7 @@ canStatus CanDriver::Close() const  ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::WriteMessage(CanMessage msg,
-                                  uint32_t timeout_msec) const  ATLAS_NOEXCEPT {
+                                  uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   if (timeout_msec == 0) {
     status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
@@ -169,7 +169,7 @@ canStatus CanDriver::WriteMessage(CanMessage msg,
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
-                                 uint32_t timeout_msec) const  ATLAS_NOEXCEPT {
+                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
@@ -226,7 +226,7 @@ canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) const
 
 //------------------------------------------------------------------------------
 //
-void CanDriver::PrintErrorText(canStatus error)  const ATLAS_NOEXCEPT {
+void CanDriver::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
   char errMsg[128];
   errMsg[0] = '\0';
 
@@ -243,7 +243,7 @@ void CanDriver::PrintErrorText(canStatus error)  const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe,
-                                         int flag) const  ATLAS_NOEXCEPT {
+                                         int flag) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canAccept(handle_, enveloppe, flag);
@@ -254,7 +254,7 @@ canStatus CanDriver::SetAcceptanceFilter(uint32_t enveloppe,
 //------------------------------------------------------------------------------
 //
 canStatus CanDriver::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
-                                   uint32_t *ov_err) const  ATLAS_NOEXCEPT {
+                                   uint32_t *ov_err) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
@@ -264,7 +264,7 @@ canStatus CanDriver::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::GetRxBufLevel(uint32_t *lvl)  const ATLAS_NOEXCEPT {
+canStatus CanDriver::GetRxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_RX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -274,7 +274,7 @@ canStatus CanDriver::GetRxBufLevel(uint32_t *lvl)  const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::GetTxBufLevel(uint32_t *lvl)  const ATLAS_NOEXCEPT {
+canStatus CanDriver::GetTxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_TX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -284,7 +284,7 @@ canStatus CanDriver::GetTxBufLevel(uint32_t *lvl)  const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::FlushRxBuffer()  const ATLAS_NOEXCEPT {
+canStatus CanDriver::FlushRxBuffer() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_RX_BUFFER, 0, 0);
@@ -294,7 +294,7 @@ canStatus CanDriver::FlushRxBuffer()  const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDriver::FlushTxBuffer()  const ATLAS_NOEXCEPT {
+canStatus CanDriver::FlushTxBuffer() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_TX_BUFFER, 0, 0);
@@ -306,7 +306,7 @@ canStatus CanDriver::FlushTxBuffer()  const ATLAS_NOEXCEPT {
 //
 canStatus CanDriver::GetBusParams(long *freq, unsigned int *tseg1,
                                   unsigned int *tseg2, unsigned int *sjw,
-                                  unsigned int *no_samp)  const ATLAS_NOEXCEPT {
+                                  unsigned int *no_samp) const ATLAS_NOEXCEPT {
   canStatus status;
   uint32_t dummy;
 

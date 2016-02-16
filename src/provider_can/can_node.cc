@@ -24,7 +24,8 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       call_device_srv_(),
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
-      conf_.device_id, conf_.unique_id, conf_.channel, conf_.baudrate, conf_.loop_rate);
+      conf_.device_id, conf_.unique_id, conf_.channel, conf_.baudrate,
+      conf_.loop_rate);
   can_ptr_->Start();
 
   // initialize all new devices here

@@ -23,39 +23,39 @@
 namespace provider_can {
 
 class PowerSupply : public CanDevice {
-	//==========================================================================
-	// T Y P E D E F   A N D   E N U M
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
 
-	using Ptr = std::shared_ptr<PowerSupply>;
-	using ConstPtr = std::shared_ptr<const PowerSupply>;
-	using PtrList = std::vector<PowerSupply::Ptr>;
-	using ConstPtrList = std::vector<PowerSupply::ConstPtr>;
+  using Ptr = std::shared_ptr<PowerSupply>;
+  using ConstPtr = std::shared_ptr<const PowerSupply>;
+  using PtrList = std::vector<PowerSupply::Ptr>;
+  using ConstPtrList = std::vector<PowerSupply::ConstPtr>;
 
-	//============================================================================
-	// P U B L I C   C / D T O R S
-  public:
-	explicit PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
-					   const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+  //============================================================================
+  // P U B L I C   C / D T O R S
+ public:
+  explicit PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
+                       const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-	virtual ~PowerSupply();
+  virtual ~PowerSupply();
 
-	//============================================================================
-	// P U B L I C   M E T H O D S
+  //============================================================================
+  // P U B L I C   M E T H O D S
 
-	/**
-	 * reimplemented method from CanDevice class
-	 */
-	void Process()ATLAS_NOEXCEPT override;
+  /**
+   * reimplemented method from CanDevice class
+   */
+  void Process() ATLAS_NOEXCEPT override;
 
-  private:
-	//============================================================================
-	// P R I V A T E   M E M B E R S
+ private:
+  //============================================================================
+  // P R I V A T E   M E M B E R S
 
-	const static std::string NAME;
+  const static std::string NAME;
 
-	ros::Publisher power_supply_pub_;
+  ros::Publisher power_supply_pub_;
 };
 
-}/* namespace provider_can */
+} /* namespace provider_can */
 
 #endif /* PROVIDER_CAN_POWER_SUPPLY_H_ */
