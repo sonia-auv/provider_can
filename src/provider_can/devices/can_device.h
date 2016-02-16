@@ -43,8 +43,8 @@ class CanDevice {
   // P U B L I C   C / D T O R S
 
   explicit CanDevice(const DeviceClass &device_id, uint8_t unique_id,
-            const CanDispatcher::Ptr &can_dispatcher, const std::string
-                     &name) ATLAS_NOEXCEPT;
+                     const CanDispatcher::Ptr &can_dispatcher,
+                     const std::string &name) ATLAS_NOEXCEPT;
 
   ~CanDevice() ATLAS_NOEXCEPT;
 
@@ -145,7 +145,8 @@ class CanDevice {
    * \param buffer message content
    * \param ndata message length
    */
-  void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata) const ATLAS_NOEXCEPT;
+  void PushMessage(uint16_t message_id, uint8_t *buffer,
+                   uint8_t ndata) const ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R O T E C T E D   M E M B E R S
@@ -163,22 +164,20 @@ class CanDevice {
   uint8_t unique_id_;
 };
 
-
-
 //==============================================================================
 // I N L I N E   F U N C T I O N S   D E F I N I T I O N S
 
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE const std::string &CanDevice::GetName() const ATLAS_NOEXCEPT {
-  return
-      name_; }
-  /*
+  return name_;
+}
+/*
 //------------------------------------------------------------------------------
 //ATLAS_INLINE void CanDevice::Reset() {
-  can_dispatcher_->SendResetRequest(device_id_, unique_id_);
+can_dispatcher_->SendResetRequest(device_id_, unique_id_);
 }
- */
+*/
 
 //------------------------------------------------------------------------------
 //
@@ -191,40 +190,40 @@ ATLAS_INLINE DeviceProperties CanDevice::GetProperties() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE const uint8_t *CanDevice::GetFault() const ATLAS_NOEXCEPT {
-    uint8_t *fault;
-    if (can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault) ==
-        SONIA_DEVICE_FAULT) {
-      return fault;
-    } else
-      return NULL;
-  }
+  uint8_t *fault;
+  if (can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault) ==
+      SONIA_DEVICE_FAULT) {
+    return fault;
+  } else
+    return NULL;
+}
 
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE bool CanDevice::GetPingStatus() const ATLAS_NOEXCEPT {
-    bool response;
-    if (can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &response) !=
-        SONIA_DEVICE_NOT_PRESENT)
-      return response;
-    else
-      return false;
-  }
+  bool response;
+  if (can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &response) !=
+      SONIA_DEVICE_NOT_PRESENT)
+    return response;
+  else
+    return false;
+}
 
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE void CanDevice::Ping() const ATLAS_NOEXCEPT {
-    can_dispatcher_->PingDevice(device_id_, unique_id_);
-  }
+  can_dispatcher_->PingDevice(device_id_, unique_id_);
+}
 
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE bool CanDevice::DevicePresenceCheck() const ATLAS_NOEXCEPT {
-    if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
-        SONIA_DEVICE_NOT_PRESENT)
-      return true;
-    else
-      return false;
-  }
+  if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
+      SONIA_DEVICE_NOT_PRESENT)
+    return true;
+  else
+    return false;
+}
 
 /*
 //------------------------------------------------------------------------------
@@ -245,10 +244,10 @@ ATLAS_INLINE void CanDevice::WakeUp() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
-                              uint8_t ndata) const ATLAS_NOEXCEPT {
-    can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, message_id,
-                                        buffer, ndata);
-  }
+                                         uint8_t ndata) const ATLAS_NOEXCEPT {
+  can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, message_id,
+                                      buffer, ndata);
+}
 
 //------------------------------------------------------------------------------
 //

@@ -35,7 +35,7 @@ class BottomLight : public CanDevice {
   // P U B L I C   C / D T O R S
 
   explicit BottomLight(const CanDispatcher::Ptr &can_dispatcher,
-              const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+                       const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
   ~BottomLight();
 
@@ -66,7 +66,6 @@ class BottomLight : public CanDevice {
   uint8_t asked_light_level_;   // set by setLightLevel()
 
   ros::Publisher bottom_light_pub_;
-
 };
 
 }  // namespace provider_can

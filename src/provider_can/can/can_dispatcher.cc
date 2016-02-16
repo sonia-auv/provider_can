@@ -37,7 +37,7 @@ const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
 //
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
                              uint32_t chan, uint32_t baudrate,
-                             uint32_t loop_rate)ATLAS_NOEXCEPT
+                             uint32_t loop_rate) ATLAS_NOEXCEPT
     : can_driver_(chan, baudrate),
       main_thread_(&CanDispatcher::MainCanProcess, this) {
   discovery_tries_ = 0;
@@ -63,14 +63,14 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
 //------------------------------------------------------------------------------
 //
-CanDispatcher::~CanDispatcher()ATLAS_NOEXCEPT {}
+CanDispatcher::~CanDispatcher() ATLAS_NOEXCEPT {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDispatcher::ListDevices()ATLAS_NOEXCEPT {
+canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
   canStatus status;
 
   status = SendIdRequest();  // Ask ID from every device on CAN bus
@@ -102,7 +102,7 @@ canStatus CanDispatcher::ListDevices()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::DispatchMessages()ATLAS_NOEXCEPT {
+void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
 
@@ -184,7 +184,7 @@ void CanDispatcher::DispatchMessages()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDispatcher::ReadMessages()ATLAS_NOEXCEPT {
+canStatus CanDispatcher::ReadMessages() ATLAS_NOEXCEPT {
   canStatus status;
   status = can_driver_.ReadAllMessages(rx_raw_buffer_);
 
@@ -193,7 +193,7 @@ canStatus CanDispatcher::ReadMessages()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDispatcher::SendMessages()ATLAS_NOEXCEPT {
+canStatus CanDispatcher::SendMessages() ATLAS_NOEXCEPT {
   canStatus status;
 
   status = can_driver_.WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
@@ -204,7 +204,7 @@ canStatus CanDispatcher::SendMessages()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDispatcher::SendIdRequest()ATLAS_NOEXCEPT {
+canStatus CanDispatcher::SendIdRequest() ATLAS_NOEXCEPT {
   CanMessage msg;
 
   msg.id = 0;
@@ -218,9 +218,8 @@ canStatus CanDispatcher::SendIdRequest()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::SetPollRate(uint8_t device_id,
-                                             uint8_t unique_id,
-                                             uint16_t poll_rate)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::SetPollRate(
+    uint8_t device_id, uint8_t unique_id, uint16_t poll_rate) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
 
@@ -236,7 +235,8 @@ SoniaDeviceStatus CanDispatcher::SetPollRate(uint8_t device_id,
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::FetchMessages(
-    uint8_t device_id, uint8_t unique_id, std::vector<CanMessage> &buffer)ATLAS_NOEXCEPT {
+    uint8_t device_id, uint8_t unique_id,
+    std::vector<CanMessage> &buffer) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
 
@@ -255,7 +255,8 @@ SoniaDeviceStatus CanDispatcher::FetchMessages(
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::GetDevicesProperties(
-    uint8_t device_id, uint8_t unique_id, DeviceProperties &properties)ATLAS_NOEXCEPT {
+    uint8_t device_id, uint8_t unique_id,
+    DeviceProperties &properties) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
 
@@ -276,11 +277,9 @@ SoniaDeviceStatus CanDispatcher::GetDevicesProperties(
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::PushUnicastMessage(uint8_t device_id,
-                                                    uint8_t unique_id,
-                                                    uint16_t message_id,
-                                                    uint8_t *buffer,
-                                                    uint8_t ndata)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
+    uint8_t device_id, uint8_t unique_id, uint16_t message_id, uint8_t *buffer,
+    uint8_t ndata) ATLAS_NOEXCEPT {
   CanMessage message;
 
   if (ndata > 8)  // DLC cannot be larger than 8!!
@@ -300,7 +299,7 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(uint8_t device_id,
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
-                                     uint8_t ndata)ATLAS_NOEXCEPT {
+                                     uint8_t ndata) ATLAS_NOEXCEPT {
   CanMessage message;
 
   if (ndata > 8)  // DLC cannot be larger than 8!!
@@ -317,7 +316,8 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
-                                            uint8_t unique_id, size_t *index)ATLAS_NOEXCEPT {
+                                            uint8_t unique_id,
+                                            size_t *index) ATLAS_NOEXCEPT {
   uint32_t global_address =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
@@ -327,7 +327,7 @@ SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
-                                            uint8_t unique_id)ATLAS_NOEXCEPT {
+                                            uint8_t unique_id) ATLAS_NOEXCEPT {
   uint32_t global_address =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
@@ -336,8 +336,8 @@ SoniaDeviceStatus CanDispatcher::FindDevice(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address,
-                                                       size_t *index)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(
+    uint32_t address, size_t *index) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
   address = address & DEVICE_MAC_MASK;
@@ -371,7 +371,8 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)
+    ATLAS_NOEXCEPT {
   SoniaDeviceStatus status = SONIA_DEVICE_NOT_PRESENT;
 
   address = address & DEVICE_MAC_MASK;
@@ -427,9 +428,8 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)ATLAS_NO
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::GetDeviceFault(uint8_t device_id,
-                                                uint8_t unique_id,
-                                                uint8_t *&fault)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::GetDeviceFault(
+    uint8_t device_id, uint8_t unique_id, uint8_t *&fault) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
   status = FindDevice(device_id, unique_id, &index);
@@ -444,8 +444,8 @@ SoniaDeviceStatus CanDispatcher::GetDeviceFault(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::SendResetRequest(uint8_t device_id,
-                                                  uint8_t unique_id)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::SendResetRequest(
+    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
   uint8_t *msg;
 
   return (PushUnicastMessage(device_id, unique_id, RESET_REQ, msg,
@@ -454,8 +454,8 @@ SoniaDeviceStatus CanDispatcher::SendResetRequest(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::SendSleepRequest(uint8_t device_id,
-                                                  uint8_t unique_id)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::SendSleepRequest(
+    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
   uint8_t *msg;
 
   return (PushUnicastMessage(device_id, unique_id, SLEEP_REQ, msg,
@@ -465,7 +465,7 @@ SoniaDeviceStatus CanDispatcher::SendSleepRequest(uint8_t device_id,
 //------------------------------------------------------------------------------
 //
 SoniaDeviceStatus CanDispatcher::PingDevice(uint8_t device_id,
-                                            uint8_t unique_id)ATLAS_NOEXCEPT {
+                                            uint8_t unique_id) ATLAS_NOEXCEPT {
   uint8_t *msg;
 
   return (
@@ -474,9 +474,8 @@ SoniaDeviceStatus CanDispatcher::PingDevice(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::VerifyPingResponse(uint8_t device_id,
-                                                    uint8_t unique_id,
-                                                    bool *response)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::VerifyPingResponse(
+    uint8_t device_id, uint8_t unique_id, bool *response) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
   status = FindDevice(device_id, unique_id, &index);
@@ -493,8 +492,8 @@ SoniaDeviceStatus CanDispatcher::VerifyPingResponse(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::SendWakeUpRequest(uint8_t device_id,
-                                                   uint8_t unique_id)ATLAS_NOEXCEPT {
+SoniaDeviceStatus CanDispatcher::SendWakeUpRequest(
+    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
   uint8_t *msg;
 
   return (PushUnicastMessage(device_id, unique_id, WAKEUP_REQ, msg,
@@ -503,7 +502,7 @@ SoniaDeviceStatus CanDispatcher::SendWakeUpRequest(uint8_t device_id,
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::SendRTR(uint32_t address)ATLAS_NOEXCEPT {
+void CanDispatcher::SendRTR(uint32_t address) ATLAS_NOEXCEPT {
   CanMessage msg;
 
   msg.id = address;
@@ -517,20 +516,20 @@ void CanDispatcher::SendRTR(uint32_t address)ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-uint8_t CanDispatcher::GetNumberOfDevices()ATLAS_NOEXCEPT {
-    return devices_list_.size();
-  }
+uint8_t CanDispatcher::GetNumberOfDevices() ATLAS_NOEXCEPT {
+  return devices_list_.size();
+}
 
 //------------------------------------------------------------------------------
 //
 void CanDispatcher::GetUnknownAddresses(std::vector<uint32_t> &addresses)
-  ATLAS_NOEXCEPT {
+    ATLAS_NOEXCEPT {
   addresses = unknown_addresses_table_;
 }
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT{
+void CanDispatcher::AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT {
   if (std::find(unknown_addresses_table_.begin(),
                 unknown_addresses_table_.end(),
                 address & DEVICE_MAC_MASK) == unknown_addresses_table_.end()) {
@@ -540,7 +539,7 @@ void CanDispatcher::AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT{
 
 //------------------------------------------------------------------------------
 //
-void CanDispatcher::MainCanProcess()ATLAS_NOEXCEPT {
+void CanDispatcher::MainCanProcess() ATLAS_NOEXCEPT {
   canStatus status;
 
   while (1) {
@@ -611,9 +610,9 @@ void CanDispatcher::MainCanProcess()ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-bool CanDispatcher::CallDeviceMethod(
-    sonia_msgs::SendCanMessage::Request &req,
-    sonia_msgs::SendCanMessage::Response &res) ATLAS_NOEXCEPT{
+bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
+                                     sonia_msgs::SendCanMessage::Response &res)
+    ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   ComputerMessage msg = {msg.method_number = req.method_number,
                          msg.parameter_value = req.parameter_value};
@@ -637,7 +636,7 @@ bool CanDispatcher::CallDeviceMethod(
 //
 SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
     uint8_t device_id, uint8_t unique_id,
-    std::vector<ComputerMessage> &buffer)ATLAS_NOEXCEPT {
+    std::vector<ComputerMessage> &buffer) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   size_t index;
 

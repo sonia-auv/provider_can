@@ -20,7 +20,6 @@ namespace provider_can {
 class ExceptionCanDeviceNotFound : public std::exception {
   virtual const char *what() const throw() { return "CAN device not found"; }
 };
-
 }
 
 #endif  // EXCEPTION_H

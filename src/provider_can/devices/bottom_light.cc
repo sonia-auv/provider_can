@@ -99,8 +99,7 @@ void BottomLight::Process() {
     // if a fault has been received
     const uint8_t *fault = GetFault();
     if (fault != NULL) {
-      for(uint8_t i=0; i < 8; i++)
-        ros_msg.fault[i] = fault[i];
+      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = fault[i];
       bottom_light_pub_.publish(ros_msg);
     }
   }

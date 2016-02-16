@@ -19,12 +19,11 @@ namespace provider_can {
 //
 CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
                      const CanDispatcher::Ptr &can_dispatcher,
-                     const std::string &name) ATLAS_NOEXCEPT :
-    device_id_(device_id),
-    unique_id_(unique_id),
-    can_dispatcher_(can_dispatcher),
-    name_(name)
-{}
+                     const std::string &name) ATLAS_NOEXCEPT
+    : device_id_(device_id),
+      unique_id_(unique_id),
+      can_dispatcher_(can_dispatcher),
+      name_(name) {}
 
 //------------------------------------------------------------------------------
 //
