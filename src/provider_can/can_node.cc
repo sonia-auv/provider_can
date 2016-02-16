@@ -8,6 +8,7 @@
  * found in the LICENSE file.
  */
 
+#include <sonia_msgs/BottomLightMsg.h>
 #include "provider_can/can_node.h"
 
 namespace provider_can {

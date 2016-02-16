@@ -33,7 +33,7 @@ BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
   SetLevel(0);
 
   bottom_light_pub_ =
-      nh->advertise<provider_can::BottomLightMsg>("bottom_light_msgs", 100);
+      nh->advertise<sonia_msgs::BottomLightMsg>("bottom_light_msgs", 100);
 }
 
 //------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ BottomLight::~BottomLight() {}
 void BottomLight::Process() {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
-  provider_can::BottomLightMsg ros_msg;
+  sonia_msgs::BottomLightMsg ros_msg;
 
   // default value: no ping received
   ros_msg.ping_rcvd = (uint8_t) false;
