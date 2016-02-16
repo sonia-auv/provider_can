@@ -74,9 +74,9 @@ template <typename Tp_>
 void CanConfiguration::FindParameter(const std::string &str,
                                      Tp_ &p) ATLAS_NOEXCEPT {
   if (nh_->hasParam(str)) {
-    nh_->getParam(str, p);
+    nh_->getParam("provider_can/" + str, p);
   } else {
-    ROS_WARN_STREAM("Did not find " << str << ". Using default value instead.");
+    ROS_WARN_STREAM("Did not find provider_can/" << str << ". Using default value instead.");
   }
 }
 
