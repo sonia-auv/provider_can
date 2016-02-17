@@ -136,6 +136,7 @@ enum Can2Rs232 { micron_dst_modem = 1 };
 enum CommonMethods {
   ping_req = 100,
   presence_check = 101,
+  get_properties = 102,
 };
 
 enum BotLightMethods { set_level = 0 };

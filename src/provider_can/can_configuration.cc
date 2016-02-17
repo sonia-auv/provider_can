@@ -36,7 +36,6 @@ CanConfiguration::CanConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : baudrate(-4),
       device_id(1),
       unique_id(1),
-      loop_rate(10),
       channel(0),
       nh_(nh) {}
 
@@ -46,7 +45,6 @@ CanConfiguration::CanConfiguration(const CanConfiguration &rhs) ATLAS_NOEXCEPT {
   baudrate = rhs.baudrate;
   device_id = rhs.device_id;
   unique_id = rhs.unique_id;
-  loop_rate = rhs.loop_rate;
   channel = rhs.channel;
   nh_ = rhs.nh_;
 }
@@ -64,7 +62,6 @@ void CanConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
   FindParameter("driver/baudrate", baudrate);
   FindParameter("driver/device_id", device_id);
   FindParameter("driver/unique_id", unique_id);
-  FindParameter("driver/loop_rate", loop_rate);
   FindParameter("driver/channel", channel);
 }
 

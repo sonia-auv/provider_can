@@ -62,7 +62,6 @@ class CanConfiguration {
   int baudrate;
   int device_id;
   int unique_id;
-  int loop_rate;
   int channel;
 
  private:

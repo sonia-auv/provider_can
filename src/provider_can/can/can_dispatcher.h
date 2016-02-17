@@ -173,7 +173,7 @@ class CanDispatcher : public atlas::Runnable {
   // param device_id PC ID
   // param unique_id PC ID
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                         uint32_t baudrate, uint32_t loop_rate) ATLAS_NOEXCEPT;
+                         uint32_t baudrate) ATLAS_NOEXCEPT;
 
   // Destructor
   ~CanDispatcher() ATLAS_NOEXCEPT;
@@ -486,9 +486,7 @@ class CanDispatcher : public atlas::Runnable {
   std::vector<CanMessage> tx_raw_buffer_;
 
   CanDriver can_driver_;  // Can communication object
-  std::thread main_thread_;
 
-  timespec ticks_per_sec_;
   timespec actual_time_;
   timespec initial_time_;
   timespec id_req_time_;
@@ -496,7 +494,6 @@ class CanDispatcher : public atlas::Runnable {
 
   uint8_t discovery_tries_;
 
-  uint32_t loop_rate_;  // main process loop rate
 
   uint32_t tx_error_;
   uint32_t rx_error_;
