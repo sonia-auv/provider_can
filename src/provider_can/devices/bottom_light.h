@@ -56,6 +56,15 @@ class BottomLight : public CanDevice {
   uint8_t GetLevel() const ATLAS_NOEXCEPT;
 
  private:
+
+  //============================================================================
+  // P R I V A T E   M E T H O D S
+
+  /**
+   * Returns device's properties as a ROS msg
+   */
+  void SendProperties() const ATLAS_NOEXCEPT override;
+
   //============================================================================
   // P R I V A T E   M E M B E R S
 
@@ -67,6 +76,7 @@ class BottomLight : public CanDevice {
   uint8_t asked_light_level_;   // set by setLightLevel()
 
   ros::Publisher bottom_light_pub_;
+  ros::Publisher bottom_light_properties_pub_;
 };
 
 }  // namespace provider_can

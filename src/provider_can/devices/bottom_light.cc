@@ -9,6 +9,7 @@
  */
 
 #include <sonia_msgs/BottomLightMsg.h>
+#include <sonia_msgs/CanDevicesProperties.h>
 #include "provider_can/devices/bottom_light.h"
 
 namespace provider_can {
@@ -34,6 +35,11 @@ BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
 
   bottom_light_pub_ =
       nh->advertise<sonia_msgs::BottomLightMsg>("bottom_light_msgs", 100);
+
+  bottom_light_properties_pub_ =
+        nh->advertise<sonia_msgs::CanDevicesProperties>("bottom_light_properties", 100);
+
+  SendProperties();
 }
 
 //------------------------------------------------------------------------------
@@ -65,13 +71,6 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
       bottom_light_pub_.publish(ros_msg);
     }
 
-    // If a new light level has been asked
-    if (asked_light_level_ != actual_light_level_) {
-      // sets light level
-      PushMessage(SET_LIGHT_MSG, &asked_light_level_, SET_LIGHT_DLC);
-      actual_light_level_ = asked_light_level_;
-    }
-
     // fetching pc messages (ROS)
     pc_messages_buffer = FetchComputerMessages();
 
@@ -79,12 +78,15 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
     for (uint8_t i = 0; i < pc_messages_buffer.size(); i++) {
       // if messages askes to call set_level function
       switch (pc_messages_buffer[i].method_number) {
-        case BotLightMethods::set_level:
-          SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
+        case set_level:
+        	SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
           break;
-        case CommonMethods::ping_req:
+        case ping_req:
           Ping();
           break;
+        case get_properties:
+          SendProperties();
+		  break;
         default:
           break;
       }
@@ -108,13 +110,31 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 void BottomLight::SetLevel(uint8_t level) ATLAS_NOEXCEPT {
-  asked_light_level_ = level;
+  if(actual_light_level_ != level){
+	  PushMessage(SET_LIGHT_MSG, &level, SET_LIGHT_DLC);
+	  actual_light_level_ = level;
+  }
 }
 
 //------------------------------------------------------------------------------
 //
 uint8_t BottomLight::GetLevel() const ATLAS_NOEXCEPT {
   return actual_light_level_;
+}
+
+//------------------------------------------------------------------------------
+//
+void BottomLight::SendProperties() const ATLAS_NOEXCEPT {
+	sonia_msgs::CanDevicesProperties ros_msg;
+	DeviceProperties properties = GetProperties();
+
+	ros_msg.capabilities = properties.capabilities;
+	ros_msg.device_data = properties.device_data;
+	ros_msg.firmware_version = properties.firmware_version;
+	ros_msg.uc_signature = properties.uc_signature;
+	//ros_msg.poll_rate = properties.poll_rate; // unsupported
+
+	bottom_light_properties_pub_.publish(ros_msg);
 }
 
 }  // namespace provider_can

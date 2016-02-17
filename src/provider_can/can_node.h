@@ -41,6 +41,9 @@ class CanNode : public atlas::Runnable {
   using PtrList = std::vector<CanNode::Ptr>;
   using ConstPtrList = std::vector<CanNode::ConstPtr>;
 
+  // thread execution interval
+  static const uint32_t THREAD_INTERVAL_US;
+
  public:
   //============================================================================
   // P U B L I C   C / D T O R S

@@ -100,6 +100,11 @@ class CanDevice {
   bool DevicePresenceCheck() const ATLAS_NOEXCEPT;
 
   /**
+   * Returns device's properties as a ROS msg
+   */
+  virtual void SendProperties() const ATLAS_NOEXCEPT = 0;
+
+  /**
    * Sends a reset message to the device
    * TODO Alexi Demers: This will have to be implemented in ELE part
    */

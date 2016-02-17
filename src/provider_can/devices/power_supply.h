@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
+#include <sonia_msgs/PowerSupplyMsg.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -48,12 +49,47 @@ class PowerSupply : public CanDevice {
   void Process() ATLAS_NOEXCEPT override;
 
  private:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
+
+  static const uint16_t KILL_STATE_MSG;
+  static const uint16_t VOLT1_MSG;
+  static const uint16_t VOLT2_MSG;
+  static const uint16_t VOLT3_MSG;
+  static const uint16_t CURR1_MSG;
+  static const uint16_t CURR2_MSG;
+  static const uint16_t CURR3_MSG;
+  static const uint16_t STATES1_MSG;
+  static const uint16_t STATES2_MSG;
+
+  static const uint16_t PC_RST_MSG;
+  static const uint16_t SET_CHANNEL_MSG;
+  static const uint16_t REMOTE_KILL_MSG;
+
+  //============================================================================
+  // P R I V A T E   M E T H O D S
+
+  /**
+   * Returns device's properties as a ROS msg
+   */
+  void SendProperties() const ATLAS_NOEXCEPT override;
+
+  void PcReset(uint8_t reset) const ATLAS_NOEXCEPT ;
+
+  void RemoteKill(uint8_t state) const ATLAS_NOEXCEPT ;
+
+  void SetChannel(uint8_t channel) const ATLAS_NOEXCEPT ;
+
+
   //============================================================================
   // P R I V A T E   M E M B E R S
 
   const static std::string NAME;
 
   ros::Publisher power_supply_pub_;
+  ros::Publisher power_supply_properties_pub_;
+
+  sonia_msgs::PowerSupplyMsg ros_msg;
 };
 
 } /* namespace provider_can */

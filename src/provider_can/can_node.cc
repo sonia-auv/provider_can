@@ -13,6 +13,11 @@
 namespace provider_can {
 
 //==============================================================================
+// S T A T I C   M E M B E R S
+
+const uint32_t CanNode::THREAD_INTERVAL_US = 10000;
+
+//==============================================================================
 // C / D T O R   S E C T I O N
 
 //------------------------------------------------------------------------------
@@ -52,6 +57,7 @@ void CanNode::Run() ATLAS_NOEXCEPT {
     for (auto &device : can_devices_vector_) {
       device->Process();
     }
+    usleep(THREAD_INTERVAL_US);
   }
 }
 

@@ -36,6 +36,9 @@ const uint8_t DEVICE_ID_POSITION = 20;
 // Mac address mask
 const uint32_t DEVICE_MAC_MASK = 0x0FFFF000;
 
+// Message type mask
+const uint32_t DEVICE_MSG_MASK = 0x00000FFF;
+
 // Messages DLCs
 const uint8_t IDENTIFY_REPLY_DLC = 7;
 const uint8_t DEVICE_FAULT_DLC = 8;
@@ -46,6 +49,10 @@ const uint8_t SET_PARAMETER_DLC = 5;
 const uint8_t SLEEP_REQUEST_DLC = 0;
 const uint8_t WAKEUP_REQUEST_DLC = 0;
 const uint8_t RESET_REQUEST_DLC = 0;
+
+
+enum MessageType { global = 0x0, application = 0xf };
+
 
 //============================================================================
 // D E V I C E S   P A R A M E T E R S
@@ -80,7 +87,7 @@ enum SonarRotatorParams {
 enum TorpedoLauncherParams { torpedo_launch_time = 0, torpedo_max_pressure };
 
 //============================================================================
-// D E V I C E S   I D
+// D E V I C E   I D
 
 enum DeviceClass {
   controllers = 1,
@@ -94,7 +101,10 @@ enum DeviceClass {
   can2rs232,
 };
 
-enum MessageType { global = 0x0, application = 0xf };
+
+
+//============================================================================
+// D E V I C E S  U N I Q U E   I D
 
 enum Controllers { on_board_pc = 1, pid_controller };
 
@@ -116,7 +126,7 @@ enum Sonars { passive = 1, active };
 enum Sensors { depth_meter = 1, light_sensor, leak_sensor };
 
 enum Power {
-  power_distribution = 1,
+  power_distribution = 2,
 };
 
 enum Interfaces {
@@ -140,5 +150,10 @@ enum CommonMethods {
 };
 
 enum BotLightMethods { set_level = 0 };
+enum PSUMethods {
+	pc_reset = 0,
+	remote_kill,
+	set_channel
+};
 
 #endif
