@@ -52,6 +52,7 @@ class PowerSupply : public CanDevice {
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
+  // CAN messages
   static const uint16_t KILL_STATE_MSG;
   static const uint16_t VOLT1_MSG;
   static const uint16_t VOLT2_MSG;
@@ -74,11 +75,31 @@ class PowerSupply : public CanDevice {
    */
   void SendProperties() const ATLAS_NOEXCEPT override;
 
-  void PcReset(uint8_t reset) const ATLAS_NOEXCEPT ;
+  /**
+   * Resets onboard PC power
+   */
+  void PcReset() const ATLAS_NOEXCEPT ;
 
+  /**
+   * Enables or disables remote controlled killswitch
+   *
+   * \param state state of the remote control (on or off)
+   */
   void RemoteKill(uint8_t state) const ATLAS_NOEXCEPT ;
 
+  /**
+   * Enables the selected power channel
+   *
+   * \param channel selected channel
+   */
   void SetChannel(uint8_t channel) const ATLAS_NOEXCEPT ;
+
+  /**
+   * Disables the selected power channel
+   *
+   * \param channel selected channel
+   */
+  void ClrChannel(uint8_t channel) const ATLAS_NOEXCEPT ;
 
 
   //============================================================================
@@ -90,6 +111,8 @@ class PowerSupply : public CanDevice {
   ros::Publisher power_supply_properties_pub_;
 
   sonia_msgs::PowerSupplyMsg ros_msg;
+
+  bool properties_sent_;
 };
 
 } /* namespace provider_can */

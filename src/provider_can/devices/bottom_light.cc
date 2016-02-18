@@ -30,7 +30,8 @@ BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(lights, bottom_light, can_dispatcher, NAME),
       actual_light_level_(200),
-      asked_light_level_(0) {
+      asked_light_level_(0),
+	  properties_sent_(false){
   SetLevel(0);
 
   bottom_light_pub_ =
@@ -39,7 +40,11 @@ BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
   bottom_light_properties_pub_ =
         nh->advertise<sonia_msgs::CanDevicesProperties>("bottom_light_properties", 100);
 
-  SendProperties();
+  // sends device's properties if device is present
+  if(DevicePresenceCheck()){
+	  SendProperties();
+	  properties_sent_ = true;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -61,6 +66,13 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
   ros_msg.intensity = actual_light_level_;
 
   if (DevicePresenceCheck()) {
+
+	// is device is present and properties has not been sent
+	if(!properties_sent_)  {
+		SendProperties();
+		properties_sent_ = true;
+	}
+
     // fetching CAN messages
     rx_buffer = FetchMessages();
 

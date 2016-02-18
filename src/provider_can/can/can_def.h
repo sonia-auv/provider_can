@@ -150,10 +150,12 @@ enum CommonMethods {
 };
 
 enum BotLightMethods { set_level = 0 };
+
 enum PSUMethods {
 	pc_reset = 0,
-	remote_kill,
-	set_channel
+	remote_kill = 1,
+	set_channel = 2,
+	clr_channel = 3
 };
 
 #endif

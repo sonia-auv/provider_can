@@ -74,6 +74,7 @@ class BottomLight : public CanDevice {
 
   uint8_t actual_light_level_;  // Light actual state
   uint8_t asked_light_level_;   // set by setLightLevel()
+  bool properties_sent_;
 
   ros::Publisher bottom_light_pub_;
   ros::Publisher bottom_light_properties_pub_;

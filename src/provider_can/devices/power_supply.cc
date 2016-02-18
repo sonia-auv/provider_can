@@ -40,13 +40,19 @@ const std::string PowerSupply::NAME = "Power Supply";
 //
 PowerSupply::PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : CanDevice(power, power_distribution, can_dispatcher, NAME) {
+    : CanDevice(power, power_distribution, can_dispatcher, NAME),
+	  properties_sent_(false){
    power_supply_pub_ =
     nh->advertise<sonia_msgs::PowerSupplyMsg>("power_supply_msgs", 100);
    power_supply_properties_pub_ =
     nh->advertise<sonia_msgs::CanDevicesProperties>("power_supply_properties", 100);
 
-   SendProperties();
+   // sends device's properties if device is present
+   if(DevicePresenceCheck()){
+	   SendProperties();
+	   properties_sent_ = true;
+   }
+
 }
 
 //------------------------------------------------------------------------------
@@ -64,6 +70,13 @@ void PowerSupply::Process() ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   if (DevicePresenceCheck()) {
+
+	// is device is present and properties has not been sent
+	if(!properties_sent_)  {
+		SendProperties();
+		properties_sent_ = true;
+	}
+
     // fetching CAN messages
     rx_buffer = FetchMessages();
 
@@ -162,13 +175,16 @@ void PowerSupply::Process() ATLAS_NOEXCEPT {
 		  SendProperties();
 		  break;
         case pc_reset:
-          PcReset((uint8_t)pc_messages_buffer[i].parameter_value);
+          PcReset();
 		  break;
 		case remote_kill:
 		  RemoteKill((uint8_t)pc_messages_buffer[i].parameter_value);
 		  break;
 		case set_channel:
 		  SetChannel((uint8_t)pc_messages_buffer[i].parameter_value);
+		  break;
+		case clr_channel:
+		  ClrChannel((uint8_t)pc_messages_buffer[i].parameter_value);
 		  break;
         default:
           break;
@@ -216,8 +232,8 @@ void PowerSupply::SendProperties() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 
-void PowerSupply::PcReset(uint8_t reset) const ATLAS_NOEXCEPT {
-    PushMessage(PC_RST_MSG, &reset, 0);
+void PowerSupply::PcReset() const ATLAS_NOEXCEPT {
+    PushMessage(PC_RST_MSG, 0, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -231,6 +247,15 @@ void PowerSupply::RemoteKill(uint8_t state) const ATLAS_NOEXCEPT {
 //
 
 void PowerSupply::SetChannel(uint8_t channel) const ATLAS_NOEXCEPT {
-	PushMessage(SET_CHANNEL_MSG, &channel, 1);
+	uint8_t can_msg[2] = {channel,1};
+	PushMessage(SET_CHANNEL_MSG, can_msg, 2);
+}
+
+//------------------------------------------------------------------------------
+//
+
+void PowerSupply::ClrChannel(uint8_t channel) const ATLAS_NOEXCEPT {
+	uint8_t can_msg[2] = {channel,0};
+	PushMessage(SET_CHANNEL_MSG, can_msg, 2);
 }
 }  // namespace provider_can
