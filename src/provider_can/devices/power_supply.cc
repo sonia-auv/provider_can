@@ -247,7 +247,7 @@ void PowerSupply::RemoteKill(uint8_t state) const ATLAS_NOEXCEPT {
 //
 
 void PowerSupply::SetChannel(uint8_t channel) const ATLAS_NOEXCEPT {
-	uint8_t can_msg[2] = {channel,1};
+	uint8_t can_msg[2] = {channel,0};
 	PushMessage(SET_CHANNEL_MSG, can_msg, 2);
 }
 
@@ -255,7 +255,7 @@ void PowerSupply::SetChannel(uint8_t channel) const ATLAS_NOEXCEPT {
 //
 
 void PowerSupply::ClrChannel(uint8_t channel) const ATLAS_NOEXCEPT {
-	uint8_t can_msg[2] = {channel,0};
+	uint8_t can_msg[2] = {channel,1};
 	PushMessage(SET_CHANNEL_MSG, can_msg, 2);
 }
 }  // namespace provider_can
