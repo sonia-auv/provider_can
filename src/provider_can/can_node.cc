@@ -37,6 +37,18 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       std::make_shared<provider_can::BottomLight>(can_ptr_, nh_));
   can_devices_vector_.push_back(
       std::make_shared<provider_can::PowerSupply>(can_ptr_, nh_));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Port",port_motor));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_,"Front_depth",front_depth_motor));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Back_depth",back_depth_motor));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Front_heading",front_heading_motor));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Back_heading",back_heading_motor));
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Starboard",starboard_motor));
 
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
@@ -57,6 +69,11 @@ void CanNode::Run() ATLAS_NOEXCEPT {
     for (auto &device : can_devices_vector_) {
       device->Process();
     }
+    std::vector<uint32_t> test;
+    can_ptr_->GetUnknownAddresses(test);
+    for(auto &address : test)
+      std::printf("%X\n",address);
+    std::printf("\n\n");
     usleep(THREAD_INTERVAL_US);
   }
 }

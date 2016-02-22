@@ -52,7 +52,7 @@ class PowerSupply : public CanDevice {
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
-  // CAN messages
+  // Receivable CAN messages
   static const uint16_t KILL_STATE_MSG;
   static const uint16_t VOLT1_MSG;
   static const uint16_t VOLT2_MSG;
@@ -62,7 +62,7 @@ class PowerSupply : public CanDevice {
   static const uint16_t CURR3_MSG;
   static const uint16_t STATES1_MSG;
   static const uint16_t STATES2_MSG;
-
+  // transmittable CAN messages
   static const uint16_t PC_RST_MSG;
   static const uint16_t SET_CHANNEL_MSG;
   static const uint16_t REMOTE_KILL_MSG;

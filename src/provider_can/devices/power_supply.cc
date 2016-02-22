@@ -31,7 +31,7 @@ const uint16_t PowerSupply::PC_RST_MSG = 0xF01;
 const uint16_t PowerSupply::SET_CHANNEL_MSG = 0xF03;
 const uint16_t PowerSupply::REMOTE_KILL_MSG = 0xF02;
 
-const std::string PowerSupply::NAME = "Power Supply";
+const std::string PowerSupply::NAME = "Power_supply";
 
 //==============================================================================
 // C / D T O R   S E C T I O N

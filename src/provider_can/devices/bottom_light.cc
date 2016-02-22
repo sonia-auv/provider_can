@@ -19,7 +19,7 @@ namespace provider_can {
 
 const uint16_t BottomLight::SET_LIGHT_MSG = 0xF00;
 const uint16_t BottomLight::SET_LIGHT_DLC = 1;
-const std::string BottomLight::NAME = "Bottom Light";
+const std::string BottomLight::NAME = "Bottom_light";
 
 //==============================================================================
 // C / D T O R   S E C T I O N

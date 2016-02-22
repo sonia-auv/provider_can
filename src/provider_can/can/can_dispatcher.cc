@@ -37,8 +37,12 @@ const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
 //
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
                              uint32_t chan, uint32_t baudrate) ATLAS_NOEXCEPT
-    : can_driver_(chan, baudrate) {
-  discovery_tries_ = 0;
+    : can_driver_(chan, baudrate),
+      discovery_tries_(0),
+      tx_error_(0),
+      rx_error_(0),
+      ovrr_error_(0),
+      master_id_(){
 
   master_id_ =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);

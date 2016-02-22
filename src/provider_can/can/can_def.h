@@ -158,4 +158,7 @@ enum PSUMethods {
 	clr_channel = 3
 };
 
+enum ThrustersMethods {
+	set_speed = 0,
+};
 #endif
