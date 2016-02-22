@@ -20,6 +20,7 @@
 #include <memory>
 #include <thread>
 #include <ros/ros.h>
+#include <ros/node_handle.h>
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
 #include "sonia_msgs/SendCanMessage.h"
@@ -173,7 +174,8 @@ class CanDispatcher : public atlas::Runnable {
   // param device_id PC ID
   // param unique_id PC ID
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                         uint32_t baudrate) ATLAS_NOEXCEPT;
+                         uint32_t baudrate,
+                         const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
   // Destructor
   ~CanDispatcher() ATLAS_NOEXCEPT;
@@ -500,6 +502,9 @@ class CanDispatcher : public atlas::Runnable {
   uint32_t ovrr_error_;
 
   uint32_t master_id_;  // PC ID
+
+  ros::NodeHandlePtr nh_;
+  ros::ServiceServer call_device_srv_;
 };
 
 }  // namespace provider_can

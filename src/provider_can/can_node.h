@@ -75,8 +75,6 @@ class CanNode : public atlas::Runnable {
 
   CanDispatcher::Ptr can_ptr_;
 
-  ros::ServiceServer call_device_srv_;
-
   std::vector<CanDevice::Ptr> can_devices_vector_;
 };
 
