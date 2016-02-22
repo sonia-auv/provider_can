@@ -55,7 +55,7 @@ typedef struct {
 } ComputerMessage;
 
 // This is a base structure which will be filled of
-// one device's informations. One strcut is initialized
+// one device's informations. One struct is initialized
 // For each device found.
 typedef struct {
   // device's global address (ex: 0x00602000 for PSU)
@@ -290,7 +290,7 @@ class CanDispatcher : public atlas::Runnable {
   SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id,
                                    uint8_t *&fault) ATLAS_NOEXCEPT;
 
-  uint8_t GetNumberOfDevices() ATLAS_NOEXCEPT;
+  uint64_t GetNumberOfDevices() ATLAS_NOEXCEPT;
 
   void GetUnknownAddresses(std::vector<uint32_t> &addresses) ATLAS_NOEXCEPT;
 

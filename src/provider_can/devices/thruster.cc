@@ -82,7 +82,7 @@ void Thruster::Process() ATLAS_NOEXCEPT {
 		  ros_msg.current = rx_buffer[i].data[0];
 			ros_msg.speed = rx_buffer[i].data[1];
 			ros_msg.temperature = rx_buffer[i].data[2];
-				message_rcvd = true;
+			message_rcvd = true;
 		  break;
 		default:
 		  break;

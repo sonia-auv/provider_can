@@ -90,13 +90,13 @@ canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
   if (status < canOK) return status;
 
   // For each messages received during sleep,
-  for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
+  for (auto &message : rx_raw_buffer_) {
     CanDeviceStruct new_device;
     // If the address of the message has never been seen
-    if (FindDeviceWithAddress(rx_raw_buffer_[j].id) ==
+    if (FindDeviceWithAddress(message.id) ==
         SONIA_DEVICE_NOT_PRESENT) {
       // Apending new device to the vector
-      new_device.global_address = (rx_raw_buffer_[j].id & DEVICE_MAC_MASK);
+      new_device.global_address = (message.id & DEVICE_MAC_MASK);
 
       devices_list_.push_back(new_device);
     }
@@ -117,60 +117,60 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
 
   // For each message contained in raw buffer
 
-  for (size_t j = 0; j < rx_raw_buffer_.size(); j++) {
+  for (auto &message : rx_raw_buffer_) {
     // get the device_list index where address is located
-    status = FindDeviceWithAddress(rx_raw_buffer_[j].id, &index);
+    status = FindDeviceWithAddress(message.id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {  // If device exists
       // If the ID received correspond to an ID request response
       // saves device's parameters.
-      if (devices_list_[index].global_address == rx_raw_buffer_[j].id) {
+      if (devices_list_[index].global_address == message.id) {
         devices_list_[index].device_properties.firmware_version =
-            (rx_raw_buffer_[j].data[1] << 8) | rx_raw_buffer_[j].data[0];
+            (message.data[1] << 8) | message.data[0];
 
         devices_list_[index].device_properties.uc_signature =
-            (rx_raw_buffer_[j].data[4] << 16) |
-            (rx_raw_buffer_[j].data[3] << 8) | rx_raw_buffer_[j].data[2];
+            (message.data[4] << 16) |
+            (message.data[3] << 8) | message.data[2];
 
         devices_list_[index].device_properties.capabilities =
-            rx_raw_buffer_[j].data[5];
+          message.data[5];
 
         devices_list_[index].device_properties.device_data =
-            rx_raw_buffer_[j].data[6];
+          message.data[6];
       }
       // If the ID received correspond to a device fault
       else if ((devices_list_[index].global_address | DEVICE_FAULT) ==
-               rx_raw_buffer_[j].id) {
+                message.id) {
         devices_list_[index].device_fault = true;
-        devices_list_[index].fault_message = rx_raw_buffer_[j].data;
+        devices_list_[index].fault_message = message.data;
 
         // printing fault received
         printf("\n\rDevice %X: Fault %C%C%C%C%C%C%C%C",
-               devices_list_[index].global_address, rx_raw_buffer_[j].data[0],
-               rx_raw_buffer_[j].data[1], rx_raw_buffer_[j].data[2],
-               rx_raw_buffer_[j].data[3], rx_raw_buffer_[j].data[4],
-               rx_raw_buffer_[j].data[5], rx_raw_buffer_[j].data[6],
-               rx_raw_buffer_[j].data[7]);
+               devices_list_[index].global_address, message.data[0],
+               message.data[1], message.data[2],
+               message, message.data[4],
+               message, message.data[6],
+               message.data[7]);
 
       }
       // If the ID received corresponds to a ping response
       else if ((devices_list_[index].global_address | PING) ==
-               rx_raw_buffer_[j].id) {
+        message.id) {
         devices_list_[index].ping_response = true;
       }
       // If the ID received corresponds to a parameter response
       else if ((devices_list_[index].global_address | GET_PARAM_REQ) ==
-               rx_raw_buffer_[j].id) {
+              message.id) {
         devices_list_[index].device_parameters[0] =
-            rx_raw_buffer_[j].data[0] | rx_raw_buffer_[j].data[1] << 8 |
-            rx_raw_buffer_[j].data[2] << 16 | rx_raw_buffer_[j].data[3] << 24;
+              message.data[0] | message.data[1] << 8 |
+              message.data[2] << 16 | message.data[3] << 24;
         devices_list_[index].device_parameters[1] =
-            rx_raw_buffer_[j].data[4] | rx_raw_buffer_[j].data[5] << 8 |
-            rx_raw_buffer_[j].data[6] << 16 | rx_raw_buffer_[j].data[7] << 24;
+              message.data[4] | message.data[5] << 8 |
+              message.data[6] << 16 | message.data[7] << 24;
       }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
-               (rx_raw_buffer_[j].id & DEVICE_MAC_MASK)) {
+               (message.id & DEVICE_MAC_MASK)) {
         // Avoids buffer overflow
         if (devices_list_[index].rx_buffer.size() >=
             DISPATCHED_RX_BUFFER_SIZE) {
@@ -180,12 +180,12 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
         }
 
         // Saves message into dispatched devices' buffers.
-        devices_list_[index].rx_buffer.push_back(rx_raw_buffer_[j]);
+        devices_list_[index].rx_buffer.push_back(message);
       }
 
     } else {  // If address is unknown
       // Adds the address to the unknown addresses table
-      AddUnknownAddress(rx_raw_buffer_[j].id);
+      AddUnknownAddress(message.id);
     }
   }
   rx_raw_buffer_.clear();
@@ -525,7 +525,7 @@ void CanDispatcher::SendRTR(uint32_t address) ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-uint8_t CanDispatcher::GetNumberOfDevices() ATLAS_NOEXCEPT {
+uint64_t CanDispatcher::GetNumberOfDevices() ATLAS_NOEXCEPT {
   return devices_list_.size();
 }
 
