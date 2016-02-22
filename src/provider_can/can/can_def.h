@@ -119,7 +119,7 @@ enum Markers { dropper = 1, launcher };
 
 enum Sonars { passive = 1, active };
 
-enum Sensors { depth_meter = 1, light_sensor, leak_sensor };
+enum Sensors { barometer = 3, leak_sensor = 4 };
 
 enum Power {
   power_distribution = 2,

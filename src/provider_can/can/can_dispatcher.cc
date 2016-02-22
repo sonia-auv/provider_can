@@ -148,8 +148,8 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
         printf("\n\rDevice %X: Fault %C%C%C%C%C%C%C%C",
                devices_list_[index].global_address, message.data[0],
                message.data[1], message.data[2],
-               message, message.data[4],
-               message, message.data[6],
+               message.data[3], message.data[4],
+               message.data[5], message.data[6],
                message.data[7]);
 
       }

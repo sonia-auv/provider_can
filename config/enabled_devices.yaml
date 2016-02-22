@@ -1,0 +1,11 @@
+#********** devices enabling ************
+
+provider_can/device_en/thrusters: 1
+provider_can/device_en/power_supply: 1
+provider_can/device_en/bottom_light: 1
+provider_can/device_en/barometer: 1
+provider_can/device_en/sonar_rotator: 1
+provider_can/device_en/droppers: 1
+provider_can/device_en/torpedo_launchers: 1
+provider_can/device_en/diver_interface: 1
+provider_can/device_en/hydros: 1

@@ -3,5 +3,4 @@
 provider_can/driver/baudrate: -4 # From canlib values
 provider_can/driver/device_id: 1
 provider_can/driver/unique_id: 1
-provider_can/driver/loop_rate: 10
 provider_can/driver/channel: 0

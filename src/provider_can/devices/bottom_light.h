@@ -48,21 +48,18 @@ class BottomLight : public CanDevice {
    */
   void Process() ATLAS_NOEXCEPT override;
 
-  /**
-   * unique light device functions
-   */
-  void SetLevel(uint8_t level) ATLAS_NOEXCEPT;
 
-  uint8_t GetLevel() const ATLAS_NOEXCEPT;
 
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
 
   /**
-   * Returns device's properties as a ROS msg
+   * unique light device functions
    */
-  void SendProperties() const ATLAS_NOEXCEPT override;
+  void SetLevel(uint8_t level) ATLAS_NOEXCEPT;
+
+  uint8_t GetLevel() const ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S

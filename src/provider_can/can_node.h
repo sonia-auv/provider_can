@@ -26,6 +26,7 @@
 #include "provider_can/devices/bottom_light.h"
 #include "provider_can/devices/power_supply.h"
 #include "provider_can/devices/thruster.h"
+#include "provider_can/devices/barometer.h"
 
 namespace provider_can {
 

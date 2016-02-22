@@ -71,11 +71,6 @@ class PowerSupply : public CanDevice {
   // P R I V A T E   M E T H O D S
 
   /**
-   * Returns device's properties as a ROS msg
-   */
-  void SendProperties() const ATLAS_NOEXCEPT override;
-
-  /**
    * Resets onboard PC power
    */
   void PcReset() const ATLAS_NOEXCEPT;
@@ -107,7 +102,6 @@ class PowerSupply : public CanDevice {
   const static std::string NAME;
 
   ros::Publisher power_supply_pub_;
-  ros::Publisher power_supply_properties_pub_;
 
   sonia_msgs::PowerSupplyMsg ros_msg;
 

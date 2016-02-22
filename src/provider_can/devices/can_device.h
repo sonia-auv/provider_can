@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <ros/ros.h>
 #include <lib_atlas/macros.h>
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/can/can_def.h"
@@ -44,7 +45,8 @@ class CanDevice {
 
   explicit CanDevice(const DeviceClass &device_id, uint8_t unique_id,
                      const CanDispatcher::Ptr &can_dispatcher,
-                     const std::string &name) ATLAS_NOEXCEPT;
+                     const std::string &name,
+                     const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
   virtual ~CanDevice() ATLAS_NOEXCEPT;
 
@@ -102,7 +104,7 @@ class CanDevice {
   /**
    * Returns device's properties as a ROS msg
    */
-  virtual void SendProperties() const ATLAS_NOEXCEPT = 0;
+  void SendProperties() const ATLAS_NOEXCEPT;
 
   /**
    * Sends a reset message to the device
@@ -167,6 +169,8 @@ class CanDevice {
 
   DeviceClass device_id_;
   uint8_t unique_id_;
+
+  ros::Publisher properties_pub_;
 };
 
 //==============================================================================

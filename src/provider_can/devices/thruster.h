@@ -62,11 +62,6 @@ class Thruster : public CanDevice {
   // P R I V A T E   M E T H O D S
 
   /**
-   * Returns device's properties as a ROS msg
-   */
-  void SendProperties() const ATLAS_NOEXCEPT override;
-
-  /**
    * Set motor speed vector(between -100 and 100, in %)
    *
    * \param speed motor speed
@@ -80,7 +75,6 @@ class Thruster : public CanDevice {
   std::string thruster_specific_name_;
 
   ros::Publisher thruster_pub_;
-  ros::Publisher thruster_properties_pub_;
 
   sonia_msgs::ThrusterMsg ros_msg;
 
