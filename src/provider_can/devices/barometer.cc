@@ -20,9 +20,9 @@ namespace provider_can {
 const std::string Barometer::NAME = "barometer";
 
 // Receivable CAN messages
-const uint16_t Barometer::INTERNAL_PRESS_MSG = 0xF01;
+const uint16_t Barometer::INTERNAL_PRESS_MSG = 0xF02;
 // transmittable CAN messages
-const uint16_t Barometer::RELATIVE_PRESS_MSG = 0xF02;
+const uint16_t Barometer::RELATIVE_PRESS_MSG = 0xF01;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
@@ -74,15 +74,15 @@ void Barometer::Process() ATLAS_NOEXCEPT {
     for (auto &can_message : rx_buffer) {
       switch (can_message.id & DEVICE_MSG_MASK) {
         case INTERNAL_PRESS_MSG:
-          ros_msg_.internal_pressure = can_message.data[0] + can_message.data[1]
-                                      << 8 + can_message.data[2]
-                                      << 16 + can_message.data[3] << 24;
+          ros_msg_.internal_pressure = can_message.data[0] + (can_message.data[1]
+                                      << 8) + (can_message.data[2]
+                                      << 16) + (can_message.data[3] << 24);
           message_rcvd = true;
           break;
         case RELATIVE_PRESS_MSG:
           ros_msg_.ext_relative_pressure =
-              can_message.data[0] + can_message.data[1]
-              << 8 + can_message.data[2] << 16 + can_message.data[3] << 24;
+              can_message.data[0] + (can_message.data[1]
+              << 8) + (can_message.data[2] << 16) + (can_message.data[3] << 24);
           message_rcvd = true;
           break;
         default:

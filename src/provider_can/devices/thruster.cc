@@ -36,7 +36,7 @@ Thruster::Thruster(const CanDispatcher::Ptr &can_dispatcher,
       thruster_specific_name_(thruster_name),
       properties_sent_(false) {
   thruster_pub_ = nh->advertise<sonia_msgs::ThrusterMsg>(
-      thruster_specific_name_ + "_" + NAME + "_msgs", 100);
+		  NAME + "_" + thruster_specific_name_ + "_msgs", 100);
 
   // sends device's properties if device is present
   if (DevicePresenceCheck()) {
@@ -127,11 +127,14 @@ void Thruster::Process() ATLAS_NOEXCEPT {
 //
 
 void Thruster::SetSpeed(int8_t speed) const ATLAS_NOEXCEPT {
+
   if (speed > 100) speed = 0;
 
   if (speed < -100) speed = 0;
 
-  PushMessage(SET_SPEED_MSG, (uint8_t *)speed, 1);
+  uint8_t absolute_speed = (uint8_t)speed;
+
+  PushMessage(SET_SPEED_MSG, &absolute_speed, 1);
 }
 
 }  // namespace provider_can

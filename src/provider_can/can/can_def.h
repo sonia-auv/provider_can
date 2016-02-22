@@ -107,10 +107,10 @@ enum Controllers { on_board_pc = 1, pid_controller };
 enum Actuators {
   port_motor = 1,
   starboard_motor,
-  front_depth_motor,
-  back_depth_motor,
   front_heading_motor,
   back_heading_motor,
+  front_depth_motor,
+  back_depth_motor,
   grabber,
   sonar_rotator
 };

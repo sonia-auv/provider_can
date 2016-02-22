@@ -143,14 +143,14 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
                 message.id) {
         devices_list_[index].device_fault = true;
         devices_list_[index].fault_message = message.data;
-
+        /*
         // printing fault received
         printf("\n\rDevice %X: Fault %C%C%C%C%C%C%C%C",
                devices_list_[index].global_address, message.data[0],
                message.data[1], message.data[2],
                message.data[3], message.data[4],
                message.data[5], message.data[6],
-               message.data[7]);
+               message.data[7]);*/
 
       }
       // If the ID received corresponds to a ping response
