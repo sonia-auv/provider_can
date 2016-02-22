@@ -8,7 +8,7 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/BarometerMsg.h>
+
 
 #include "provider_can/devices/barometer.h"
 
@@ -54,11 +54,10 @@ Barometer::~Barometer() {}
 void Barometer::Process() ATLAS_NOEXCEPT {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
-  sonia_msgs::BarometerMsg ros_msg;
   bool message_rcvd = false;
 
   // default value: no ping received
-  ros_msg.ping_rcvd = (uint8_t) false;
+  ros_msg_.ping_rcvd = (uint8_t) false;
 
   if (DevicePresenceCheck()) {
     // is device is present and properties has not been sent
@@ -75,13 +74,13 @@ void Barometer::Process() ATLAS_NOEXCEPT {
     for (auto &can_message : rx_buffer) {
       switch (can_message.id & DEVICE_MSG_MASK) {
         case INTERNAL_PRESS_MSG:
-          ros_msg.internal_pressure = can_message.data[0] + can_message.data[1]
+          ros_msg_.internal_pressure = can_message.data[0] + can_message.data[1]
                                       << 8 + can_message.data[2]
                                       << 16 + can_message.data[3] << 24;
           message_rcvd = true;
           break;
         case RELATIVE_PRESS_MSG:
-          ros_msg.ext_relative_pressure =
+          ros_msg_.ext_relative_pressure =
               can_message.data[0] + can_message.data[1]
               << 8 + can_message.data[2] << 16 + can_message.data[3] << 24;
           message_rcvd = true;
@@ -110,17 +109,20 @@ void Barometer::Process() ATLAS_NOEXCEPT {
 
     // if ping has been received
     if (GetPingStatus()) {
-      ros_msg.ping_rcvd = true;
+      ros_msg_.ping_rcvd = true;
       message_rcvd = true;
-    }
+    } else
+    ros_msg_.ping_rcvd = false;
 
     // if a fault has been received
     const uint8_t *fault = GetFault();
     if (fault != NULL) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = fault[i];
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
       message_rcvd = true;
-    }
-    if (message_rcvd) barometer_pub_.publish(ros_msg);
+    }else
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = ' ';
+
+    if (message_rcvd) barometer_pub_.publish(ros_msg_);
   }
 }
 

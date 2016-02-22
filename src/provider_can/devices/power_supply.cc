@@ -80,74 +80,74 @@ void PowerSupply::Process() ATLAS_NOEXCEPT {
     for (auto &can_message : rx_buffer) {
       switch (can_message.id & DEVICE_MSG_MASK) {
         case KILL_STATE_MSG:
-          ros_msg.kill_switch_state = (bool)can_message.data[0];
+          ros_msg_.kill_switch_state = (bool)can_message.data[0];
           message_rcvd = true;
           break;
         case VOLT1_MSG:
-          ros_msg.volt_bus1_voltage =
+          ros_msg_.volt_bus1_voltage =
               can_message.data[0] + (can_message.data[1] << 8);
-          ros_msg.volt_bus2_voltage =
+          ros_msg_.volt_bus2_voltage =
               can_message.data[2] + (can_message.data[3] << 8);
-          ros_msg.pc_voltage = can_message.data[4] + (can_message.data[5] << 8);
-          ros_msg.motor_bus1_voltage =
+          ros_msg_.pc_voltage = can_message.data[4] + (can_message.data[5] << 8);
+          ros_msg_.motor_bus1_voltage =
               can_message.data[6] + (can_message.data[7] << 8);
           message_rcvd = true;
           break;
         case VOLT2_MSG:
-          ros_msg.motor_bus2_voltage =
+          ros_msg_.motor_bus2_voltage =
               can_message.data[0] + (can_message.data[1] << 8);
-          ros_msg.motor_bus3_voltage =
+          ros_msg_.motor_bus3_voltage =
               can_message.data[2] + (can_message.data[3] << 8);
-          ros_msg.dvl_voltage =
+          ros_msg_.dvl_voltage =
               can_message.data[4] + (can_message.data[5] << 8);
-          ros_msg.actuator_bus_voltage =
+          ros_msg_.actuator_bus_voltage =
               can_message.data[6] + (can_message.data[7] << 8);
           message_rcvd = true;
           break;
         case VOLT3_MSG:
-          ros_msg.light_voltage =
+          ros_msg_.light_voltage =
               can_message.data[0] + (can_message.data[1] << 8);
           message_rcvd = true;
           break;
         case CURR1_MSG:
-          ros_msg.volt_bus1_current =
+          ros_msg_.volt_bus1_current =
               can_message.data[0] + (can_message.data[1] << 8);
-          ros_msg.volt_bus2_current =
+          ros_msg_.volt_bus2_current =
               can_message.data[2] + (can_message.data[3] << 8);
-          ros_msg.pc_current = can_message.data[4] + (can_message.data[5] << 8);
-          ros_msg.motor_bus1_current =
+          ros_msg_.pc_current = can_message.data[4] + (can_message.data[5] << 8);
+          ros_msg_.motor_bus1_current =
               can_message.data[6] + (can_message.data[7] << 8);
           message_rcvd = true;
           break;
         case CURR2_MSG:
-          ros_msg.motor_bus2_current =
+          ros_msg_.motor_bus2_current =
               can_message.data[0] + (can_message.data[1] << 8);
-          ros_msg.motor_bus3_current =
+          ros_msg_.motor_bus3_current =
               can_message.data[2] + (can_message.data[3] << 8);
-          ros_msg.dvl_current =
+          ros_msg_.dvl_current =
               can_message.data[4] + (can_message.data[5] << 8);
-          ros_msg.actuator_bus_current =
+          ros_msg_.actuator_bus_current =
               can_message.data[6] + (can_message.data[7] << 8);
           message_rcvd = true;
           break;
         case CURR3_MSG:
-          ros_msg.light_current =
+          ros_msg_.light_current =
               can_message.data[0] + (can_message.data[1] << 8);
           message_rcvd = true;
           break;
         case STATES1_MSG:
-          ros_msg.volt_bus1_state = (bool)can_message.data[0];
-          ros_msg.volt_bus2_state = (bool)can_message.data[1];
-          ros_msg.pc_state = (bool)can_message.data[2];
-          ros_msg.motor_bus1_state = (bool)can_message.data[3];
-          ros_msg.motor_bus2_state = (bool)can_message.data[4];
-          ros_msg.motor_bus3_state = (bool)can_message.data[5];
-          ros_msg.dvl_state = (bool)can_message.data[6];
-          ros_msg.actuator_bus_state = (bool)can_message.data[7];
+          ros_msg_.volt_bus1_state = (bool)can_message.data[0];
+          ros_msg_.volt_bus2_state = (bool)can_message.data[1];
+          ros_msg_.pc_state = (bool)can_message.data[2];
+          ros_msg_.motor_bus1_state = (bool)can_message.data[3];
+          ros_msg_.motor_bus2_state = (bool)can_message.data[4];
+          ros_msg_.motor_bus3_state = (bool)can_message.data[5];
+          ros_msg_.dvl_state = (bool)can_message.data[6];
+          ros_msg_.actuator_bus_state = (bool)can_message.data[7];
           message_rcvd = true;
           break;
         case STATES2_MSG:
-          ros_msg.light_state = (bool)can_message.data[0];
+          ros_msg_.light_state = (bool)can_message.data[0];
           message_rcvd = true;
           break;
         default:
@@ -186,20 +186,20 @@ void PowerSupply::Process() ATLAS_NOEXCEPT {
 
     // if ping has been received
     if (GetPingStatus()) {
-      ros_msg.ping_rcvd = true;
+      ros_msg_.ping_rcvd = true;
       message_rcvd = true;
     } else
-      ros_msg.ping_rcvd = false;
+      ros_msg_.ping_rcvd = false;
 
     // if a fault has been received
     const uint8_t *fault = GetFault();
     if (fault != NULL) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = fault[i];
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
       message_rcvd = true;
     } else
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = ' ';
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = ' ';
 
-    if (message_rcvd) power_supply_pub_.publish(ros_msg);
+    if (message_rcvd) power_supply_pub_.publish(ros_msg_);
   }
 }
 

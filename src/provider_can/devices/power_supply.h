@@ -103,7 +103,7 @@ class PowerSupply : public CanDevice {
 
   ros::Publisher power_supply_pub_;
 
-  sonia_msgs::PowerSupplyMsg ros_msg;
+  sonia_msgs::PowerSupplyMsg ros_msg_;
 
   bool properties_sent_;
 };

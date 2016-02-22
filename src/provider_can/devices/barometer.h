@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
+#include <sonia_msgs/BarometerMsg.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -62,7 +63,8 @@ namespace provider_can {
     bool properties_sent_;
 
     ros::Publisher barometer_pub_;
-    ros::Publisher barometer_properties_pub_;
+
+    sonia_msgs::BarometerMsg ros_msg_;
   };
 
 }  // namespace provider_can

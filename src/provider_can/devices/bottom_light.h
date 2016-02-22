@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
+#include <sonia_msgs/BottomLightMsg.h>
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -73,7 +74,8 @@ class BottomLight : public CanDevice {
   bool properties_sent_;
 
   ros::Publisher bottom_light_pub_;
-  ros::Publisher bottom_light_properties_pub_;
+
+  sonia_msgs::BottomLightMsg ros_msg_;
 };
 
 }  // namespace provider_can

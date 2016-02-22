@@ -8,7 +8,7 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/BottomLightMsg.h>
+
 #include <sonia_msgs/CanDevicesProperties.h>
 #include "provider_can/devices/bottom_light.h"
 
@@ -56,11 +56,11 @@ BottomLight::~BottomLight() {}
 void BottomLight::Process() ATLAS_NOEXCEPT {
   std::vector<CanMessage> rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
-  sonia_msgs::BottomLightMsg ros_msg;
+  bool message_rcvd = false;
 
   // default value: no ping received
-  ros_msg.ping_rcvd = (uint8_t) false;
-  ros_msg.intensity = actual_light_level_;
+  ros_msg_.ping_rcvd = (uint8_t) false;
+  ros_msg_.intensity = actual_light_level_;
 
   if (DevicePresenceCheck()) {
     // is device is present and properties has not been sent
@@ -76,7 +76,7 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
     if (rx_buffer.size() != 0) {
       // Collects the last message received (previous messages can be bypassed)
       actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
-      bottom_light_pub_.publish(ros_msg);
+      bottom_light_pub_.publish(ros_msg_);
     }
 
     // fetching pc messages (ROS)
@@ -102,16 +102,20 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
 
     // if ping has been received
     if (GetPingStatus()) {
-      ros_msg.ping_rcvd = true;
-      bottom_light_pub_.publish(ros_msg);
-    }
+      ros_msg_.ping_rcvd = true;
+      message_rcvd = true;
+    }else
+      ros_msg_.ping_rcvd = false;
 
     // if a fault has been received
     const uint8_t *fault = GetFault();
     if (fault != NULL) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = fault[i];
-      bottom_light_pub_.publish(ros_msg);
-    }
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
+      message_rcvd = true;
+    }else
+      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = ' ';
+
+    if (message_rcvd) bottom_light_pub_.publish(ros_msg_);
   }
 }
 
