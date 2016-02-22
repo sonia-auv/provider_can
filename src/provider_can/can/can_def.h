@@ -50,9 +50,7 @@ const uint8_t SLEEP_REQUEST_DLC = 0;
 const uint8_t WAKEUP_REQUEST_DLC = 0;
 const uint8_t RESET_REQUEST_DLC = 0;
 
-
 enum MessageType { global = 0x0, application = 0xf };
-
 
 //============================================================================
 // D E V I C E S   P A R A M E T E R S
@@ -100,8 +98,6 @@ enum DeviceClass {
   lights,
   can2rs232,
 };
-
-
 
 //============================================================================
 // D E V I C E S  U N I Q U E   I D
@@ -152,13 +148,13 @@ enum CommonMethods {
 enum BotLightMethods { set_level = 0 };
 
 enum PSUMethods {
-	pc_reset = 0,
-	remote_kill = 1,
-	set_channel = 2,
-	clr_channel = 3
+  pc_reset = 0,
+  remote_kill = 1,
+  set_channel = 2,
+  clr_channel = 3
 };
 
 enum ThrustersMethods {
-	set_speed = 0,
+  set_speed = 0,
 };
 #endif

@@ -196,15 +196,13 @@ class CanDriver {
   uint32_t baudrate_;
   uint32_t channel_;  // CAN channel used (0 or 1)
 
-  uint32_t tseg1_;   // Time segment 1
-  uint32_t tseg2_;   // Time segment 2
+  uint32_t tseg1_;  // Time segment 1
+  uint32_t tseg2_;  // Time segment 2
 
   uint32_t sjw_;     // The Synchronization Jump Width; can be 1,2,3, or 4.
   uint32_t noSamp_;  // The number of sampling points; can be 1 or 3.
 
   canHandle handle_;
-
-
 };
 
 }  // namespace provider_can

@@ -78,29 +78,28 @@ class PowerSupply : public CanDevice {
   /**
    * Resets onboard PC power
    */
-  void PcReset() const ATLAS_NOEXCEPT ;
+  void PcReset() const ATLAS_NOEXCEPT;
 
   /**
    * Enables or disables remote controlled killswitch
    *
    * \param state state of the remote control (on or off)
    */
-  void RemoteKill(uint8_t state) const ATLAS_NOEXCEPT ;
+  void RemoteKill(uint8_t state) const ATLAS_NOEXCEPT;
 
   /**
    * Enables the selected power channel
    *
    * \param channel selected channel
    */
-  void SetChannel(uint8_t channel) const ATLAS_NOEXCEPT ;
+  void SetChannel(uint8_t channel) const ATLAS_NOEXCEPT;
 
   /**
    * Disables the selected power channel
    *
    * \param channel selected channel
    */
-  void ClrChannel(uint8_t channel) const ATLAS_NOEXCEPT ;
-
+  void ClrChannel(uint8_t channel) const ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S

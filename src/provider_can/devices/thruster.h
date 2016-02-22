@@ -36,7 +36,7 @@ class Thruster : public CanDevice {
   // P U B L I C   C / D T O R S
  public:
   explicit Thruster(const CanDispatcher::Ptr &can_dispatcher,
-                       const ros::NodeHandlePtr &nh,std::string thruster_name,
+                    const ros::NodeHandlePtr &nh, std::string thruster_name,
                     Actuators unique_id) ATLAS_NOEXCEPT;
 
   virtual ~Thruster();

@@ -36,19 +36,18 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       std::make_shared<provider_can::BottomLight>(can_ptr_, nh_));
   can_devices_vector_.push_back(
       std::make_shared<provider_can::PowerSupply>(can_ptr_, nh_));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Port",port_motor));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_,"Front_depth",front_depth_motor));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Back_depth",back_depth_motor));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Front_heading",front_heading_motor));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Back_heading",back_heading_motor));
-  can_devices_vector_.push_back(
-      std::make_shared<provider_can::Thruster>(can_ptr_, nh_, "Starboard",starboard_motor));
-
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Port", port_motor));
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Front_depth", front_depth_motor));
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Back_depth", back_depth_motor));
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Front_heading", front_heading_motor));
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Back_heading", back_heading_motor));
+  can_devices_vector_.push_back(std::make_shared<provider_can::Thruster>(
+      can_ptr_, nh_, "Starboard", starboard_motor));
 }
 
 //------------------------------------------------------------------------------

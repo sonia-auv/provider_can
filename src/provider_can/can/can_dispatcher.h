@@ -496,7 +496,6 @@ class CanDispatcher : public atlas::Runnable {
 
   uint8_t discovery_tries_;
 
-
   uint32_t tx_error_;
   uint32_t rx_error_;
   uint32_t ovrr_error_;

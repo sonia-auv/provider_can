@@ -56,7 +56,6 @@ class BottomLight : public CanDevice {
   uint8_t GetLevel() const ATLAS_NOEXCEPT;
 
  private:
-
   //============================================================================
   // P R I V A T E   M E T H O D S
 

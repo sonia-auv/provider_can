@@ -19,9 +19,6 @@ int main(int argc, char** argv) {
   provider_can::CanNode can_node_ptr(nh);
   can_node_ptr.Start();
 
-  int8_t test = -8;
-  printf("%d",(uint8_t)test);
-
   while (ros::ok()) {
     ros::spinOnce();
   }

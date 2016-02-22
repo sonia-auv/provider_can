@@ -31,19 +31,20 @@ BottomLight::BottomLight(const CanDispatcher::Ptr &can_dispatcher,
     : CanDevice(lights, bottom_light, can_dispatcher, NAME),
       actual_light_level_(200),
       asked_light_level_(0),
-	  properties_sent_(false){
+      properties_sent_(false) {
   SetLevel(0);
 
   bottom_light_pub_ =
       nh->advertise<sonia_msgs::BottomLightMsg>("bottom_light_msgs", 100);
 
   bottom_light_properties_pub_ =
-        nh->advertise<sonia_msgs::CanDevicesProperties>("bottom_light_properties", 100);
+      nh->advertise<sonia_msgs::CanDevicesProperties>("bottom_light_properties",
+                                                      100);
 
   // sends device's properties if device is present
-  if(DevicePresenceCheck()){
-	  SendProperties();
-	  properties_sent_ = true;
+  if (DevicePresenceCheck()) {
+    SendProperties();
+    properties_sent_ = true;
   }
 }
 
@@ -66,12 +67,11 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
   ros_msg.intensity = actual_light_level_;
 
   if (DevicePresenceCheck()) {
-
-	// is device is present and properties has not been sent
-	if(!properties_sent_)  {
-		SendProperties();
-		properties_sent_ = true;
-	}
+    // is device is present and properties has not been sent
+    if (!properties_sent_) {
+      SendProperties();
+      properties_sent_ = true;
+    }
 
     // fetching CAN messages
     rx_buffer = FetchMessages();
@@ -91,14 +91,14 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
       // if messages askes to call set_level function
       switch (pc_messages_buffer[i].method_number) {
         case set_level:
-        	SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
+          SetLevel((uint8_t)pc_messages_buffer[i].parameter_value);
           break;
         case ping_req:
           Ping();
           break;
         case get_properties:
           SendProperties();
-		  break;
+          break;
         default:
           break;
       }
@@ -122,9 +122,9 @@ void BottomLight::Process() ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 void BottomLight::SetLevel(uint8_t level) ATLAS_NOEXCEPT {
-  if(actual_light_level_ != level){
-	  PushMessage(SET_LIGHT_MSG, &level, SET_LIGHT_DLC);
-	  actual_light_level_ = level;
+  if (actual_light_level_ != level) {
+    PushMessage(SET_LIGHT_MSG, &level, SET_LIGHT_DLC);
+    actual_light_level_ = level;
   }
 }
 
@@ -137,16 +137,16 @@ uint8_t BottomLight::GetLevel() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 void BottomLight::SendProperties() const ATLAS_NOEXCEPT {
-	sonia_msgs::CanDevicesProperties ros_msg;
-	DeviceProperties properties = GetProperties();
+  sonia_msgs::CanDevicesProperties ros_msg;
+  DeviceProperties properties = GetProperties();
 
-	ros_msg.capabilities = properties.capabilities;
-	ros_msg.device_data = properties.device_data;
-	ros_msg.firmware_version = properties.firmware_version;
-	ros_msg.uc_signature = properties.uc_signature;
-	//ros_msg.poll_rate = properties.poll_rate; // unsupported
+  ros_msg.capabilities = properties.capabilities;
+  ros_msg.device_data = properties.device_data;
+  ros_msg.firmware_version = properties.firmware_version;
+  ros_msg.uc_signature = properties.uc_signature;
+  // ros_msg.poll_rate = properties.poll_rate; // unsupported
 
-	bottom_light_properties_pub_.publish(ros_msg);
+  bottom_light_properties_pub_.publish(ros_msg);
 }
 
 }  // namespace provider_can
