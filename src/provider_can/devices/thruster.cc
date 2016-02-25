@@ -36,13 +36,7 @@ Thruster::Thruster(const CanDispatcher::Ptr &can_dispatcher,
       thruster_specific_name_(thruster_name),
       properties_sent_(false) {
   thruster_pub_ = nh->advertise<sonia_msgs::ThrusterMsg>(
-		  NAME + "_" + thruster_specific_name_ + "_msgs", 100);
-
-  // sends device's properties if device is present
-  if (DevicePresenceCheck()) {
-    SendProperties();
-    properties_sent_ = true;
-  }
+      NAME + "_" + thruster_specific_name_ + "_msgs", 100);
 }
 
 //------------------------------------------------------------------------------
@@ -54,80 +48,44 @@ Thruster::~Thruster() {}
 
 //------------------------------------------------------------------------------
 //
-void Thruster::Process() ATLAS_NOEXCEPT {
-  std::vector<CanMessage> rx_buffer;
-  std::vector<ComputerMessage> pc_messages_buffer;
+void Thruster::ProcessMessages(
+    const std::vector<CanMessage> &rx_buffer,
+    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
-  if (DevicePresenceCheck()) {
-    // is device is present and properties has not been sent
-    if (!properties_sent_) {
-      SendProperties();
-      properties_sent_ = true;
+  // if messages have been received
+  // loops through all thruster messages received
+  for (auto &can_message : rx_buffer) {
+    switch (can_message.id & DEVICE_MSG_MASK) {
+      case THRUSTER_STATE_MSG:
+        ros_msg.current = can_message.data[0];
+        ros_msg.speed = can_message.data[1];
+        ros_msg.temperature = can_message.data[2];
+        message_rcvd = true;
+        break;
+      default:
+        break;
     }
-
-    // fetching CAN messages
-    rx_buffer = FetchMessages();
-
-    // if messages have been received
-    // loops through all thruster messages received
-    for (auto &can_message : rx_buffer) {
-      switch (can_message.id & DEVICE_MSG_MASK) {
-        case THRUSTER_STATE_MSG:
-          ros_msg.current = can_message.data[0];
-          ros_msg.speed = can_message.data[1];
-          ros_msg.temperature = can_message.data[2];
-          message_rcvd = true;
-          break;
-        default:
-          break;
-      }
-    }
-
-    // fetching pc messages (ROS)
-    pc_messages_buffer = FetchComputerMessages();
-
-    // loops through all PC messages received
-    for (auto &pc_message : pc_messages_buffer) {
-      switch (pc_message.method_number) {
-        case ping_req:
-          Ping();
-          break;
-        case get_properties:
-          SendProperties();
-          break;
-        case set_speed:
-          SetSpeed((int8_t)pc_message.parameter_value);
-          break;
-        default:
-          break;
-      }
-    }
-
-    // if ping has been received
-    if (GetPingStatus()) {
-      ros_msg.ping_rcvd = true;
-      message_rcvd = true;
-    } else
-      ros_msg.ping_rcvd = false;
-
-    // if a fault has been received
-    const uint8_t *fault = GetFault();
-    if (fault != NULL) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = fault[i];
-      message_rcvd = true;
-    } else
-      for (uint8_t i = 0; i < 8; i++) ros_msg.fault[i] = ' ';
-
-    if (message_rcvd) thruster_pub_.publish(ros_msg);
   }
+
+  // loops through all PC messages received
+  for (auto &pc_message : pc_messages_buffer) {
+    switch (pc_message.method_number) {
+      case set_speed:
+        SetSpeed((int8_t)pc_message.parameter_value);
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (message_rcvd) thruster_pub_.publish(ros_msg);
 }
 
 //------------------------------------------------------------------------------
 //
 
 void Thruster::SetSpeed(int8_t speed) const ATLAS_NOEXCEPT {
-
   if (speed > 100) speed = 0;
 
   if (speed < -100) speed = 0;

@@ -8,8 +8,6 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "provider_can/devices/barometer.h"
 
 namespace provider_can {
@@ -34,12 +32,6 @@ Barometer::Barometer(const CanDispatcher::Ptr &can_dispatcher,
     : CanDevice(sensors, barometer, can_dispatcher, NAME, nh),
       properties_sent_(false) {
   barometer_pub_ = nh->advertise<sonia_msgs::BarometerMsg>(NAME + "_msgs", 100);
-
-  // sends device's properties if device is present
-  if (DevicePresenceCheck()) {
-    SendProperties();
-    properties_sent_ = true;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -51,79 +43,41 @@ Barometer::~Barometer() {}
 
 //------------------------------------------------------------------------------
 //
-void Barometer::Process() ATLAS_NOEXCEPT {
-  std::vector<CanMessage> rx_buffer;
-  std::vector<ComputerMessage> pc_messages_buffer;
+void Barometer::ProcessMessages(
+    const std::vector<CanMessage> &rx_buffer,
+    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
-  // default value: no ping received
-  ros_msg_.ping_rcvd = (uint8_t) false;
-
-  if (DevicePresenceCheck()) {
-    // is device is present and properties has not been sent
-    if (!properties_sent_) {
-      SendProperties();
-      properties_sent_ = true;
+  // if messages have been received
+  // loops through all barometer messages received
+  for (auto &can_message : rx_buffer) {
+    switch (can_message.id & DEVICE_MSG_MASK) {
+      case INTERNAL_PRESS_MSG:
+        ros_msg_.internal_pressure =
+            can_message.data[0] + (can_message.data[1] << 8) +
+            (can_message.data[2] << 16) + (can_message.data[3] << 24);
+        message_rcvd = true;
+        break;
+      case RELATIVE_PRESS_MSG:
+        ros_msg_.ext_relative_pressure =
+            can_message.data[0] + (can_message.data[1] << 8) +
+            (can_message.data[2] << 16) + (can_message.data[3] << 24);
+        message_rcvd = true;
+        break;
+      default:
+        break;
     }
-
-    // fetching CAN messages
-    rx_buffer = FetchMessages();
-
-    // if messages have been received
-    // loops through all barometer messages received
-    for (auto &can_message : rx_buffer) {
-      switch (can_message.id & DEVICE_MSG_MASK) {
-        case INTERNAL_PRESS_MSG:
-          ros_msg_.internal_pressure = can_message.data[0] + (can_message.data[1]
-                                      << 8) + (can_message.data[2]
-                                      << 16) + (can_message.data[3] << 24);
-          message_rcvd = true;
-          break;
-        case RELATIVE_PRESS_MSG:
-          ros_msg_.ext_relative_pressure =
-              can_message.data[0] + (can_message.data[1]
-              << 8) + (can_message.data[2] << 16) + (can_message.data[3] << 24);
-          message_rcvd = true;
-          break;
-        default:
-          break;
-      }
-    }
-
-    // fetching pc messages (ROS)
-    pc_messages_buffer = FetchComputerMessages();
-
-    // loops through all PC messages received
-    for (auto &pc_message : pc_messages_buffer) {
-      switch (pc_message.method_number) {
-        case ping_req:
-          Ping();
-          break;
-        case get_properties:
-          SendProperties();
-          break;
-        default:
-          break;
-      }
-    }
-
-    // if ping has been received
-    if (GetPingStatus()) {
-      ros_msg_.ping_rcvd = true;
-      message_rcvd = true;
-    } else
-    ros_msg_.ping_rcvd = false;
-
-    // if a fault has been received
-    const uint8_t *fault = GetFault();
-    if (fault != NULL) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
-      message_rcvd = true;
-    }else
-      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = ' ';
-
-    if (message_rcvd) barometer_pub_.publish(ros_msg_);
   }
+
+  // loops through all PC messages received
+  for (auto &pc_message : pc_messages_buffer) {
+    switch (pc_message.method_number) {
+      default:
+        break;
+    }
+  }
+
+  if (message_rcvd) barometer_pub_.publish(ros_msg_);
 }
 
 //------------------------------------------------------------------------------

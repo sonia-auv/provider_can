@@ -41,15 +41,16 @@ class BottomLight : public CanDevice {
 
   virtual ~BottomLight();
 
+ protected:
   //============================================================================
-  // P U B L I C   M E T H O D S
+  // P R O T E C T E D   M E T H O D S
 
   /**
    * reimplemented method from CanDevice class
    */
-  void Process() ATLAS_NOEXCEPT override;
-
-
+  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+                       const std::vector<ComputerMessage> &pc_messages_buffer)
+      ATLAS_NOEXCEPT override;
 
  private:
   //============================================================================
@@ -66,12 +67,11 @@ class BottomLight : public CanDevice {
   // P R I V A T E   M E M B E R S
 
   const static uint16_t SET_LIGHT_MSG;
-  const static uint16_t SET_LIGHT_DLC;
+  const static uint8_t SET_LIGHT_DLC;
   const static std::string NAME;
 
   uint8_t actual_light_level_;  // Light actual state
   uint8_t asked_light_level_;   // set by setLightLevel()
-  bool properties_sent_;
 
   ros::Publisher bottom_light_pub_;
 

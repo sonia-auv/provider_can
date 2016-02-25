@@ -26,7 +26,7 @@ namespace provider_can {
  * for all devices. Specific devices' functions must be implemented outside
  * of this class.
  *
- * This class contains one pure virtual function: Process(). Each device must
+ * This class contains one pure virtual function: ProcessMessages(). Each device must
  * at least implement his own process.
  */
 
@@ -54,10 +54,13 @@ class CanDevice {
   // P U B L I C   M E T H O D S
 
   /**
-   * Process common to all devices. This has to be called periodically for every
-   * device.
+   *  Process that handles devices common messages and that calls ProcessMessages()
+   *  for the device inheriting this class.ProcessMessages() will be able to
+   *  process device's specific messages, such as speed for motors.
+   *
+   *  Call this process periodically to handle device operation.
    */
-  virtual void Process() = 0;
+  void Process() ATLAS_NOEXCEPT;
 
   /**
    * returns a std string containing the name of the actual device.
@@ -65,6 +68,53 @@ class CanDevice {
    * \returns std::string name of the device
    */
   const std::string &GetName() const ATLAS_NOEXCEPT;
+
+ protected:
+  //============================================================================
+  // P R O T E C T E D   M E T H O D S
+
+  /**
+   * Pushes a message to the device
+   *
+   * \param buffer message content
+   * \param ndata message length
+   */
+  void PushMessage(uint16_t message_id, uint8_t *buffer,
+                   uint8_t ndata) const ATLAS_NOEXCEPT;
+
+  /**
+   * Method called by Process(). Use this function to process device's specific
+   * messages.
+   *
+   * \param rx_buffer can messages received from bus
+   * \param pc_messages_buffer pc messages received from ROS service
+   */
+  virtual void ProcessMessages(
+      const std::vector<CanMessage> &rx_buffer,
+      const std::vector<ComputerMessage> &pc_messages_buffer) = 0;
+
+  //============================================================================
+  // P R O T E C T E D   M E M B E R S
+
+  std::shared_ptr<CanDispatcher> can_dispatcher_;  // pointer to can controller
+
+ private:
+  //============================================================================
+  // P R I V A T E   M E T H O D S
+
+  /**
+   * Collects messages received for that device
+   *
+   * \param buffer device's rx_buffer
+   */
+  std::vector<CanMessage> FetchMessages() const ATLAS_NOEXCEPT;
+
+  /**
+   * Collects messages received from computer for that device
+   *
+   * \param buffer device's rx_buffer
+   */
+  std::vector<ComputerMessage> FetchComputerMessages() const ATLAS_NOEXCEPT;
 
   /**
    * returns a structure containing device properties
@@ -128,39 +178,6 @@ class CanDevice {
   // lorsqu'implementees dans
   // l'ELE.
 
- protected:
-  //============================================================================
-  // P R O T E C T E D   M E T H O D S
-
-  /**
-   * Collects messages received for that device
-   *
-   * \param buffer device's rx_buffer
-   */
-  std::vector<CanMessage> FetchMessages() const ATLAS_NOEXCEPT;
-
-  /**
-   * Collects messages received from computer for that device
-   *
-   * \param buffer device's rx_buffer
-   */
-  std::vector<ComputerMessage> FetchComputerMessages() const ATLAS_NOEXCEPT;
-
-  /**
-   * Pushes a message to the device
-   *
-   * \param buffer message content
-   * \param ndata message length
-   */
-  void PushMessage(uint16_t message_id, uint8_t *buffer,
-                   uint8_t ndata) const ATLAS_NOEXCEPT;
-
-  //============================================================================
-  // P R O T E C T E D   M E M B E R S
-
-  std::shared_ptr<CanDispatcher> can_dispatcher_;  // pointer to can controller
-
- private:
   //============================================================================
   // P R I V A T E   M E M B E R S
 
@@ -170,7 +187,15 @@ class CanDevice {
   DeviceClass device_id_;
   uint8_t unique_id_;
 
+  // Publishers for properties and notices
   ros::Publisher properties_pub_;
+  ros::Publisher device_notices_pub_;
+
+  // Messages tables taken from can_disp that will be transmitted to devices
+  std::vector<CanMessage> rx_buffer_;
+  std::vector<ComputerMessage> pc_messages_buffer_;
+
+  bool properties_sent_;
 };
 
 //==============================================================================

@@ -41,13 +41,16 @@ class Thruster : public CanDevice {
 
   virtual ~Thruster();
 
+ protected:
   //============================================================================
-  // P U B L I C   M E T H O D S
+  // P R O T E C T E D   M E T H O D S
 
   /**
    * reimplemented method from CanDevice class
    */
-  void Process() ATLAS_NOEXCEPT override;
+  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+                       const std::vector<ComputerMessage> &pc_messages_buffer)
+      ATLAS_NOEXCEPT override;
 
  private:
   //==========================================================================

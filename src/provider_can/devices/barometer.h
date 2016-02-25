@@ -23,49 +23,51 @@
 
 namespace provider_can {
 
-  class Barometer : public CanDevice {
-  public:
-    //==========================================================================
-    // T Y P E D E F   A N D   E N U M
+class Barometer : public CanDevice {
+ public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
 
-    using Ptr = std::shared_ptr<Barometer>;
-    using ConstPtr = std::shared_ptr<const Barometer>;
-    using PtrList = std::vector<Barometer::Ptr>;
-    using ConstPtrList = std::vector<Barometer::ConstPtr>;
+  using Ptr = std::shared_ptr<Barometer>;
+  using ConstPtr = std::shared_ptr<const Barometer>;
+  using PtrList = std::vector<Barometer::Ptr>;
+  using ConstPtrList = std::vector<Barometer::ConstPtr>;
 
-    // Receivable CAN messages
-    static const uint16_t INTERNAL_PRESS_MSG;
-    static const uint16_t RELATIVE_PRESS_MSG;
+  // Receivable CAN messages
+  static const uint16_t INTERNAL_PRESS_MSG;
+  static const uint16_t RELATIVE_PRESS_MSG;
 
-    //============================================================================
-    // P U B L I C   C / D T O R S
+  //============================================================================
+  // P U B L I C   C / D T O R S
 
-    explicit Barometer(const CanDispatcher::Ptr &can_dispatcher,
-                         const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+  explicit Barometer(const CanDispatcher::Ptr &can_dispatcher,
+                     const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-    virtual ~Barometer();
+  virtual ~Barometer();
 
-    //============================================================================
-    // P U B L I C   M E T H O D S
+ protected:
+  //============================================================================
+  // P R O T E C T E D   M E T H O D S
 
-    /**
-     * reimplemented method from CanDevice class
-     */
-    void Process() ATLAS_NOEXCEPT override;
+  /**
+   * reimplemented method from CanDevice class
+   */
+  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+                       const std::vector<ComputerMessage> &pc_messages_buffer)
+      ATLAS_NOEXCEPT override;
 
-  private:
+ private:
+  //============================================================================
+  // P R I V A T E   M E M B E R S
 
-    //============================================================================
-    // P R I V A T E   M E M B E R S
+  const static std::string NAME;
 
-    const static std::string NAME;
+  bool properties_sent_;
 
-    bool properties_sent_;
+  ros::Publisher barometer_pub_;
 
-    ros::Publisher barometer_pub_;
-
-    sonia_msgs::BarometerMsg ros_msg_;
-  };
+  sonia_msgs::BarometerMsg ros_msg_;
+};
 
 }  // namespace provider_can
 
