@@ -157,4 +157,9 @@ enum PSUMethods {
 enum ThrustersMethods {
   set_speed = 0,
 };
+
+enum GrabberMethods {
+  set_target = 0,
+};
+
 #endif

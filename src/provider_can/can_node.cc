@@ -53,6 +53,9 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
       std::make_shared<provider_can::Barometer>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Grabber>(can_ptr_, nh_));
 }
 
 //------------------------------------------------------------------------------
