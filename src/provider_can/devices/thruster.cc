@@ -58,9 +58,11 @@ void Thruster::ProcessMessages(
   for (auto &can_message : rx_buffer) {
     switch (can_message.id & DEVICE_MSG_MASK) {
       case THRUSTER_STATE_MSG:
-        ros_msg.current = can_message.data[0];
-        ros_msg.speed = can_message.data[1];
-        ros_msg.temperature = can_message.data[2];
+        ros_msg.factory_infos = can_message.data[0];
+        ros_msg.current = can_message.data[1];
+        ros_msg.speed = can_message.data[2] + (can_message.data[3] << 8);
+        ros_msg.temperature = can_message.data[4];
+        ros_msg.i2c_fault_number = can_message.data[5];
         message_rcvd = true;
         break;
       default:
