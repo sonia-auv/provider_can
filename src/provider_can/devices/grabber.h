@@ -37,6 +37,11 @@ namespace provider_can {
     static const uint16_t STATE_MSG;
     static const uint16_t PRESS_MSG;
 
+    // Transmittable CAN messages
+    static const uint16_t STARBOARD_TARGET;
+    // transmittable CAN messages
+    static const uint16_t PORT_TARGET;
+
     //============================================================================
     // P U B L I C   C / D T O R S
 
@@ -55,6 +60,9 @@ namespace provider_can {
     void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
                          const std::vector<ComputerMessage> &pc_messages_buffer)
     ATLAS_NOEXCEPT override;
+
+    void StarSetTarget(uint8_t target);
+    void PortSetTarget(uint8_t target);
 
   private:
     //============================================================================

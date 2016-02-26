@@ -159,7 +159,8 @@ enum ThrustersMethods {
 };
 
 enum GrabberMethods {
-  set_target = 0,
+  port_set_target = 0,
+  starboard_set_target = 1,
 };
 
 #endif

@@ -8,6 +8,7 @@
  * found in the LICENSE file.
  */
 
+#include <provider_can/can/can_dispatcher.h>
 #include "provider_can/devices/grabber.h"
 
 namespace provider_can {
@@ -20,7 +21,11 @@ namespace provider_can {
 // Receivable CAN messages
   const uint16_t Grabber::STATE_MSG = 0xF00;
 // transmittable CAN messages
-  const uint16_t Grabber::PRESS_MSG = 0xF01;
+  const uint16_t Grabber::PRESS_MSG = 0xF02;
+// transmittable CAN messages
+  const uint16_t Grabber::STARBOARD_TARGET = 0xF01;
+// transmittable CAN messages
+  const uint16_t Grabber::PORT_TARGET = 0xF03;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
@@ -70,8 +75,10 @@ void Grabber::ProcessMessages(
   // loops through all PC messages received
   for (auto &pc_message : pc_messages_buffer) {
   switch (pc_message.method_number) {
-    case set_target:
-      // TODO: To be revised
+    case port_set_target:
+      PortSetTarget(pc_message.parameter_value);
+    case starboard_set_target:
+      StarSetTarget(pc_message.parameter_value);
     default:
     break;
   }
@@ -82,5 +89,16 @@ if (message_rcvd) grabber_pub_.publish(ros_msg_);
 
 //------------------------------------------------------------------------------
 //
+
+void Grabber::StarSetTarget(uint8_t target){
+  PushMessage(STARBOARD_TARGET, &target, 1);
+}
+
+//------------------------------------------------------------------------------
+//
+
+void Grabber::PortSetTarget(uint8_t target){
+  PushMessage(PORT_TARGET, &target, 1);
+}
 
 }  // namespace provider_can
