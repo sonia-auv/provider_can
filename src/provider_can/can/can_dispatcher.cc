@@ -30,6 +30,8 @@ const uint32_t CanDispatcher::THREAD_INTERVAL_US = 10000;
 
 const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
 
+const uint16_t CanDispatcher::PROVIDER_CAN_STATUS = 0xF00;
+
 //==============================================================================
 // C / D T O R   S E C T I O N
 
@@ -68,11 +70,17 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
       "call_device_method", &provider_can::CanDispatcher::CallDeviceMethod, this);
+
+  uint8_t can_enabled_ = 1;
+  PushBroadMessage(PROVIDER_CAN_STATUS,&can_enabled_,1);
 }
 
 //------------------------------------------------------------------------------
 //
-CanDispatcher::~CanDispatcher() ATLAS_NOEXCEPT {}
+CanDispatcher::~CanDispatcher() ATLAS_NOEXCEPT {
+    uint8_t can_enabled_ = 0;
+    PushBroadMessage(PROVIDER_CAN_STATUS,&can_enabled_,1);
+}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N

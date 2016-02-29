@@ -148,6 +148,8 @@ class CanDispatcher : public atlas::Runnable {
   static const uint32_t THREAD_INTERVAL_US;
   // PC message buffer size
   static const uint32_t PC_BUFFER_SIZE;
+  // Provider_can status message
+  static const uint16_t PROVIDER_CAN_STATUS;
 
   //============================================================================
   // P U B L I C   C / D T O R S

@@ -44,7 +44,12 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
   if (DevicePresenceCheck()) {
     SendProperties();
     properties_sent_ = true;
+    printf("\n\rDevice %s Found",name_.data());
   }
+  else{
+    ROS_WARN_STREAM("Device " + name_ + " not found");
+  }
+
 }
 
 //------------------------------------------------------------------------------
@@ -78,6 +83,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (!properties_sent_) {
       SendProperties();
       properties_sent_ = true;
+      printf("\n\rDevice %s Found",name_.data());
     }
 
     // if ping has been received
