@@ -9,6 +9,13 @@
  */
 
 #include "provider_can/can_node.h"
+#include "provider_can/devices/bottom_light.h"
+#include "provider_can/devices/power_supply.h"
+#include "provider_can/devices/thruster.h"
+#include "provider_can/devices/barometer.h"
+#include "provider_can/devices/grabber.h"
+#include "provider_can/devices/diver_interface.h"
+
 
 namespace provider_can {
 
@@ -56,6 +63,9 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
       std::make_shared<provider_can::Grabber>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::DiverInterface>(can_ptr_, nh_));
 }
 
 //------------------------------------------------------------------------------

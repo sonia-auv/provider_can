@@ -23,11 +23,7 @@
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
-#include "provider_can/devices/bottom_light.h"
-#include "provider_can/devices/power_supply.h"
-#include "provider_can/devices/thruster.h"
-#include "provider_can/devices/barometer.h"
-#include "provider_can/devices/grabber.h"
+
 
 namespace provider_can {
 

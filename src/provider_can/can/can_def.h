@@ -126,8 +126,7 @@ enum Power {
 };
 
 enum Interfaces {
-  mission = 1,
-  diver_interface,
+  diver_interface = 2,
   led_indicator,
   carte_navigation_exception
 };
@@ -161,6 +160,11 @@ enum ThrustersMethods {
 enum GrabberMethods {
   port_set_target = 0,
   starboard_set_target = 1,
+};
+
+enum DiverInterface {
+  set_mission_string = 0,
+  set_state_string = 1,
 };
 
 #endif

@@ -80,4 +80,4 @@ class BottomLight : public CanDevice {
 
 }  // namespace provider_can
 
-#endif  // PROVIDER_CAN_CAN_DRIVER_H_
+#endif  // PROVIDER_CAN_BOTTOM_LIGHT_H_
