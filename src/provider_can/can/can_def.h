@@ -128,11 +128,10 @@ enum Power {
 enum Interfaces {
   diver_interface = 1,
   mission_switch = 2,
-  led_indicator,
   carte_navigation_exception
 };
 
-enum Lights { front_light = 1, bottom_light = 5 };
+enum Lights { front_light = 1, bottom_light = 5,led_indicator = 8 };
 
 enum Can2Rs232 { micron_dst_modem = 1 };
 
@@ -163,9 +162,14 @@ enum GrabberMethods {
   starboard_set_target = 1,
 };
 
-enum DiverInterface {
+enum DiverInterfaceMethods {
   set_mission_string = 0,
   set_state_string = 1,
+};
+
+enum LedIndicatorMethods {
+  set_mode = 0,
+  set_color = 1,
 };
 
 #endif

@@ -1,22 +1,21 @@
 /**
- * \file	barometer.h
+ * \file	led_indicator.h
  * \author	Alexi Demers <alexidemers@gmail.com>
- * \date	21/02/2016
+ * \date	29/02/2016
  *
  * \copyright	Copyright (c) 2015 SONIA AUV ETS. All rights reserved.
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
-/*
-#ifndef PROVIDER_CAN_GRABBER_H_
-#define PROVIDER_CAN_GRABBER_H_
+
+#ifndef PROVIDER_CAN_LED_INDICATOR_H_
+#define PROVIDER_CAN_LED_INDICATOR_H_
 
 #include <memory>
 #include <vector>
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
-#include "sonia_msgs/GrabberMsg.h"
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -33,14 +32,9 @@ namespace provider_can {
     using PtrList = std::vector<LedIndicator::Ptr>;
     using ConstPtrList = std::vector<LedIndicator::ConstPtr>;
 
-    // Receivable CAN messages
-    static const uint16_t STATE_MSG;
-    static const uint16_t PRESS_MSG;
-
-    // Transmittable CAN messages
-    static const uint16_t STARBOARD_TARGET;
     // transmittable CAN messages
-    static const uint16_t PORT_TARGET;
+    static const uint16_t SET_MODE_MSG;
+    static const uint16_t SET_COLOR_MSG;
 
     //============================================================================
     // P U B L I C   C / D T O R S
@@ -53,29 +47,42 @@ namespace provider_can {
   protected:
     //============================================================================
     // P R O T E C T E D   M E T H O D S
-*/
+
     /**
      * reimplemented method from CanDevice class
      */
- /*   void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+    void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
                          const std::vector<ComputerMessage> &pc_messages_buffer)
     ATLAS_NOEXCEPT override;
 
-    void SetColor(uint8_t color);
-    void SetMode(uint8_t mode);
+
 
   private:
+
+    /**
+     * Sets the display color of the led indicator
+     *
+     * \param color color to set (0 to 7). table:{BLACK,RED,YELLOW,CYAN,GREEN,WHITE}
+     */
+    void SetColor(uint8_t color);
+
+    /**
+     * Sets the mode of operation of the led indicator
+     *
+     * \param mode mode to set (0 to 2). table:{OFF, BLINK, ON, RAINBOW}
+     */
+    void SetMode(uint8_t mode);
+
     //============================================================================
     // P R I V A T E   M E M B E R S
 
     const static std::string NAME;
 
-    ros::Publisher grabber_pub_;
-
-    sonia_msgs::GrabberMsg ros_msg_;
+    uint8_t color_;
+    uint8_t mode_;
   };
 
 }  // namespace provider_can
 
-#endif  // PROVIDER_CAN_BAROMETER_H_
-*/
+#endif  // PROVIDER_CAN_LED_INDICATOR_H_
+

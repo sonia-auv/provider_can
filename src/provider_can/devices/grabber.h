@@ -39,7 +39,6 @@ namespace provider_can {
 
     // Transmittable CAN messages
     static const uint16_t STARBOARD_TARGET;
-    // transmittable CAN messages
     static const uint16_t PORT_TARGET;
 
     //============================================================================
@@ -77,4 +76,4 @@ namespace provider_can {
 
 }  // namespace provider_can
 
-#endif  // PROVIDER_CAN_BAROMETER_H_
+#endif  // PROVIDER_CAN_GRABBEr_H_

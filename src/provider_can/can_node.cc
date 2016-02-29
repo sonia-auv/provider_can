@@ -16,6 +16,7 @@
 #include "provider_can/devices/grabber.h"
 #include "provider_can/devices/diver_interface.h"
 #include "provider_can/devices/mission_switch.h"
+#include "provider_can/devices/led_indicator.h"
 
 
 namespace provider_can {
@@ -70,6 +71,9 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
         std::make_shared<provider_can::MissionSwitch>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+          std::make_shared<provider_can::LedIndicator>(can_ptr_, nh_));
 }
 
 //------------------------------------------------------------------------------
