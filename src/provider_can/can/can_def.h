@@ -126,7 +126,8 @@ enum Power {
 };
 
 enum Interfaces {
-  diver_interface = 2,
+  diver_interface = 1,
+  mission_switch = 2,
   led_indicator,
   carte_navigation_exception
 };

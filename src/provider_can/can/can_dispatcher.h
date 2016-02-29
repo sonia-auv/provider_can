@@ -52,6 +52,8 @@ typedef struct {
   uint8_t method_number;
   // the value to pass as a parameter to the method
   float parameter_value;
+  // String to pass for additionnal parameters
+  std::string string_param;
 } ComputerMessage;
 
 // This is a base structure which will be filled of

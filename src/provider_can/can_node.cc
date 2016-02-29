@@ -1,5 +1,5 @@
 /**
- * \file	can_device.cc
+ * \file	can_node.cc
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	26/01/2016
  *
@@ -15,6 +15,7 @@
 #include "provider_can/devices/barometer.h"
 #include "provider_can/devices/grabber.h"
 #include "provider_can/devices/diver_interface.h"
+#include "provider_can/devices/mission_switch.h"
 
 
 namespace provider_can {
@@ -66,6 +67,9 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
       std::make_shared<provider_can::DiverInterface>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+        std::make_shared<provider_can::MissionSwitch>(can_ptr_, nh_));
 }
 
 //------------------------------------------------------------------------------

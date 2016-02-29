@@ -638,6 +638,7 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
   ComputerMessage msg = {msg.method_number = req.method_number,
                          msg.parameter_value = req.parameter_value};
   size_t index;
+  msg.string_param = req.string_param;
   status = FindDevice(req.device_id, req.unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT)
