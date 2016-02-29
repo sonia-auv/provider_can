@@ -73,7 +73,8 @@ install:
   - cd ~/catkin_ws/
   - rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y
   # Install drivers
-  - wget http://www.kvaser.com/software/7330130980754/V5_12_0/linuxcan.tar.gz
+  - sudo ln -sf /usr/src/linux-headers-$(uname -r) /lib/modules/$(uname -r)/build
+  - wget http://www.kvaser.com/software/7330130980754/V5_13_0/linuxcan.tar.gz
   - tar zxvf linuxcan.tar.gz
   - cd ./linuxcan
   - make -j8
