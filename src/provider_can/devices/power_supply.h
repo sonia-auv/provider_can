@@ -107,8 +107,6 @@ class PowerSupply : public CanDevice {
   ros::Publisher power_supply_pub_;
 
   sonia_msgs::PowerSupplyMsg ros_msg_;
-
-  bool properties_sent_;
 };
 
 } /* namespace provider_can */

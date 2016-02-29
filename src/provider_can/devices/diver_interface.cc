@@ -1,5 +1,5 @@
 /**
- * \file	bottom_light.cc
+ * \file	diver_interface.cc
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	04/02/2016
  *
@@ -20,6 +20,7 @@ namespace provider_can {
   const std::string DiverInterface::NAME = "diver_interface";
   const uint16_t DiverInterface::SET_STATE_MSG = 0xF00;
   const uint16_t DiverInterface::SET_MISSION_MSG = 0xF01;
+  const uint16_t DiverInterface::MISSION_SWITCH_STATE = 0xF00;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
@@ -34,6 +35,8 @@ namespace provider_can {
       mission_string_in_construction(false),
       state_string_in_construction(false)
   {
+	  diver_interface_pub_ =
+	        nh->advertise<sonia_msgs::MissionSwitchMsg>(NAME + "_msgs", 100);
   }
 
 //------------------------------------------------------------------------------
@@ -48,7 +51,20 @@ namespace provider_can {
   void DiverInterface::ProcessMessages(
     const std::vector<CanMessage> &rx_buffer,
     const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+	bool message_rcvd = false;
 
+	// if messages have been received
+	// loops through all barometer messages received
+	for (auto &can_message : rx_buffer) {
+	  switch (can_message.id & DEVICE_MSG_MASK) {
+		case MISSION_SWITCH_STATE:
+		  ros_msg_.state = can_message.data[0];
+		  message_rcvd = true;
+		  break;
+		default:
+		  break;
+	  }
+	}
 
   // loops through all PC messages received
   for (auto &pc_message : pc_messages_buffer) {
@@ -64,6 +80,8 @@ namespace provider_can {
       break;
     }
   }
+
+  if (message_rcvd) diver_interface_pub_.publish(ros_msg_);
 
 }
 //------------------------------------------------------------------------------

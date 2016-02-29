@@ -70,8 +70,6 @@ namespace provider_can {
 
     const static std::string NAME;
 
-    bool properties_sent_;
-
     ros::Publisher grabber_pub_;
 
     sonia_msgs::GrabberMsg ros_msg_;

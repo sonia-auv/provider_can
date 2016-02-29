@@ -29,8 +29,7 @@ const uint16_t Barometer::RELATIVE_PRESS_MSG = 0xF01;
 //
 Barometer::Barometer(const CanDispatcher::Ptr &can_dispatcher,
                      const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : CanDevice(sensors, barometer, can_dispatcher, NAME, nh),
-      properties_sent_(false) {
+    : CanDevice(sensors, barometer, can_dispatcher, NAME, nh) {
   barometer_pub_ = nh->advertise<sonia_msgs::BarometerMsg>(NAME + "_msgs", 100);
 }
 

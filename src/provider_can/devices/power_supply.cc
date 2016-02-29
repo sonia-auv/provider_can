@@ -39,8 +39,7 @@ const std::string PowerSupply::NAME = "power_supply";
 //
 PowerSupply::PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : CanDevice(power, power_distribution, can_dispatcher, NAME, nh),
-      properties_sent_(false) {
+    : CanDevice(power, power_distribution, can_dispatcher, NAME, nh) {
   power_supply_pub_ =
       nh->advertise<sonia_msgs::PowerSupplyMsg>(NAME + "_msgs", 100);
 }

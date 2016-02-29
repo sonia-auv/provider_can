@@ -34,8 +34,7 @@ namespace provider_can {
 //
   Grabber::Grabber(const CanDispatcher::Ptr &can_dispatcher,
                        const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : CanDevice(actuators, grabber, can_dispatcher, NAME, nh),
-      properties_sent_(false) {
+    : CanDevice(actuators, grabber, can_dispatcher, NAME, nh) {
     grabber_pub_ = nh->advertise<sonia_msgs::GrabberMsg>(NAME + "_msgs", 100);
   }
 
@@ -77,8 +76,10 @@ void Grabber::ProcessMessages(
   switch (pc_message.method_number) {
     case port_set_target:
       PortSetTarget(pc_message.parameter_value);
+    break;
     case starboard_set_target:
       StarSetTarget(pc_message.parameter_value);
+    break;
     default:
     break;
   }

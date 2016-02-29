@@ -1,5 +1,5 @@
 /**
- * \file	bottom_light.h
+ * \file	diver_interface.h
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	04/02/2016
  *
@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
+#include "sonia_msgs/MissionSwitchMsg.h"
 #include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
@@ -35,6 +36,9 @@ namespace provider_can {
     // transmittable CAN messages
     static const uint16_t SET_STATE_MSG;
     static const uint16_t SET_MISSION_MSG;
+
+    // receivable can messages
+    static const uint16_t MISSION_SWITCH_STATE;
 
     //============================================================================
     // P U B L I C   C / D T O R S
@@ -78,6 +82,10 @@ namespace provider_can {
 
     bool mission_string_in_construction;
     bool state_string_in_construction;
+
+    ros::Publisher diver_interface_pub_;
+
+    sonia_msgs::MissionSwitchMsg ros_msg_;
 
   };
 

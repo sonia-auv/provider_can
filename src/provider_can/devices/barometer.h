@@ -62,8 +62,6 @@ class Barometer : public CanDevice {
 
   const static std::string NAME;
 
-  bool properties_sent_;
-
   ros::Publisher barometer_pub_;
 
   sonia_msgs::BarometerMsg ros_msg_;
