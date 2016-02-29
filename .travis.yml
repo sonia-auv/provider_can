@@ -54,6 +54,7 @@ install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
+  - sudo apt-get -qq -y upgrade && sudo apt-get -qq -y dist-upgrade
   - sudo apt-get install -qq -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin ros-$ROS_DISTRO-ros libeigen3-dev
   - source /opt/ros/$ROS_DISTRO/setup.bash
   # Setup rosdep
@@ -73,7 +74,6 @@ install:
   - cd ~/catkin_ws/
   - rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y
   # Install drivers
-  - sudo aptitude install linux-image-3.19.0-30-generic linux-image-extra-3.19.0-30-generic
   - wget http://www.kvaser.com/software/7330130980754/V5_13_0/linuxcan.tar.gz
   - tar zxvf linuxcan.tar.gz
   - cd ./linuxcan
