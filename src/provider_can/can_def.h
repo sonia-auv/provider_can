@@ -131,7 +131,7 @@ enum Interfaces {
   carte_navigation_exception
 };
 
-enum Lights { front_light = 1, bottom_light = 5,led_indicator = 8 };
+enum Lights { front_light = 1, bottom_light = 5, led_indicator = 8 };
 
 enum Can2Rs232 { micron_dst_modem = 1 };
 

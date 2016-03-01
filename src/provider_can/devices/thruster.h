@@ -17,7 +17,7 @@
 #include <iostream>
 #include <ros/ros.h>
 #include <sonia_msgs/ThrusterMsg.h>
-#include "provider_can/can/can_def.h"
+#include "provider_can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 
@@ -86,4 +86,4 @@ class Thruster : public CanDevice {
 
 } /* namespace provider_can */
 
-#endif /* PROVIDER_CAN_POWER_SUPPLY_H_ */
+#endif /* PROVIDER_CAN_THRUSTER_H_ */

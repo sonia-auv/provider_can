@@ -17,56 +17,54 @@
 #include <iostream>
 #include <ros/ros.h>
 #include "sonia_msgs/MissionSwitchMsg.h"
-#include "provider_can/can/can_def.h"
+#include "provider_can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {
 
-  class MissionSwitch : public CanDevice {
-  public:
-    //==========================================================================
-    // T Y P E D E F   A N D   E N U M
+class MissionSwitch : public CanDevice {
+ public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
 
-    using Ptr = std::shared_ptr<MissionSwitch>;
-    using ConstPtr = std::shared_ptr<const MissionSwitch>;
-    using PtrList = std::vector<MissionSwitch::Ptr>;
-    using ConstPtrList = std::vector<MissionSwitch::ConstPtr>;
+  using Ptr = std::shared_ptr<MissionSwitch>;
+  using ConstPtr = std::shared_ptr<const MissionSwitch>;
+  using PtrList = std::vector<MissionSwitch::Ptr>;
+  using ConstPtrList = std::vector<MissionSwitch::ConstPtr>;
 
-    // receivable can messages
-    static const uint16_t MISSION_SWITCH_STATE;
+  // receivable can messages
+  static const uint16_t MISSION_SWITCH_STATE;
 
-    //============================================================================
-    // P U B L I C   C / D T O R S
+  //============================================================================
+  // P U B L I C   C / D T O R S
 
-    explicit MissionSwitch(const CanDispatcher::Ptr &can_dispatcher,
+  explicit MissionSwitch(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-    virtual ~MissionSwitch();
+  virtual ~MissionSwitch();
 
-  protected:
-    //============================================================================
-    // P R O T E C T E D   M E T H O D S
+ protected:
+  //============================================================================
+  // P R O T E C T E D   M E T H O D S
 
-    /**
-     * reimplemented method from CanDevice class
-     */
-    void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
-                         const std::vector<ComputerMessage> &pc_messages_buffer)
-    ATLAS_NOEXCEPT override;
+  /**
+   * reimplemented method from CanDevice class
+   */
+  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+                       const std::vector<ComputerMessage> &pc_messages_buffer)
+      ATLAS_NOEXCEPT override;
 
-  private:
+ private:
+  //============================================================================
+  // P R I V A T E   M E M B E R S
 
-    //============================================================================
-    // P R I V A T E   M E M B E R S
+  const static std::string NAME;
 
-    const static std::string NAME;
+  ros::Publisher mission_switch_pub_;
 
-    ros::Publisher mission_switch_pub_;
-
-    sonia_msgs::MissionSwitchMsg ros_msg_;
-
-  };
+  sonia_msgs::MissionSwitchMsg ros_msg_;
+};
 
 }  // namespace provider_can
 

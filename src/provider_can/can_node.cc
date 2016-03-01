@@ -8,6 +8,7 @@
  * found in the LICENSE file.
  */
 
+#include "provider_can/can_def.h"
 #include "provider_can/can_node.h"
 #include "provider_can/devices/bottom_light.h"
 #include "provider_can/devices/power_supply.h"
@@ -17,7 +18,6 @@
 #include "provider_can/devices/diver_interface.h"
 #include "provider_can/devices/mission_switch.h"
 #include "provider_can/devices/led_indicator.h"
-
 
 namespace provider_can {
 
@@ -70,10 +70,10 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       std::make_shared<provider_can::DiverInterface>(can_ptr_, nh_));
 
   can_devices_vector_.push_back(
-        std::make_shared<provider_can::MissionSwitch>(can_ptr_, nh_));
+      std::make_shared<provider_can::MissionSwitch>(can_ptr_, nh_));
 
   can_devices_vector_.push_back(
-          std::make_shared<provider_can::LedIndicator>(can_ptr_, nh_));
+      std::make_shared<provider_can::LedIndicator>(can_ptr_, nh_));
 }
 
 //------------------------------------------------------------------------------

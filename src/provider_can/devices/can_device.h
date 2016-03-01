@@ -17,7 +17,7 @@
 #include <ros/ros.h>
 #include <lib_atlas/macros.h>
 #include "provider_can/can/can_dispatcher.h"
-#include "provider_can/can/can_def.h"
+#include "provider_can/can_def.h"
 
 namespace provider_can {
 
@@ -26,13 +26,17 @@ namespace provider_can {
  * for all devices. Specific devices' functions must be implemented outside
  * of this class.
  *
- * This class contains one pure virtual function: ProcessMessages(). Each device must
- * at least implement his own process.
+ * This class contains one pure virtual function: ProcessMessages(). Each device
+ * must at least implement his own process for handling received messages.
+ * The parameters of this function will contain the messages relative to the
+ * specific device.
+ *
+ * ROS messages published are notices and properties. See .msg files for infos.
  */
 
 class CanDevice {
  public:
-  //==========================================================================
+  //============================================================================
   // T Y P E D E F   A N D   E N U M
 
   using Ptr = std::shared_ptr<CanDevice>;
@@ -54,7 +58,8 @@ class CanDevice {
   // P U B L I C   M E T H O D S
 
   /**
-   *  Process that handles devices common messages and that calls ProcessMessages()
+   *  Process that handles devices common messages and that calls
+   * ProcessMessages()
    *  for the device inheriting this class.ProcessMessages() will be able to
    *  process device's specific messages, such as speed for motors.
    *
@@ -86,7 +91,7 @@ class CanDevice {
    * Method called by Process(). Use this function to process device's specific
    * messages.
    *
-   * \param rx_buffer can messages received from bus
+   * \param rx_buffer can messages received from bus for the actual device
    * \param pc_messages_buffer pc messages received from ROS service
    */
   virtual void ProcessMessages(

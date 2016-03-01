@@ -47,8 +47,7 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       ovrr_error_(0),
       master_id_(),
       nh_(nh),
-      call_device_srv_(){
-
+      call_device_srv_() {
   master_id_ =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
@@ -66,20 +65,20 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
   // GetAllDevicesParamsReq(); // TODO: uncomment when implemented in ELE part
 
-
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
-      "call_device_method", &provider_can::CanDispatcher::CallDeviceMethod, this);
+      "call_device_method", &provider_can::CanDispatcher::CallDeviceMethod,
+      this);
 
   uint8_t can_enabled_ = 1;
-  PushBroadMessage(PROVIDER_CAN_STATUS,&can_enabled_,1);
+  PushBroadMessage(PROVIDER_CAN_STATUS, &can_enabled_, 1);
 }
 
 //------------------------------------------------------------------------------
 //
 CanDispatcher::~CanDispatcher() ATLAS_NOEXCEPT {
-    uint8_t can_enabled_ = 0;
-    PushBroadMessage(PROVIDER_CAN_STATUS,&can_enabled_,1);
+  uint8_t can_enabled_ = 0;
+  PushBroadMessage(PROVIDER_CAN_STATUS, &can_enabled_, 1);
 }
 
 //==============================================================================
@@ -101,8 +100,7 @@ canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
   for (auto &message : rx_raw_buffer_) {
     CanDeviceStruct new_device;
     // If the address of the message has never been seen
-    if (FindDeviceWithAddress(message.id) ==
-        SONIA_DEVICE_NOT_PRESENT) {
+    if (FindDeviceWithAddress(message.id) == SONIA_DEVICE_NOT_PRESENT) {
       // Apending new device to the vector
       new_device.global_address = (message.id & DEVICE_MAC_MASK);
 
@@ -137,18 +135,15 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
             (message.data[1] << 8) | message.data[0];
 
         devices_list_[index].device_properties.uc_signature =
-            (message.data[4] << 16) |
-            (message.data[3] << 8) | message.data[2];
+            (message.data[4] << 16) | (message.data[3] << 8) | message.data[2];
 
-        devices_list_[index].device_properties.capabilities =
-          message.data[5];
+        devices_list_[index].device_properties.capabilities = message.data[5];
 
-        devices_list_[index].device_properties.device_data =
-          message.data[6];
+        devices_list_[index].device_properties.device_data = message.data[6];
       }
       // If the ID received correspond to a device fault
       else if ((devices_list_[index].global_address | DEVICE_FAULT) ==
-                message.id) {
+               message.id) {
         devices_list_[index].device_fault = true;
         devices_list_[index].fault_message = message.data;
         /*
@@ -162,19 +157,18 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
 
       }
       // If the ID received corresponds to a ping response
-      else if ((devices_list_[index].global_address | PING) ==
-        message.id) {
+      else if ((devices_list_[index].global_address | PING) == message.id) {
         devices_list_[index].ping_response = true;
       }
       // If the ID received corresponds to a parameter response
       else if ((devices_list_[index].global_address | GET_PARAM_REQ) ==
-              message.id) {
+               message.id) {
         devices_list_[index].device_parameters[0] =
-              message.data[0] | message.data[1] << 8 |
-              message.data[2] << 16 | message.data[3] << 24;
+            message.data[0] | message.data[1] << 8 | message.data[2] << 16 |
+            message.data[3] << 24;
         devices_list_[index].device_parameters[1] =
-              message.data[4] | message.data[5] << 8 |
-              message.data[6] << 16 | message.data[7] << 24;
+            message.data[4] | message.data[5] << 8 | message.data[6] << 16 |
+            message.data[7] << 24;
       }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
@@ -617,8 +611,8 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
           unknown_addresses_table_.size() != 0) {
         // Printing missing devices
         printf("\n\rUnknown devices found:");
-        for(auto &address : unknown_addresses_table_)
-          printf("\n\r%X",address);
+        for (auto &address : unknown_addresses_table_)
+          printf("\n\r%X", address);
         printf("\n\rRetrying ID Request");
         ListDevices();
         discovery_tries_++;

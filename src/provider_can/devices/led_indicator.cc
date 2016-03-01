@@ -16,28 +16,26 @@ namespace provider_can {
 //==============================================================================
 // S T A T I C   M E M B E R S
 
-  const std::string LedIndicator::NAME = "led_indicator";
+const std::string LedIndicator::NAME = "led_indicator";
 
-  // transmittable CAN messages
-  const uint16_t LedIndicator::SET_MODE_MSG = 0xF00;
-  const uint16_t LedIndicator::SET_COLOR_MSG = 0xF00;
+// transmittable CAN messages
+const uint16_t LedIndicator::SET_MODE_MSG = 0xF00;
+const uint16_t LedIndicator::SET_COLOR_MSG = 0xF00;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
 
 //------------------------------------------------------------------------------
 //
-  LedIndicator::LedIndicator(const CanDispatcher::Ptr &can_dispatcher,
-                       const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
+LedIndicator::LedIndicator(const CanDispatcher::Ptr &can_dispatcher,
+                           const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(lights, led_indicator, can_dispatcher, NAME, nh),
-	  color_(0),
-	  mode_(0){
-
-  }
+      color_(0),
+      mode_(0) {}
 
 //------------------------------------------------------------------------------
 //
-  LedIndicator::~LedIndicator() {}
+LedIndicator::~LedIndicator() {}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
@@ -45,30 +43,27 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
 void LedIndicator::ProcessMessages(
-  const std::vector<CanMessage> &rx_buffer,
-  const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
-
-
+    const std::vector<CanMessage> &rx_buffer,
+    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
   // loops through all PC messages received
   for (auto &pc_message : pc_messages_buffer) {
-  switch (pc_message.method_number) {
-    case set_mode:
-    	SetMode((uint8_t)pc_message.parameter_value);
-    break;
-    case set_color:
-    	SetColor((uint8_t)pc_message.parameter_value);
-    break;
-    default:
-    break;
+    switch (pc_message.method_number) {
+      case set_mode:
+        SetMode((uint8_t)pc_message.parameter_value);
+        break;
+      case set_color:
+        SetColor((uint8_t)pc_message.parameter_value);
+        break;
+      default:
+        break;
+    }
   }
-}
-
 }
 
 //------------------------------------------------------------------------------
 //
 
-void LedIndicator::SetColor(uint8_t color){
+void LedIndicator::SetColor(uint8_t color)ATLAS_NOEXCEPT {
   color_ = color;
 
   uint8_t msg[2] = {color_, mode_};
@@ -78,7 +73,7 @@ void LedIndicator::SetColor(uint8_t color){
 //------------------------------------------------------------------------------
 //
 
-void LedIndicator::SetMode(uint8_t mode){
+void LedIndicator::SetMode(uint8_t mode)ATLAS_NOEXCEPT {
   mode_ = mode;
 
   uint8_t msg[2] = {color_, mode_};

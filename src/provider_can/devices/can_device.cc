@@ -32,8 +32,7 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
       device_notices_pub_(),
       rx_buffer_(),
       pc_messages_buffer_(),
-      properties_sent_(false){
-
+      properties_sent_(false) {
   properties_pub_ = nh->advertise<sonia_msgs::CanDevicesProperties>(
       name_ + "_properties", 100);
 
@@ -44,12 +43,10 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
   if (DevicePresenceCheck()) {
     SendProperties();
     properties_sent_ = true;
-    printf("\n\rDevice %s Found",name_.data());
-  }
-  else{
+    printf("\n\rDevice %s Found", name_.data());
+  } else {
     ROS_WARN_STREAM("Device " + name_ + " not found");
   }
-
 }
 
 //------------------------------------------------------------------------------
@@ -83,7 +80,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (!properties_sent_) {
       SendProperties();
       properties_sent_ = true;
-      printf("\n\rDevice %s Found",name_.data());
+      printf("\n\rDevice %s Found", name_.data());
     }
 
     // if ping has been received

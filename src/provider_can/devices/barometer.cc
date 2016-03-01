@@ -68,14 +68,6 @@ void Barometer::ProcessMessages(
     }
   }
 
-  // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
-    switch (pc_message.method_number) {
-      default:
-        break;
-    }
-  }
-
   if (message_rcvd) barometer_pub_.publish(ros_msg_);
 }
 

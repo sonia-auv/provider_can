@@ -16,73 +16,74 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
-#include "provider_can/can/can_def.h"
+#include "provider_can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {
 
-  class LedIndicator : public CanDevice {
-  public:
-    //==========================================================================
-    // T Y P E D E F   A N D   E N U M
+class LedIndicator : public CanDevice {
+ public:
+  //==========================================================================
+  // T Y P E D E F   A N D   E N U M
 
-    using Ptr = std::shared_ptr<LedIndicator>;
-    using ConstPtr = std::shared_ptr<const LedIndicator>;
-    using PtrList = std::vector<LedIndicator::Ptr>;
-    using ConstPtrList = std::vector<LedIndicator::ConstPtr>;
+  using Ptr = std::shared_ptr<LedIndicator>;
+  using ConstPtr = std::shared_ptr<const LedIndicator>;
+  using PtrList = std::vector<LedIndicator::Ptr>;
+  using ConstPtrList = std::vector<LedIndicator::ConstPtr>;
 
-    // transmittable CAN messages
-    static const uint16_t SET_MODE_MSG;
-    static const uint16_t SET_COLOR_MSG;
+  // transmittable CAN messages
+  static const uint16_t SET_MODE_MSG;
+  static const uint16_t SET_COLOR_MSG;
 
-    //============================================================================
-    // P U B L I C   C / D T O R S
+  //============================================================================
+  // P U B L I C   C / D T O R S
 
-    explicit LedIndicator(const CanDispatcher::Ptr &can_dispatcher,
-                       const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+  explicit LedIndicator(const CanDispatcher::Ptr &can_dispatcher,
+                        const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
 
-    virtual ~LedIndicator();
+  virtual ~LedIndicator();
 
-  protected:
-    //============================================================================
-    // P R O T E C T E D   M E T H O D S
+ protected:
+  //============================================================================
+  // P R O T E C T E D   M E T H O D S
 
-    /**
-     * reimplemented method from CanDevice class
-     */
-    void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
-                         const std::vector<ComputerMessage> &pc_messages_buffer)
-    ATLAS_NOEXCEPT override;
+  /**
+   * reimplemented method from CanDevice class
+   */
+  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
+                       const std::vector<ComputerMessage> &pc_messages_buffer)
+      ATLAS_NOEXCEPT override;
 
+ private:
 
+  //============================================================================
+  // P R I V A T E   M E T H O D S
 
-  private:
+  /**
+   * Sets the display color of the led indicator
+   *
+   * \param color color to set (0 to 7).
+   * table:{BLACK,RED,YELLOW,CYAN,GREEN,WHITE}
+   */
+  void SetColor(uint8_t color)ATLAS_NOEXCEPT;
 
-    /**
-     * Sets the display color of the led indicator
-     *
-     * \param color color to set (0 to 7). table:{BLACK,RED,YELLOW,CYAN,GREEN,WHITE}
-     */
-    void SetColor(uint8_t color);
+  /**
+   * Sets the mode of operation of the led indicator
+   *
+   * \param mode mode to set (0 to 2). table:{OFF, BLINK, ON, RAINBOW}
+   */
+  void SetMode(uint8_t mode)ATLAS_NOEXCEPT;
 
-    /**
-     * Sets the mode of operation of the led indicator
-     *
-     * \param mode mode to set (0 to 2). table:{OFF, BLINK, ON, RAINBOW}
-     */
-    void SetMode(uint8_t mode);
+  //============================================================================
+  // P R I V A T E   M E M B E R S
 
-    //============================================================================
-    // P R I V A T E   M E M B E R S
+  const static std::string NAME;
 
-    const static std::string NAME;
-
-    uint8_t color_;
-    uint8_t mode_;
-  };
+  uint8_t color_;
+  uint8_t mode_;
+};
 
 }  // namespace provider_can
 
 #endif  // PROVIDER_CAN_LED_INDICATOR_H_
-

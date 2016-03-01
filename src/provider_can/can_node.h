@@ -20,16 +20,14 @@
 #include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/ros/service_server_manager.h>
 #include "provider_can/can_configuration.h"
-#include "provider_can/can/can_def.h"
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
-
 
 namespace provider_can {
 
 /**
  * This class contains the main process for can_provider. it calls all devices'
- * processes and enables service for method calling
+ * messages processing.
  */
 class CanNode : public atlas::Runnable {
   //==========================================================================
