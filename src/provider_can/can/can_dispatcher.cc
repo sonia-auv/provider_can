@@ -67,8 +67,7 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
-      "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod,
-      this);
+      "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod, this);
 
   uint8_t can_enabled_ = 1;
   PushBroadMessage(PROVIDER_CAN_STATUS, &can_enabled_, 1);
@@ -635,14 +634,16 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
   msg.string_param = req.string_param;
   status = FindDevice(req.device_id, req.unique_id, &index);
 
-  if (status != SONIA_DEVICE_NOT_PRESENT)
-    if (devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE)
+  if (status != SONIA_DEVICE_NOT_PRESENT) {
+    if (devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE) {
       devices_list_[index].pc_messages_buffer.push_back(msg);
-    else
+    } else {
       printf(
           "\n\rDevice %X: Dedicated ROS service called to fast for the "
           "update rate. Following messages will be dropped.",
           devices_list_[index].global_address);
+    }
+  }
 
   res.device_status = status;
   return true;
