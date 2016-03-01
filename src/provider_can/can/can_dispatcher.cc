@@ -67,7 +67,7 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
-      "call_device_method", &provider_can::CanDispatcher::CallDeviceMethod,
+      "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod,
       this);
 
   uint8_t can_enabled_ = 1;
