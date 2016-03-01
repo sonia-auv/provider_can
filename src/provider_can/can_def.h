@@ -11,6 +11,8 @@
 #ifndef PROVIDER_CAN_CAN_DEF_H_
 #define PROVIDER_CAN_CAN_DEF_H_
 
+#include <stdint.h>
+
 //============================================================================
 // D E F I N E S
 

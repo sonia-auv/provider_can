@@ -25,7 +25,7 @@
 #include <lib_atlas/pattern/runnable.h>
 #include "sonia_msgs/SendCanMessage.h"
 #include "provider_can/can/can_driver.h"
-#include "provider_can/can/can_def.h"
+#include "provider_can/can_def.h"
 
 namespace provider_can {
 
