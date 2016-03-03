@@ -302,10 +302,9 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
 
   for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-  if(tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
+  if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
-  }
-  else{
+  } else {
     printf("\n\r");
     ROS_WARN("Trying to send too many messages sent on can bus");
   }
@@ -327,10 +326,9 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   message.dlc = ndata;
   for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-  if(tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
+  if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
-  }
-  else{
+  } else {
     printf("\n\r");
     ROS_WARN("Trying to send too many messages sent on can bus");
   }
