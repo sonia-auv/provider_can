@@ -2,7 +2,7 @@
 	<node name="provider_can_node"
 	    pkg="provider_can"
 	    type="provider_can_node"
-	    output="log"
+	    output="screen"
 	    launch-prefix="gdb -ex run --args" />
 
     <rosparam command="load"

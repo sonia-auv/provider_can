@@ -284,6 +284,7 @@ ATLAS_INLINE void CanDevice::WakeUp() const ATLAS_NOEXCEPT {
 //
 ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
                                          uint8_t ndata) const ATLAS_NOEXCEPT {
+
   can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, message_id,
                                       buffer, ndata);
 }

@@ -26,9 +26,9 @@ const uint8_t CanDispatcher::ERROR_RECOVERY_DELAY = 2;
 // Delay to wait for a message to be sent (ms)
 const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
-const uint32_t CanDispatcher::THREAD_INTERVAL_US = 10000;
+const uint32_t CanDispatcher::THREAD_INTERVAL_US = 1000;
 
-const uint32_t CanDispatcher::PC_BUFFER_SIZE = 25;
+const uint32_t CanDispatcher::PC_BUFFER_SIZE = 10;
 
 const uint16_t CanDispatcher::PROVIDER_CAN_STATUS = 0xF00;
 
@@ -299,9 +299,16 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
                (unique_id << UNIQUE_ID_POSITION) | (message_id & 0x0FFF);
   message.flag = canMSG_EXT;
   message.dlc = ndata;
+
   for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-  tx_raw_buffer_.push_back(message);
+  if(tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
+    tx_raw_buffer_.push_back(message);
+  }
+  else{
+    printf("\n\r");
+    ROS_WARN("Trying to send too many messages sent on can bus");
+  }
 
   return FindDevice(device_id, unique_id);
 }
@@ -320,7 +327,13 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   message.dlc = ndata;
   for (int i = 0; i < ndata; i++) message.data[i] = buffer[i];
 
-  tx_raw_buffer_.push_back(message);
+  if(tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
+    tx_raw_buffer_.push_back(message);
+  }
+  else{
+    printf("\n\r");
+    ROS_WARN("Trying to send too many messages sent on can bus");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -365,7 +378,7 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(
     // Calculating the exact index
     *index = std::distance(devices_list_.begin(), vec_it);
 
-    if (devices_list_[*index].device_fault == true) {
+    if (devices_list_[*index].device_fault) {
       status = SONIA_DEVICE_FAULT;
     } else {
       status = SONIA_DEVICE_PRESENT;
@@ -405,7 +418,7 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)
     index = std::distance(devices_list_.begin(), vec_it);
 
     // Look for device_fault
-    if (devices_list_[index].device_fault == true) {
+    if (devices_list_[index].device_fault) {
       status = SONIA_DEVICE_FAULT;
     } else {
       status = SONIA_DEVICE_PRESENT;
@@ -639,7 +652,7 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
       devices_list_[index].pc_messages_buffer.push_back(msg);
     } else {
       printf(
-          "\n\rDevice %X: Dedicated ROS service called to fast for the "
+          "\n\rDevice %X: Dedicated ROS service called too fast for the "
           "update rate. Following messages will be dropped.",
           devices_list_[index].global_address);
     }
