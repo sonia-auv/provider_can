@@ -45,6 +45,7 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
     properties_sent_ = true;
     printf("\n\rDevice %s Found", name_.data());
   } else {
+    printf("\n\r");
     ROS_WARN_STREAM("Device " + name_ + " not found");
   }
 }

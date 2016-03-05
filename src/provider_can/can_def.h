@@ -98,13 +98,12 @@ enum DeviceClass {
   power,
   interfaces,
   lights,
-  can2rs232,
 };
 
 //============================================================================
 // D E V I C E S  U N I Q U E   I D
 
-enum Controllers { on_board_pc = 1, pid_controller };
+enum Controllers { on_board_pc = 1};
 
 enum Actuators {
   port_motor = 1,
@@ -113,15 +112,14 @@ enum Actuators {
   back_heading_motor,
   front_depth_motor,
   back_depth_motor,
-  grabber,
-  sonar_rotator
+  grabber
 };
 
 enum Markers { dropper = 1, launcher };
 
 enum Sonars { passive = 1, active };
 
-enum Sensors { barometer = 3, leak_sensor = 4 };
+enum Sensors { barometer = 3};
 
 enum Power {
   power_distribution = 2,
@@ -133,9 +131,7 @@ enum Interfaces {
   carte_navigation_exception
 };
 
-enum Lights { front_light = 1, bottom_light = 5, led_indicator = 8 };
-
-enum Can2Rs232 { micron_dst_modem = 1 };
+enum Lights { bottom_light = 5, led_indicator = 8 };
 
 //============================================================================
 // D E V I C E S   M E T H O D S   N U M B E R S
