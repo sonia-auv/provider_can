@@ -189,6 +189,8 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
       AddUnknownAddress(message.id);
     }
   }
+  // Is this buffer access in a async way? If yes
+  // should add protection AND check for clearing newly entered message.
   rx_raw_buffer_.clear();
 }
 
@@ -253,7 +255,9 @@ SoniaDeviceStatus CanDispatcher::FetchMessages(
   status = FindDevice(device_id, unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    buffer = devices_list_[index].rx_buffer;
+    // perhaps
+    buffer = std::move(devices_list_[index].rx_buffer);
+    //    buffer = devices_list_[index].rx_buffer;
     devices_list_[index].rx_buffer.clear();
   } else {
     buffer.clear();
@@ -660,7 +664,8 @@ SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
   status = FindDevice(device_id, unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    buffer = devices_list_[index].pc_messages_buffer;
+    buffer = std::move(devices_list_[index].pc_messages_buffer);
+    //    buffer = devices_list_[index].pc_messages_buffer;
     devices_list_[index].pc_messages_buffer.clear();
   } else {
     buffer.clear();

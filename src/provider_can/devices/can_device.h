@@ -84,8 +84,8 @@ class CanDevice {
    * \param buffer message content
    * \param ndata message length
    */
-  void PushMessage(uint16_t message_id, uint8_t *buffer,
-                   uint8_t ndata) const ATLAS_NOEXCEPT;
+  void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata) const
+      ATLAS_NOEXCEPT;
 
   /**
    * Method called by Process(). Use this function to process device's specific
@@ -112,14 +112,15 @@ class CanDevice {
    *
    * \param buffer device's rx_buffer
    */
-  std::vector<CanMessage> FetchMessages() const ATLAS_NOEXCEPT;
+  void FetchMessages(std::vector<CanMessage> &buffer) const ATLAS_NOEXCEPT;
 
   /**
    * Collects messages received from computer for that device
    *
    * \param buffer device's rx_buffer
    */
-  std::vector<ComputerMessage> FetchComputerMessages() const ATLAS_NOEXCEPT;
+  void FetchComputerMessages(std::vector<ComputerMessage> &pc_msg) const
+      ATLAS_NOEXCEPT;
 
   /**
    * returns a structure containing device properties
@@ -290,20 +291,16 @@ ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE std::vector<CanMessage> CanDevice::FetchMessages() const
-    ATLAS_NOEXCEPT {
-  std::vector<CanMessage> buffer;
+ATLAS_INLINE void CanDevice::FetchMessages(std::vector<CanMessage> &buffer)
+    const ATLAS_NOEXCEPT {
   can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
-  return buffer;
 }
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE std::vector<ComputerMessage> CanDevice::FetchComputerMessages()
-    const ATLAS_NOEXCEPT {
-  std::vector<ComputerMessage> buffer;
-  can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, buffer);
-  return buffer;
+ATLAS_INLINE void CanDevice::FetchComputerMessages(
+    std::vector<ComputerMessage> &pc_msg) const ATLAS_NOEXCEPT {
+  can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, pc_msg);
 }
 
 }  // namespace provider_can

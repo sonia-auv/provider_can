@@ -102,10 +102,10 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    rx_buffer_ = FetchMessages();
+    FetchMessages(rx_buffer_);
 
     // fetching pc messages (ROS)
-    pc_messages_buffer_ = FetchComputerMessages();
+    FetchComputerMessages(pc_messages_buffer_);
 
     // loops through all PC messages received
     for (auto &pc_message : pc_messages_buffer_) {
