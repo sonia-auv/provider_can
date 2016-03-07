@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <ros/ros.h>
 #include <ros/node_handle.h>
 #include <lib_atlas/macros.h>
@@ -66,7 +67,7 @@ typedef struct {
   DeviceProperties device_properties;
   uint32_t device_parameters[2];  // TODO: Not yet implemented in ELE part
 
-  std::vector<CanMessage> rx_buffer;
+  std::vector<CanMessage> can_rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
 
   // if device has sent a fault
@@ -235,19 +236,19 @@ class CanDispatcher : public atlas::Runnable {
                         uint8_t ndata) ATLAS_NOEXCEPT;
 
   /**
-  * The function returns the rx_buffer of the selected device
+  * The function returns the can_rx_buffer of the selected device
   *
-  * The rx_buffer returned contains all received messages since last call of
+  * The can_rx_buffer returned contains all received messages since last call of
   * this function.
   * If the device asked does not exist, SoniaDeviceStatus will indicate it and
-  * no rx_buffer will be returned.
-  * rx_buffer will only contain data messages, not ID request responses nor
+  * no can_rx_buffer will be returned.
+  * can_rx_buffer will only contain data messages, not ID request responses nor
   * device fault messages. These are
   * filtered by dispatchMessages().
   *
   * \param device_id SONIA Device ID to look for
   * \param unique_id SONIA unique ID to look for
-  * \param buffer device's rx_buffer
+  * \param buffer device's can_rx_buffer
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus FetchMessages(uint8_t device_id, uint8_t unique_id,
@@ -272,6 +273,9 @@ class CanDispatcher : public atlas::Runnable {
   *
   * \param device_id SONIA Device ID to look for
   * \param unique_id SONIA unique ID to look for
+  * \param fault Array to be filled with the fault message.
+   * its a double pointer pass, so we pass a pointer to a pointer value
+   * that must be filled.
   * \return SoniaDeviceStatus enum
   */
   SoniaDeviceStatus GetDeviceFault(uint8_t device_id, uint8_t unique_id,
@@ -474,6 +478,8 @@ class CanDispatcher : public atlas::Runnable {
   std::vector<CanMessage> rx_raw_buffer_;  // Buffer directly taken from KVaser
   std::vector<CanMessage> tx_raw_buffer_;
 
+  std::mutex rx_raw_buffer_mutex_, tx_raw_buffer_mutex_;
+
   CanDriver can_driver_;  // Can communication object
 
   timespec actual_time_;
@@ -482,6 +488,7 @@ class CanDispatcher : public atlas::Runnable {
   timespec error_recovery_;
 
   uint8_t discovery_tries_;
+  std::mutex can_rx_buffer_mutex, pc_messages_buffer_mutex;
 
   uint32_t tx_error_;
   uint32_t rx_error_;

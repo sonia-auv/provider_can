@@ -41,10 +41,10 @@ DiverInterface::~DiverInterface() {}
 //------------------------------------------------------------------------------
 //
 void DiverInterface::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
+  for (auto &pc_message : from_pc_rx_buffer) {
     // if messages askes to call specific functions
     switch (pc_message.method_number) {
       case set_mission_string:

@@ -30,8 +30,8 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
       unique_id_(unique_id),
       properties_pub_(),
       device_notices_pub_(),
-      rx_buffer_(),
-      pc_messages_buffer_(),
+      from_can_rx_buffer_(),
+      from_pc_rx_buffer_(),
       properties_sent_(false) {
   properties_pub_ = nh->advertise<sonia_msgs::CanDevicesProperties>(
       name_ + "_properties", 100);
@@ -103,13 +103,13 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    can_dispatcher_->FetchMessages(device_id_, unique_id_, rx_buffer_);;
+    can_dispatcher_->FetchMessages(device_id_, unique_id_, from_can_rx_buffer_);;
 
     // fetching pc messages (ROS)
-    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, pc_messages_buffer_);
+    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, from_pc_rx_buffer_);
 
     // loops through all PC messages received
-    for (auto &pc_message : pc_messages_buffer_) {
+    for (auto &pc_message : from_pc_rx_buffer_) {
       // if messages askes to call set_level function
       switch (pc_message.method_number) {
         case ping_req:
@@ -124,7 +124,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     }
 
     // Allows the device to process specific messages
-    ProcessMessages(rx_buffer_, pc_messages_buffer_);
+    ProcessMessages(from_can_rx_buffer_, from_pc_rx_buffer_);
   }
 }
 

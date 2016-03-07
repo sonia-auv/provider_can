@@ -91,12 +91,12 @@ class CanDevice {
    * Method called by Process(). Use this function to process device's specific
    * messages.
    *
-   * \param rx_buffer can messages received from bus for the actual device
+   * \param can_rx_buffer can messages received from bus for the actual device
    * \param pc_messages_buffer pc messages received from ROS service
    */
   virtual void ProcessMessages(
-      const std::vector<CanMessage> &rx_buffer,
-      const std::vector<ComputerMessage> &pc_messages_buffer) = 0;
+      const std::vector<CanMessage> &from_can_rx_buffer,
+      const std::vector<ComputerMessage> &from_pc_rx_buffer) = 0;
 
   //============================================================================
   // P R O T E C T E D   M E M B E R S
@@ -183,8 +183,8 @@ class CanDevice {
   ros::Publisher device_notices_pub_;
 
   // Messages tables taken from can_disp that will be transmitted to devices
-  std::vector<CanMessage> rx_buffer_;
-  std::vector<ComputerMessage> pc_messages_buffer_;
+  std::vector<CanMessage> from_can_rx_buffer_;
+  std::vector<ComputerMessage> from_pc_rx_buffer_;
 
   bool properties_sent_;
 };

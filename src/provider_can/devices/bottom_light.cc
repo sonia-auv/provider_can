@@ -46,21 +46,21 @@ BottomLight::~BottomLight() {}
 //------------------------------------------------------------------------------
 //
 void BottomLight::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   ros_msg_.intensity = actual_light_level_;
 
   // if messages have been received
-  if (rx_buffer.size() != 0) {
+  if (from_can_rx_buffer.size() != 0) {
     // Collects the last message received (previous messages can be bypassed)
-    actual_light_level_ = rx_buffer[rx_buffer.size() - 1].data[0];
+    actual_light_level_ = from_can_rx_buffer[from_can_rx_buffer.size() - 1].data[0];
     message_rcvd = true;
   }
 
   // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
+  for (auto &pc_message : from_pc_rx_buffer) {
     // if messages askes to call set_level function
     switch (pc_message.method_number) {
       case set_level:

@@ -42,13 +42,13 @@ MissionSwitch::~MissionSwitch() {}
 //------------------------------------------------------------------------------
 //
 void MissionSwitch::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   // if messages have been received
   // loops through all barometer messages received
-  for (auto &can_message : rx_buffer) {
+  for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id & DEVICE_MSG_MASK) {
       case MISSION_SWITCH_STATE:
         ros_msg_.state = (bool)can_message.data[0] ^ 0x01;

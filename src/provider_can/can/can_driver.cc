@@ -173,7 +173,10 @@ canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
-    if (status != canOK) i = msg_table.size();
+    if (status != canOK)
+    {
+      return status;
+    }
   }
 
   return status;
@@ -213,11 +216,11 @@ canStatus CanDriver::ReadAllMessages(std::vector<CanMessage> &msg_table) const
   if (status == canOK) {
     for (uint32_t i = 0; i < num_of_messages; i++) {  // storing data
       status = ReadMessage(&msg, 0);
-      msg_table.push_back(msg);
 
       if (status != canOK) {
-        i = num_of_messages;
+        return status;
       }
+      msg_table.push_back(msg);
     }
   }
 
