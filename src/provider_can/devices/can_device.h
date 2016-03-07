@@ -108,21 +108,6 @@ class CanDevice {
   // P R I V A T E   M E T H O D S
 
   /**
-   * Collects messages received for that device
-   *
-   * \param buffer device's rx_buffer
-   */
-  void FetchMessages(std::vector<CanMessage> &buffer) const ATLAS_NOEXCEPT;
-
-  /**
-   * Collects messages received from computer for that device
-   *
-   * \param buffer device's rx_buffer
-   */
-  void FetchComputerMessages(std::vector<ComputerMessage> &pc_msg) const
-      ATLAS_NOEXCEPT;
-
-  /**
    * returns a structure containing device properties
    *
    * \return DeviceProperties
@@ -251,12 +236,6 @@ ATLAS_INLINE bool CanDevice::GetPingStatus() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE void CanDevice::Ping() const ATLAS_NOEXCEPT {
-  can_dispatcher_->PingDevice(device_id_, unique_id_);
-}
-
-//------------------------------------------------------------------------------
-//
 ATLAS_INLINE bool CanDevice::DevicePresenceCheck() const ATLAS_NOEXCEPT {
   if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
       SONIA_DEVICE_NOT_PRESENT)
@@ -289,19 +268,6 @@ ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
                                       buffer, ndata);
 }
 
-//------------------------------------------------------------------------------
-//
-ATLAS_INLINE void CanDevice::FetchMessages(std::vector<CanMessage> &buffer)
-    const ATLAS_NOEXCEPT {
-  can_dispatcher_->FetchMessages(device_id_, unique_id_, buffer);
-}
-
-//------------------------------------------------------------------------------
-//
-ATLAS_INLINE void CanDevice::FetchComputerMessages(
-    std::vector<ComputerMessage> &pc_msg) const ATLAS_NOEXCEPT {
-  can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, pc_msg);
-}
 
 }  // namespace provider_can
 

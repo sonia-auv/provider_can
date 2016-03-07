@@ -103,17 +103,17 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    FetchMessages(rx_buffer_);
+    can_dispatcher_->FetchMessages(device_id_, unique_id_, rx_buffer_);;
 
     // fetching pc messages (ROS)
-    FetchComputerMessages(pc_messages_buffer_);
+    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, pc_messages_buffer_);
 
     // loops through all PC messages received
     for (auto &pc_message : pc_messages_buffer_) {
       // if messages askes to call set_level function
       switch (pc_message.method_number) {
         case ping_req:
-          Ping();
+          can_dispatcher_->PingDevice(device_id_, unique_id_);
           break;
         case get_properties:
           SendProperties();
