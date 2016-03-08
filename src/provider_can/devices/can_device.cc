@@ -43,7 +43,7 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
   if (DevicePresenceCheck()) {
     SendProperties();
     properties_sent_ = true;
-    ROS_INFO_STREAM("Device" + name_ + "Found");
+    ROS_INFO_STREAM("Device " + name_ + " Found");
   } else {
     ROS_WARN_STREAM("Device " + name_ + " not found");
   }

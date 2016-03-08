@@ -58,9 +58,12 @@ void Barometer::ProcessMessages(
         message_rcvd = true;
         break;
       case RELATIVE_PRESS_MSG:
+        ros_msg_.depth = can_message.data[0] + (can_message.data[1] << 8) +
+                         (can_message.data[2] << 16) +
+                         (can_message.data[3] << 24);
         ros_msg_.ext_relative_pressure =
-            can_message.data[0] + (can_message.data[1] << 8) +
-            (can_message.data[2] << 16) + (can_message.data[3] << 24);
+            can_message.data[4] + (can_message.data[5] << 8) +
+            (can_message.data[6] << 16) + (can_message.data[7] << 24);
         message_rcvd = true;
         break;
       default:
