@@ -51,12 +51,11 @@ class LedIndicator : public CanDevice {
   /**
    * reimplemented method from CanDevice class
    */
-  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
-                       const std::vector<ComputerMessage> &pc_messages_buffer)
+  void ProcessMessages(const std::vector<CanMessage> &from_can_rx_buffer,
+                       const std::vector<ComputerMessage> &from_pc_rx_buffer)
       ATLAS_NOEXCEPT override;
 
  private:
-
   //============================================================================
   // P R I V A T E   M E T H O D S
 
@@ -66,14 +65,14 @@ class LedIndicator : public CanDevice {
    * \param color color to set (0 to 7).
    * table:{BLACK,RED,YELLOW,CYAN,GREEN,WHITE}
    */
-  void SetColor(uint8_t color)ATLAS_NOEXCEPT;
+  void SetColor(uint8_t color) ATLAS_NOEXCEPT;
 
   /**
    * Sets the mode of operation of the led indicator
    *
    * \param mode mode to set (0 to 2). table:{OFF, BLINK, ON, RAINBOW}
    */
-  void SetMode(uint8_t mode)ATLAS_NOEXCEPT;
+  void SetMode(uint8_t mode) ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S

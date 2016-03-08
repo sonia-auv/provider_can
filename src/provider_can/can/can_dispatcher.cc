@@ -26,7 +26,7 @@ const uint8_t CanDispatcher::ERROR_RECOVERY_DELAY = 2;
 // Delay to wait for a message to be sent (ms)
 const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
-const uint32_t CanDispatcher::THREAD_INTERVAL_US = 10;
+const uint32_t CanDispatcher::THREAD_INTERVAL_US = 100;
 
 const uint32_t CanDispatcher::PC_BUFFER_SIZE = 100;
 
@@ -146,7 +146,7 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
                message.id) {
         devices_list_[index].device_fault = true;
         devices_list_[index].fault_message = message.data;
-     }
+      }
       // If the ID received corresponds to a ping response
       else if ((devices_list_[index].global_address | PING) == message.id) {
         devices_list_[index].ping_response = true;
@@ -164,15 +164,14 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
                (message.id & DEVICE_MAC_MASK)) {
-
         std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
 
         // Avoids buffer overflow
         if (devices_list_[index].can_rx_buffer.size() >=
             DISPATCHED_RX_BUFFER_SIZE) {
           devices_list_[index].can_rx_buffer.clear();
-          printf("\n\rDevice %X: Buffer Overflow. You must empty it faster.",
-                 devices_list_[index].global_address);
+          ROS_WARN("Device %X: Can Rx Buffer Overflow. Messages dropped.",
+                   devices_list_[index].global_address);
         }
 
         // Saves message into dispatched devices' buffers.
@@ -255,7 +254,7 @@ SoniaDeviceStatus CanDispatcher::FetchMessages(
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
     // perhaps
-    //buffer = std::move(devices_list_[index].can_rx_buffer);
+    // buffer = std::move(devices_list_[index].can_rx_buffer);
     std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
     buffer = devices_list_[index].can_rx_buffer;
     devices_list_[index].can_rx_buffer.clear();
@@ -302,8 +301,7 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
   message.flag = canMSG_EXT;
   message.dlc = ndata;
 
-  for (int i = 0; i < ndata && buffer != NULL; i++)
-  {
+  for (int i = 0; i < ndata && buffer != NULL; i++) {
     message.data[i] = buffer[i];
   }
 
@@ -311,7 +309,6 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
   if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
   } else {
-    printf("\n\r");
     ROS_WARN("Trying to send too many messages on can bus");
   }
   tx_raw_buffer_mutex_.unlock();
@@ -330,8 +327,7 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   message.id = master_id_ | (message_id & 0x0FFF);
   message.flag = canMSG_EXT;
   message.dlc = ndata;
-  for (int i = 0; i < ndata && buffer != NULL; i++)
-  {
+  for (int i = 0; i < ndata && buffer != NULL; i++) {
     message.data[i] = buffer[i];
   }
 
@@ -339,7 +335,6 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
   } else {
-    printf("\n\r");
     ROS_WARN("Trying to send too many messages on can bus");
   }
 }
@@ -545,8 +540,8 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
     // verifying CAN errors
     if (tx_error_ >= 50 || rx_error_ >= 50) {
-      printf(
-          "\rToo many errors encountered (tx: %d, rx: %d, ovrr: %d). Verify "
+      ROS_WARN(
+          "Too many errors encountered (tx: %d, rx: %d, ovrr: %d). Verify "
           "KVaser connectivity. "
           "Stopping "
           "CAN until problem is "
@@ -555,7 +550,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       if ((actual_time_.tv_sec - error_recovery_.tv_sec) >=
           ERROR_RECOVERY_DELAY) {
-        printf("\n\rRetrying a recovery\n");
+        ROS_INFO("Retrying a recovery");
 
         error_recovery_ = actual_time_;
         can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
@@ -568,10 +563,9 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       // verifying errors
       if (status < canOK) {
-        printf("\n\r");
         can_driver_.PrintErrorText(status);
         can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
+        ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
       }
 
       // Dispatching read messages
@@ -582,10 +576,9 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       // verifying errors
       if (status < canOK) {
-        printf("\n\r");
         can_driver_.PrintErrorText(status);
         can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        printf("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
+        ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
       }
 
       // Sends RTR to devices if asked
@@ -597,10 +590,10 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
           (actual_time_.tv_sec - id_req_time_.tv_sec) >= DISCOVERY_DELAY &&
           unknown_addresses_table_.size() != 0) {
         // Printing missing devices
-        printf("\n\rUnknown devices found:");
+        ROS_INFO("Unknown devices found:");
         for (auto &address : unknown_addresses_table_)
-          printf("\n\r%X", address);
-        printf("\n\rRetrying ID Request");
+          printf("%X\n\r", address);
+        ROS_INFO("Retrying ID Request");
         ListDevices();
         discovery_tries_++;
         id_req_time_ = actual_time_;
@@ -628,9 +621,9 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
     if (devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE) {
       devices_list_[index].pc_messages_buffer.push_back(msg);
     } else {
-      printf(
-          "\n\rDevice %X: Dedicated ROS service called too fast for the "
-          "update rate. Following messages will be dropped.",
+      ROS_WARN(
+          "Device %X: send_can_message service called too fast. "
+          "Some messages are dropped",
           devices_list_[index].global_address);
     }
   }
@@ -652,7 +645,7 @@ SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
   buffer.clear();
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    //buffer = std::move(devices_list_[index].pc_messages_buffer);
+    // buffer = std::move(devices_list_[index].pc_messages_buffer);
     std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
     buffer = devices_list_[index].pc_messages_buffer;
     devices_list_[index].pc_messages_buffer.clear();

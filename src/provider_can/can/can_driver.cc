@@ -9,6 +9,7 @@
  */
 
 #include "can_driver.h"
+#include <ros/ros.h>
 
 namespace provider_can {
 
@@ -33,8 +34,8 @@ CanDriver::CanDriver(uint32_t chan, uint32_t baudrate)
 //
 CanDriver::CanDriver(uint32_t chan, uint32_t baudrate, uint32_t ts1,
                      uint32_t ts2, uint32_t jump, uint32_t samp)
-    : channel_(chan),
-      baudrate_(baudrate),
+    : baudrate_(baudrate),
+      channel_(chan),
       tseg1_(ts1),
       tseg2_(ts2),
       sjw_(jump),
@@ -63,8 +64,7 @@ canStatus CanDriver::Open() ATLAS_NOEXCEPT {
   unsigned short version = 0;
   version = canGetVersion();
 
-  std::cout << "\nCanlib version = " << (version >> 8) << "."
-            << (version & 0xFF) << std::endl;
+  ROS_INFO("Canlib version = %d.%d", (version >> 8), (version & 0xFF));
 
   return (canStatus)handle_;
 }
@@ -94,7 +94,7 @@ bool CanDriver::InitUsbDevice() ATLAS_NOEXCEPT {
     PrintErrorText(status);
     return false;
   }
-  printf("\n\rCAN Bus is set to on");
+  ROS_INFO("CAN Bus is set to on");
   return true;  // Init success
 }
 
@@ -173,8 +173,7 @@ canStatus CanDriver::WriteBuffer(std::vector<CanMessage> &msg_table,
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
-    if (status != canOK)
-    {
+    if (status != canOK) {
       return status;
     }
   }
@@ -236,10 +235,9 @@ void CanDriver::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
   canGetErrorText(error, errMsg, sizeof(errMsg));
 
   if (error != canOK) {
-    std::cout << " ERROR "
-              << "(" << errMsg << ")" << std::endl;
+    ROS_WARN("KVaser Error: %s", errMsg);
   } else {
-    std::cout << "(" << errMsg << ")";
+    ROS_INFO("KVaser Error: %s", errMsg);
   }
 }
 

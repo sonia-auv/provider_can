@@ -43,9 +43,8 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
   if (DevicePresenceCheck()) {
     SendProperties();
     properties_sent_ = true;
-    printf("\n\rDevice %s Found", name_.data());
+    ROS_INFO_STREAM("Device" + name_ + "Found");
   } else {
-    printf("\n\r");
     ROS_WARN_STREAM("Device " + name_ + " not found");
   }
 }
@@ -81,7 +80,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (!properties_sent_) {
       SendProperties();
       properties_sent_ = true;
-      printf("\n\rDevice %s Found", name_.data());
+      ROS_INFO_STREAM("Device" + name_ + "Found");
     }
 
     // if ping has been received
@@ -103,10 +102,12 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    can_dispatcher_->FetchMessages(device_id_, unique_id_, from_can_rx_buffer_);;
+    can_dispatcher_->FetchMessages(device_id_, unique_id_, from_can_rx_buffer_);
+    ;
 
     // fetching pc messages (ROS)
-    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_, from_pc_rx_buffer_);
+    can_dispatcher_->FetchComputerMessages(device_id_, unique_id_,
+                                           from_pc_rx_buffer_);
 
     // loops through all PC messages received
     for (auto &pc_message : from_pc_rx_buffer_) {

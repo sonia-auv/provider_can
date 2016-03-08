@@ -84,8 +84,8 @@ class CanDevice {
    * \param buffer message content
    * \param ndata message length
    */
-  void PushMessage(uint16_t message_id, uint8_t *buffer, uint8_t ndata) const
-      ATLAS_NOEXCEPT;
+  void PushMessage(uint16_t message_id, uint8_t *buffer,
+                   uint8_t ndata) const ATLAS_NOEXCEPT;
 
   /**
    * Method called by Process(). Use this function to process device's specific
@@ -267,7 +267,6 @@ ATLAS_INLINE void CanDevice::PushMessage(uint16_t message_id, uint8_t *buffer,
   can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, message_id,
                                       buffer, ndata);
 }
-
 
 }  // namespace provider_can
 

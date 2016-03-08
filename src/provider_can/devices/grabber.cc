@@ -48,13 +48,13 @@ Grabber::~Grabber() {}
 //------------------------------------------------------------------------------
 //
 void Grabber::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   // if messages have been received
-  // loops through all barometer messages received
-  for (auto &can_message : rx_buffer) {
+  // loops through all grabber messages received
+  for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id & DEVICE_MSG_MASK) {
       case PRESS_MSG:
         ros_msg_.pressure = can_message.data[0] + (can_message.data[1] << 8) +
@@ -72,7 +72,7 @@ void Grabber::ProcessMessages(
   }
 
   // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
+  for (auto &pc_message : from_pc_rx_buffer) {
     switch (pc_message.method_number) {
       case port_set_target:
         PortSetTarget(pc_message.parameter_value);

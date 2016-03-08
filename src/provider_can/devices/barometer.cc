@@ -44,7 +44,7 @@ Barometer::~Barometer() {}
 //
 void Barometer::ProcessMessages(
     const std::vector<CanMessage> &from_can_rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   // if messages have been received

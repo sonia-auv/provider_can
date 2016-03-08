@@ -56,12 +56,11 @@ class Grabber : public CanDevice {
   /**
    * reimplemented method from CanDevice class
    */
-  void ProcessMessages(const std::vector<CanMessage> &rx_buffer,
-                       const std::vector<ComputerMessage> &pc_messages_buffer)
+  void ProcessMessages(const std::vector<CanMessage> &from_can_rx_buffer,
+                       const std::vector<ComputerMessage> &from_pc_rx_buffer)
       ATLAS_NOEXCEPT override;
 
  private:
-
   //============================================================================
   // P R I V A T E   M E T H O D S
 

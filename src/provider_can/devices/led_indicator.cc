@@ -43,10 +43,10 @@ LedIndicator::~LedIndicator() {}
 //------------------------------------------------------------------------------
 //
 void LedIndicator::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
+  for (auto &pc_message : from_pc_rx_buffer) {
     switch (pc_message.method_number) {
       case set_mode:
         SetMode((uint8_t)pc_message.parameter_value);
@@ -63,7 +63,7 @@ void LedIndicator::ProcessMessages(
 //------------------------------------------------------------------------------
 //
 
-void LedIndicator::SetColor(uint8_t color)ATLAS_NOEXCEPT {
+void LedIndicator::SetColor(uint8_t color) ATLAS_NOEXCEPT {
   color_ = color;
 
   uint8_t msg[2] = {color_, mode_};
@@ -73,7 +73,7 @@ void LedIndicator::SetColor(uint8_t color)ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 
-void LedIndicator::SetMode(uint8_t mode)ATLAS_NOEXCEPT {
+void LedIndicator::SetMode(uint8_t mode) ATLAS_NOEXCEPT {
   mode_ = mode;
 
   uint8_t msg[2] = {color_, mode_};

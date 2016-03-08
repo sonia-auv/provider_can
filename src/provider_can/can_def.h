@@ -103,7 +103,7 @@ enum DeviceClass {
 //============================================================================
 // D E V I C E S  U N I Q U E   I D
 
-enum Controllers { on_board_pc = 1};
+enum Controllers { on_board_pc = 1 };
 
 enum Actuators {
   port_motor = 1,
@@ -119,7 +119,7 @@ enum Markers { dropper = 1, launcher };
 
 enum Sonars { passive = 1, active };
 
-enum Sensors { barometer = 3};
+enum Sensors { barometer = 3 };
 
 enum Power {
   power_distribution = 2,

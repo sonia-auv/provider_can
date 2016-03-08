@@ -55,7 +55,8 @@ void BottomLight::ProcessMessages(
   // if messages have been received
   if (from_can_rx_buffer.size() != 0) {
     // Collects the last message received (previous messages can be bypassed)
-    actual_light_level_ = from_can_rx_buffer[from_can_rx_buffer.size() - 1].data[0];
+    actual_light_level_ =
+        from_can_rx_buffer[from_can_rx_buffer.size() - 1].data[0];
     message_rcvd = true;
   }
 

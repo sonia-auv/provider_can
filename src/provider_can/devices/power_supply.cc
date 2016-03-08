@@ -54,13 +54,13 @@ PowerSupply::~PowerSupply() {}
 //------------------------------------------------------------------------------
 //
 void PowerSupply::ProcessMessages(
-    const std::vector<CanMessage> &rx_buffer,
-    const std::vector<ComputerMessage> &pc_messages_buffer) ATLAS_NOEXCEPT {
+    const std::vector<CanMessage> &from_can_rx_buffer,
+    const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
 
   // if messages have been received
   // loops through all power supply messages received
-  for (auto &can_message : rx_buffer) {
+  for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id & DEVICE_MSG_MASK) {
       case KILL_STATE_MSG:
         ros_msg_.kill_switch_state = (bool)can_message.data[0];
@@ -137,7 +137,7 @@ void PowerSupply::ProcessMessages(
   }
 
   // loops through all PC messages received
-  for (auto &pc_message : pc_messages_buffer) {
+  for (auto &pc_message : from_pc_rx_buffer) {
     switch (pc_message.method_number) {
       case pc_reset:
         PcReset();
