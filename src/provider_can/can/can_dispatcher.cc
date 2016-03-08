@@ -107,6 +107,7 @@ canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
       devices_list_.push_back(new_device);
     }
   }
+
   rx_raw_buffer_mutex_.unlock();
   DispatchMessages();  // Dispatch and saves all received messages
 
