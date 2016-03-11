@@ -77,7 +77,7 @@ include_directories(
 # C R E A T E   E X E C U T A B L E
 
 add_executable(${PROJECT_NAME}_node
-    ${provider_can_SRC_DIR}/${PROJECT_NAME}/main.cc ${provider_can_FILES})
+    ${provider_can_SRC_DIR}/${PROJECT_NAME}/main.cc ${provider_can_FILES} src/provider_can/devices/torpedo_launchers.cc src/provider_can/devices/torpedo_launchers.h src/provider_can/devices/droppers.cc src/provider_can/devices/droppers.h)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${kvaser_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_node provider_can_generate_messages_cpp sonia_msgs_generate_messages_cpp)
 

@@ -1,44 +1,51 @@
 /**
- * \file	thruster.h
+ * \file	torpedo_launchers.h
  * \author	Alexi Demers <alexidemers@gmail.com>
- * \date	21/02/2016
+ * \date	11/03/2016
  *
  * \copyright	Copyright (c) 2015 SONIA AUV ETS. All rights reserved.
  * Use of this source code is governed by the MIT license that can be
  * found in the LICENSE file.
  */
 
-#ifndef PROVIDER_CAN_THRUSTER_H_
-#define PROVIDER_CAN_THRUSTER_H_
+#ifndef PROVIDER_CAN_TORPEDO_LAUNCHERS_H_
+#define PROVIDER_CAN_TORPEDO_LAUNCHERS_H_
 
 #include <memory>
 #include <vector>
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
-#include <sonia_msgs/ThrusterMsg.h>
+#include "sonia_msgs/TorpedoLaunchersMsg.h"
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {
 
-class Thruster : public CanDevice {
+class TorpedoLaunchers : public CanDevice {
+ public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
-  using Ptr = std::shared_ptr<Thruster>;
-  using ConstPtr = std::shared_ptr<const Thruster>;
-  using PtrList = std::vector<Thruster::Ptr>;
-  using ConstPtrList = std::vector<Thruster::ConstPtr>;
+  using Ptr = std::shared_ptr<TorpedoLaunchers>;
+  using ConstPtr = std::shared_ptr<const TorpedoLaunchers>;
+  using PtrList = std::vector<TorpedoLaunchers::Ptr>;
+  using ConstPtrList = std::vector<TorpedoLaunchers::ConstPtr>;
+
+  // Receivable CAN messages
+  static const uint16_t PRESS_MSG;
+
+  // Transmittable CAN messages
+  static const uint16_t STARBOARD_TARGET;
+  static const uint16_t LAUNCH_MSG;
 
   //============================================================================
   // P U B L I C   C / D T O R S
- public:
-  explicit Thruster(const CanDispatcher::Ptr &can_dispatcher,
-                    const ros::NodeHandlePtr &nh, std::string thruster_name,
-                    Actuators unique_id) ATLAS_NOEXCEPT;
 
-  virtual ~Thruster();
+  explicit TorpedoLaunchers(const CanDispatcher::Ptr &can_dispatcher,
+                            const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+
+  virtual ~TorpedoLaunchers();
 
  protected:
   //============================================================================
@@ -52,37 +59,21 @@ class Thruster : public CanDevice {
       ATLAS_NOEXCEPT override;
 
  private:
-  //==========================================================================
-  // T Y P E D E F   A N D   E N U M
-
-  // Receivable CAN messages
-  static const uint16_t THRUSTER_STATE_MSG;
-  // transmittable CAN messages
-  static const uint16_t SET_SPEED_MSG;
-
   //============================================================================
   // P R I V A T E   M E T H O D S
 
-  /**
-   * Set motor speed vector(between -100 and 100, in %)
-   *
-   * \param speed motor speed
-   */
-  void SetSpeed(int8_t speed) const ATLAS_NOEXCEPT;
+  void Launch() const ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S
 
   const static std::string NAME;
-  std::string thruster_specific_name_;
 
-  ros::Publisher thruster_pub_;
+  ros::Publisher torpedo_launchers_pub_;
 
-  sonia_msgs::ThrusterMsg ros_msg;
-
-  bool properties_sent_;
+  sonia_msgs::TorpedoLaunchersMsg ros_msg_;
 };
 
-} /* namespace provider_can */
+}  // namespace provider_can
 
-#endif /* PROVIDER_CAN_THRUSTER_H_ */
+#endif  // PROVIDER_CAN_TORPEDO_LAUNCHERS_H_

@@ -18,7 +18,6 @@
 #include <ros/ros.h>
 #include <sonia_msgs/PowerSupplyMsg.h>
 #include "provider_can/can_def.h"
-#include "provider_can/can/can_dispatcher.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {

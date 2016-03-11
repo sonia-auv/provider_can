@@ -115,7 +115,7 @@ enum Actuators {
   grabber
 };
 
-enum Markers { dropper = 1, launcher };
+enum Markers { dropper = 4, launcher = 5 };
 
 enum Sonars { passive = 1, hydrophones };
 
@@ -193,4 +193,11 @@ enum HydrophonesMethods {
   send_data_req,
 };
 
+enum TorpedoLaunchersMethods {
+  launch = 0,
+};
+
+enum DroppersMethods {
+  drop = 0,
+};
 #endif

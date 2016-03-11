@@ -37,24 +37,12 @@ const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
 const uint32_t Hydrophones::FFT_TRIG_MODE_PARAM = 190;
 
 const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
-    HYDRO_ENABLE_PARAM,
-    WAVE_ENABLE_PARAM,
-    PINGER_FREQ_PARAM,
-    GAIN_PARAM,
-    ACQ_THRESHOLD_PARAM,
-    FILTER_THRESHOLD_PARAM,
-    CONTINUOUS_FILTER_FREQ_PARAM,
-    SAMPLE_COUNT_PARAM,
-    ACQ_THRS_MODE_PARAM,
-    PHASE_CALC_ALG_PARAM,
-    SET_FREQ_CUTOFF_PARAM,
-    SET_PREAMP_GAIN_PARAM,
-    FFT_ENABLE_PARAM,
-    FFT_THRESHOLD_PARAM,
-    FFT_PREFILTER_PARAM,
-    FFT_PREFILTER_TYPE_PARAM,
-    FFT_BANDWIDTH_PARAM,
-    FFT_TRIG_MODE_PARAM};
+    HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
+    ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM, CONTINUOUS_FILTER_FREQ_PARAM,
+    SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM, PHASE_CALC_ALG_PARAM,
+    SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM, FFT_ENABLE_PARAM,
+    FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM, FFT_PREFILTER_TYPE_PARAM,
+    FFT_BANDWIDTH_PARAM, FFT_TRIG_MODE_PARAM};
 
 // Receivable CAN messages
 const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
@@ -102,6 +90,14 @@ void Hydrophones::ProcessMessages(
   bool clr_scope_samples = false;
   uint32_t index;
   uint16_t address;
+
+  ros_msg_.hydro_freq_updated = (uint8_t) false;
+  ros_msg_.magn_samples_updated = (uint8_t) false;
+  ros_msg_.dephasage1_updated = (uint8_t) false;
+  ros_msg_.dephasage2_updated = (uint8_t) false;
+  ros_msg_.params_updated = (uint8_t) false;
+  ros_msg_.scope_samples_updated = (uint8_t) false;
+
   // if messages have been received
   // loops through all barometer messages received
   for (auto &can_message : from_can_rx_buffer) {
@@ -129,6 +125,7 @@ void Hydrophones::ProcessMessages(
 
         if (address == (scope_samples_count_ - 1)) clr_scope_samples = true;
         message_rcvd = true;
+        ros_msg_.scope_samples_updated = (uint8_t) true;
         break;
 
       case FFT_MAGNITUDE_MSG:
@@ -145,7 +142,10 @@ void Hydrophones::ProcessMessages(
               (can_message.data[3] << 16) + (can_message.data[4] << 24);
         }
 
-        if (index == (MAX_MAGNITUDE_SAMPLES - 1)) message_rcvd = true;
+        if (index == (MAX_MAGNITUDE_SAMPLES - 1)) {
+          ros_msg_.magn_samples_updated = (uint8_t) true;
+          message_rcvd = true;
+        }
         break;
 
       case SET_PARAM_RESPONSE_MSG:
@@ -155,17 +155,18 @@ void Hydrophones::ProcessMessages(
                   (can_message.data[2] << 16) + (can_message.data[3] << 24);
 
           // Index are coded by steps of 10. see constants under header
-          if ((index / 10) < sizeof(PARAM_TYPES_TABLE)) {
-            ros_msg_.parameters_values[index / 10] =
+          if (((index / 10) - 1) < sizeof(PARAM_TYPES_TABLE)) {
+            ros_msg_.parameters_values[index / 10 - 1] =
                 can_message.data[4] + (can_message.data[5] << 8) +
                 (can_message.data[6] << 16) + (can_message.data[7] << 24);
           }
-
           message_rcvd = true;
-        } else
-          ROS_WARN("Hydrophones: parameter address %X does not exist",
+          ros_msg_.params_updated = (uint8_t) true;
+        } else {
+          ROS_WARN("Hydrophones: parameter address %d does not exist",
                    (can_message.data[0] + (can_message.data[1] << 8) +
                     (can_message.data[2] << 16) + (can_message.data[3] << 24)));
+        }
 
         break;
 
@@ -178,7 +179,7 @@ void Hydrophones::ProcessMessages(
             can_message.data[4] + (can_message.data[5] << 8);
         ros_msg_.dephasage1_pinger_freq =
             can_message.data[6] + (can_message.data[7] << 8);
-
+        ros_msg_.dephasage1_updated = (uint8_t) true;
         message_rcvd = true;
         break;
       case DEPHASAGE2_MSG:
@@ -188,7 +189,7 @@ void Hydrophones::ProcessMessages(
             can_message.data[2] + (can_message.data[3] << 8);
         ros_msg_.dephasage2_d3 =
             can_message.data[4] + (can_message.data[5] << 8);
-
+        ros_msg_.dephasage2_updated = (uint8_t) true;
         message_rcvd = true;
         break;
 
@@ -198,6 +199,7 @@ void Hydrophones::ProcessMessages(
                              (can_message.data[3] << 16) +
                              (can_message.data[4] << 24);
         message_rcvd = true;
+        ros_msg_.hydro_freq_updated = (uint8_t) true;
         break;
       default:
         break;
@@ -248,9 +250,15 @@ void Hydrophones::GetParams() const ATLAS_NOEXCEPT {
 
 void Hydrophones::SetParam(HydrophonesMethods param,
                            int32_t value) const ATLAS_NOEXCEPT {
-  uint64_t concat_message = ((uint64_t)PARAM_TYPES_TABLE[param] << 32) + value;
-  uint8_t *msg = (uint8_t *)&(concat_message);
-  PushMessage(SET_PARAM_MSG, msg, 8);
+  // if param number exists
+  if (param <= (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
+    uint64_t concat_message =
+        ((uint64_t)value << 32) + PARAM_TYPES_TABLE[param];
+    uint8_t *msg = (uint8_t *)&(concat_message);
+    PushMessage(SET_PARAM_MSG, msg, 8);
+  } else {
+    ROS_WARN("Hydrophones: method number %d does not exist", (uint32_t)param);
+  }
 }
 
 //------------------------------------------------------------------------------

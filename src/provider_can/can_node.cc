@@ -19,6 +19,8 @@
 #include "provider_can/devices/mission_switch.h"
 #include "provider_can/devices/led_indicator.h"
 #include "provider_can/devices/hydrophones.h"
+#include "provider_can/devices/torpedo_launchers.h"
+#include "provider_can/devices/droppers.h"
 
 namespace provider_can {
 
@@ -77,6 +79,12 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
       std::make_shared<provider_can::Hydrophones>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::TorpedoLaunchers>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Droppers>(can_ptr_, nh_));
 
   can_ptr_->Start();
 }
