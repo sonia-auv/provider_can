@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/CanDevicesProperties.h>
 #include "provider_can/devices/bottom_light.h"
 
 namespace provider_can {

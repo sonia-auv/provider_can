@@ -56,7 +56,6 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
   clock_gettime(CLOCK_REALTIME, &actual_time_);
   clock_gettime(CLOCK_REALTIME, &initial_time_);
   clock_gettime(CLOCK_REALTIME, &id_req_time_);
-  clock_gettime(CLOCK_REALTIME, &error_recovery_);
 
   can_driver_.FlushRxBuffer();
   can_driver_.FlushTxBuffer();
@@ -549,13 +548,11 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
           "solved",
           tx_error_, rx_error_, ovrr_error_);
 
-      if ((actual_time_.tv_sec - error_recovery_.tv_sec) >=
-          ERROR_RECOVERY_DELAY) {
-        ROS_INFO("Retrying a recovery");
+      sleep(ERROR_RECOVERY_DELAY);
 
-        error_recovery_ = actual_time_;
-        can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-      }
+      ROS_INFO("Retrying a recovery");
+      can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+
     }
     // normal process
     else {
@@ -654,57 +651,4 @@ SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
 
   return status;
 }
-
-//------------------------------------------------------------------------------
-//
-/* SoniaDeviceStatus CanDispatcher::SetDeviceParameterReq(uint8_t device_id,
-                                                        uint8_t unique_id,
-                                                        uint8_t param_number,
-                                                        uint32_t param_value) {
-   uint8_t *msg;
-
-   msg[0] = param_number;
-   msg[1] = (uint8_t)(param_value >> 24);
-   msg[2] = (uint8_t)(param_value >> 16);
-   msg[3] = (uint8_t)(param_value >> 8);
-   msg[4] = (uint8_t)(param_value);
-
-   return (pushUnicastMessage(device_id, unique_id, SET_PARAM_REQ, msg,
- SET_PARAMETER_DLC));
- }*/
-
-//------------------------------------------------------------------------------
-//
-/*SoniaDeviceStatus CanDispatcher::GetDeviceParameterReq(uint8_t device_id,
-                                                       uint8_t unique_id) {
-  uint8_t *msg;
-
-  return (pushUnicastMessage(device_id, unique_id, GET_PARAM_REQ, msg,
-SET_PARAMETER_DLC));
-}*/
-
-//------------------------------------------------------------------------------
-//
-/* void CanDispatcher::GetAllDevicesParamsReq(void) {
-
-   for (size_t i = 0; i < devices_list_.size(); i++)
-     GetDeviceParameterReq(devices_list_[i].global_address >> 20,
- devices_list_[i].global_address >> 12);
- }*/
-
-//------------------------------------------------------------------------------
-//
-/*SoniaDeviceStatus CanDispatcher::GetDeviceParams(uint8_t device_id,
-                                                 uint8_t unique_id,
-                                                 uint32_t *&params) {
-  size_t index;
-  SoniaDeviceStatus status;
-
-  status = FindDevice(device_id, unique_id, &index);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT)
-    params = devices_list_[index].device_parameters;
-
-  return status;
-}*/
 }

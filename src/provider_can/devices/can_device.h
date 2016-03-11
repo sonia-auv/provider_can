@@ -131,11 +131,6 @@ class CanDevice {
   bool GetPingStatus() const ATLAS_NOEXCEPT;
 
   /**
-   * Sends a ping message to the device
-   */
-  void Ping() const ATLAS_NOEXCEPT;
-
-  /**
    * Verifies if the device is present on the can bus.
    *
    * \returns true or false if device is present or not
@@ -165,9 +160,7 @@ class CanDevice {
    */
   // void WakeUp();
 
-  // TODO: to be added: GetDeviceParams, SetDeviceParams et SetPollRate
-  // lorsqu'implementees dans
-  // l'ELE.
+  // TODO: to be added: SetPollRate when implemented in ELE
 
   //============================================================================
   // P R I V A T E   M E M B E R S

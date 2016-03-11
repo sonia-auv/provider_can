@@ -316,40 +316,6 @@ class CanDispatcher : public atlas::Runnable {
       ATLAS_NOEXCEPT;
 
   /**
-  * This allows the user to set permanent parameters to can devices. These
-  *parameters
-  * are saved in device's flash memory and their value will be kept until it is
-  * manually changed.
-  *
-  * the list of settable parameters is shown in can_def.h
-  *
-  * \param device_id SONIA Device ID to look for
-  * \param unique_id SONIA unique ID to look for
-  * \param param_number use device parameters enums contained in can_def.h
-  * \param param_value value to set to the parameter
-  * \return SoniaDeviceStatus enum
-  */
-  // TODO: Not yet implemented in ELE part
-  // SoniaDeviceStatus SetDeviceParameterReq(uint8_t device_id, uint8_t
-  // unique_id,
-  //                                        uint8_t param_number, uint32_t
-  //                                        param_value);
-  /**
-  * This allows the user to read the permanent parameters set in devices'
-  * flash memory.
-  *
-  * The list of readable parameters for each device is shown in can_def.h
-  *
-  * \param device_id SONIA Device ID to look for
-  * \param unique_id SONIA unique ID to look for
-  * \param params parameters table.
-  * \return SoniaDeviceStatus enum
-  */
-  // TODO: not yet implemented in ELE part
-  // SoniaDeviceStatus GetDeviceParams(uint8_t device_id, uint8_t unique_id,
-  //                                  uint32_t *&params);
-
-  /**
     * The function returns the device_list_ index value which contains the
     * selected address/device
     *
@@ -459,14 +425,6 @@ class CanDispatcher : public atlas::Runnable {
   */
   void AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT;
 
-  /**
-  * Allows to read permanent parameters set in the devices
-  */
-  // TODO: not yet implemented in ELE part
-  // void GetAllDevicesParamsReq(void);
-  // SoniaDeviceStatus GetDeviceParameterReq(uint8_t device_id, uint8_t
-  // unique_id);
-
   //============================================================================
   // P R I V A T E   M E M B E R S
 
@@ -485,7 +443,6 @@ class CanDispatcher : public atlas::Runnable {
   timespec actual_time_;
   timespec initial_time_;
   timespec id_req_time_;
-  timespec error_recovery_;
 
   uint8_t discovery_tries_;
   std::mutex can_rx_buffer_mutex, pc_messages_buffer_mutex;

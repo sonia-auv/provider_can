@@ -18,13 +18,14 @@
 #include "provider_can/devices/diver_interface.h"
 #include "provider_can/devices/mission_switch.h"
 #include "provider_can/devices/led_indicator.h"
+#include "provider_can/devices/hydrophones.h"
 
 namespace provider_can {
 
 //==============================================================================
 // S T A T I C   M E M B E R S
 
-const uint32_t CanNode::THREAD_INTERVAL_US = 100;
+const uint32_t CanNode::THREAD_INTERVAL_US = 1000;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
@@ -73,6 +74,9 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
 
   can_devices_vector_.push_back(
       std::make_shared<provider_can::LedIndicator>(can_ptr_, nh_));
+
+  can_devices_vector_.push_back(
+      std::make_shared<provider_can::Hydrophones>(can_ptr_, nh_));
 
   can_ptr_->Start();
 }

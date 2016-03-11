@@ -117,7 +117,7 @@ enum Actuators {
 
 enum Markers { dropper = 1, launcher };
 
-enum Sonars { passive = 1, active };
+enum Sonars { passive = 1, hydrophones };
 
 enum Sensors { barometer = 3 };
 
@@ -168,6 +168,29 @@ enum DiverInterfaceMethods {
 enum LedIndicatorMethods {
   set_mode = 0,
   set_color = 1,
+};
+
+enum HydrophonesMethods {
+  hydro_enable = 0,
+  wave_enable,
+  set_pinger_freq,
+  set_gain,
+  set_acq_threshold,
+  set_filter_threshold,
+  set_cont_filter_freq,
+  set_sample_count,
+  set_acq_thrs_mode,
+  set_phase_calc_alg,
+  set_freq_cutoff,
+  set_preamp_gain,
+  fft_enable,
+  set_fft_threshold,
+  set_fft_prefilter,
+  set_fft_prefilter_type,
+  set_fft_bandwidth,
+  set_fft_trig_mode,
+  get_params,
+  send_data_req,
 };
 
 #endif
