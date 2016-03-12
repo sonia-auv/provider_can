@@ -72,6 +72,8 @@ Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
       scope_samples_count_(MAX_SCOPE_SAMPLES) {
   active_sonar_pub_ =
       nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
+      
+  GetParams();    
 }
 
 //------------------------------------------------------------------------------
@@ -241,8 +243,11 @@ void Hydrophones::SendDataReq() const ATLAS_NOEXCEPT {
 //
 
 void Hydrophones::GetParams() const ATLAS_NOEXCEPT {
-  uint8_t *msg = nullptr;
-  PushMessage(GET_PARAM_MSG, msg, 0);
+  for(auto param : 	PARAM_TYPES_TABLE){
+	  uint8_t *msg = (uint8_t *)&(param);
+	  PushMessage(GET_PARAM_MSG, msg, 4);
+  }
+  
 }
 
 //------------------------------------------------------------------------------
