@@ -30,7 +30,10 @@ const uint16_t Barometer::RELATIVE_PRESS_MSG = 0xF01;
 Barometer::Barometer(const CanDispatcher::Ptr &can_dispatcher,
                      const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(sensors, barometer, can_dispatcher, NAME, nh) {
-  barometer_pub_ = nh->advertise<sonia_msgs::BarometerMsg>(NAME + "_msgs", 100);
+  barometer_intern_press_pub_ =
+      nh->advertise<sonia_msgs::BarometerMsg>(NAME + "_intern_press_msgs", 100);
+  barometer_fluid_press_pub_ =
+      nh->advertise<sensor_msgs::FluidPressure>(NAME + "_fluidpress_msgs", 100);
 }
 
 //------------------------------------------------------------------------------
@@ -45,33 +48,44 @@ Barometer::~Barometer() {}
 void Barometer::ProcessMessages(
     const std::vector<CanMessage> &from_can_rx_buffer,
     const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
-  bool message_rcvd = false;
+  bool intern_press_rcvd = false;
+  bool extern_press_rcvd = false;
 
   // if messages have been received
   // loops through all barometer messages received
   for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id & DEVICE_MSG_MASK) {
       case INTERNAL_PRESS_MSG:
-        ros_msg_.internal_pressure =
+        intern_press_msg_.internal_pressure =
             can_message.data[0] + (can_message.data[1] << 8) +
             (can_message.data[2] << 16) + (can_message.data[3] << 24);
-        message_rcvd = true;
+        intern_press_rcvd = true;
         break;
       case RELATIVE_PRESS_MSG:
-        ros_msg_.depth = can_message.data[0] + (can_message.data[1] << 8) +
-                         (can_message.data[2] << 16) +
-                         (can_message.data[3] << 24);
-        ros_msg_.ext_relative_pressure =
-            can_message.data[4] + (can_message.data[5] << 8) +
-            (can_message.data[6] << 16) + (can_message.data[7] << 24);
-        message_rcvd = true;
+        seq_id_++;
+        intern_press_msg_.depth =
+            can_message.data[0] + (can_message.data[1] << 8) +
+            (can_message.data[2] << 16) + (can_message.data[3] << 24);
+
+        fluid_press_msg_.fluid_pressure =
+            (can_message.data[4] + (can_message.data[5] << 8) +
+             (can_message.data[6] << 16) + (can_message.data[7] << 24)) /
+            1000.0;
+        fluid_press_msg_.variance = 0;
+        fluid_press_msg_.header.frame_id = NAME;
+        fluid_press_msg_.header.seq = seq_id_;
+        fluid_press_msg_.header.stamp = ros::Time::now();
+        extern_press_rcvd = true;
         break;
       default:
         break;
     }
   }
 
-  if (message_rcvd) barometer_pub_.publish(ros_msg_);
+  if (intern_press_rcvd) {
+    barometer_intern_press_pub_.publish(intern_press_msg_);
+  }
+  if (extern_press_rcvd) barometer_fluid_press_pub_.publish(fluid_press_msg_);
 }
 
 //------------------------------------------------------------------------------

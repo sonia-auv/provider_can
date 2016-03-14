@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
     lib_atlas
     sonia_msgs
+    sensor_msgs
     )
 
 find_library(kvaser_LIBRARIES canlib /opt/linuxcan/)

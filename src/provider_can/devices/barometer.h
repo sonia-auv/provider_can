@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <ros/ros.h>
+#include <sensor_msgs/FluidPressure.h>
 #include <sonia_msgs/BarometerMsg.h>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
@@ -61,9 +62,14 @@ class Barometer : public CanDevice {
 
   const static std::string NAME;
 
-  ros::Publisher barometer_pub_;
+  uint32_t seq_id_;
+  timespec actual_time_;
 
-  sonia_msgs::BarometerMsg ros_msg_;
+  ros::Publisher barometer_intern_press_pub_;
+  ros::Publisher barometer_fluid_press_pub_;
+
+  sonia_msgs::BarometerMsg intern_press_msg_;
+  sensor_msgs::FluidPressure fluid_press_msg_;
 };
 
 }  // namespace provider_can
