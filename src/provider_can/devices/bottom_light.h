@@ -11,12 +11,12 @@
 #ifndef PROVIDER_CAN_BOTTOM_LIGHT_H_
 #define PROVIDER_CAN_BOTTOM_LIGHT_H_
 
-#include <memory>
-#include <vector>
-#include <cstring>
-#include <iostream>
 #include <ros/ros.h>
 #include <sonia_msgs/BottomLightMsg.h>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 

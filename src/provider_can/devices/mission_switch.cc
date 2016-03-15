@@ -8,9 +8,9 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/CanDevicesProperties.h>
-#include <provider_can/can/can_dispatcher.h>
 #include "provider_can/devices/mission_switch.h"
+#include <provider_can/can/can_dispatcher.h>
+#include <sonia_msgs/CanDevicesProperties.h>
 
 namespace provider_can {
 

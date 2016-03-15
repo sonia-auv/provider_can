@@ -8,8 +8,8 @@
  * found in the LICENSE file.
  */
 
-#include <provider_can/can/can_dispatcher.h>
 #include "provider_can/devices/grabber.h"
+#include <provider_can/can/can_dispatcher.h>
 
 namespace provider_can {
 

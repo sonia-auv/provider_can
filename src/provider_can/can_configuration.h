@@ -26,10 +26,10 @@
 #ifndef PROVIDER_CAN_CAN_CONFIGURATION_H_
 #define PROVIDER_CAN_CAN_CONFIGURATION_H_
 
+#include <lib_atlas/macros.h>
+#include <ros/ros.h>
 #include <memory>
 #include <vector>
-#include <ros/ros.h>
-#include <lib_atlas/macros.h>
 
 namespace provider_can {
 

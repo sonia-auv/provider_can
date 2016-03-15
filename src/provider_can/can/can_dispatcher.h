@@ -13,20 +13,20 @@
 #ifndef PROVIDER_CAN_CAN_DISPATCHER_H_
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
 
-#include <stdint.h>
-#include <sys/times.h>
-#include <vector>
-#include <algorithm>
-#include <memory>
-#include <thread>
-#include <mutex>
-#include <ros/ros.h>
-#include <ros/node_handle.h>
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
-#include "sonia_msgs/SendCanMessage.h"
+#include <ros/node_handle.h>
+#include <ros/ros.h>
+#include <stdint.h>
+#include <sys/times.h>
+#include <algorithm>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <vector>
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can_def.h"
+#include "sonia_msgs/SendCanMessage.h"
 
 namespace provider_can {
 

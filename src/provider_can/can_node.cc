@@ -8,19 +8,19 @@
  * found in the LICENSE file.
  */
 
-#include "provider_can/can_def.h"
 #include "provider_can/can_node.h"
+#include "provider_can/can_def.h"
+#include "provider_can/devices/barometer.h"
 #include "provider_can/devices/bottom_light.h"
+#include "provider_can/devices/diver_interface.h"
+#include "provider_can/devices/droppers.h"
+#include "provider_can/devices/grabber.h"
+#include "provider_can/devices/hydrophones.h"
+#include "provider_can/devices/led_indicator.h"
+#include "provider_can/devices/mission_switch.h"
 #include "provider_can/devices/power_supply.h"
 #include "provider_can/devices/thruster.h"
-#include "provider_can/devices/barometer.h"
-#include "provider_can/devices/grabber.h"
-#include "provider_can/devices/diver_interface.h"
-#include "provider_can/devices/mission_switch.h"
-#include "provider_can/devices/led_indicator.h"
-#include "provider_can/devices/hydrophones.h"
 #include "provider_can/devices/torpedo_launchers.h"
-#include "provider_can/devices/droppers.h"
 
 namespace provider_can {
 

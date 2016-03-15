@@ -14,14 +14,14 @@
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_
 
-#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <stdint.h>
-#include <memory>
 #include <canlib.h>
-#include <lib_atlas/macros.h>
 #include <lib_atlas/exceptions/io_exception.h>
+#include <lib_atlas/macros.h>
+#include <stdint.h>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <vector>
 
 namespace provider_can {
 

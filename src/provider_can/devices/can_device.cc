@@ -9,8 +9,8 @@
  */
 
 #include "provider_can/devices/can_device.h"
-#include <sonia_msgs/CanDevicesProperties.h>
 #include <sonia_msgs/CanDevicesNotices.h>
+#include <sonia_msgs/CanDevicesProperties.h>
 
 namespace provider_can {
 
