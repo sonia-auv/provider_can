@@ -58,6 +58,7 @@ class CanDriver {
   using PtrList = std::vector<CanDriver::Ptr>;
   using ConstPtrList = std::vector<CanDriver::ConstPtr>;
 
+
   //============================================================================
   // P U B L I C   M E T H O D S
 
@@ -99,6 +100,9 @@ class CanDriver {
   */
   virtual void PrintErrorText(canStatus error) const ATLAS_NOEXCEPT = 0;
 
+  /**
+   * Deletes all messages in specified buffer
+   */
   virtual canStatus FlushTxBuffer() const ATLAS_NOEXCEPT = 0;
   virtual canStatus FlushRxBuffer() const ATLAS_NOEXCEPT = 0;
 

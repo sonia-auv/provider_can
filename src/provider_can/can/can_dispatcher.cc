@@ -79,8 +79,6 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
   ListDevices();
 
-  // GetAllDevicesParamsReq(); // TODO: uncomment when implemented in ELE part
-
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
       "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod, this);
@@ -166,8 +164,7 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
       AddUnknownAddress(message.id);
     }
   }
-  // Is this buffer access in a async way? If yes
-  // should add protection AND check for clearing newly entered message.
+
   rx_raw_buffer_.clear();
 }
 
@@ -231,14 +228,14 @@ SoniaDeviceStatus CanDispatcher::FetchCanMessages(
   SoniaDeviceStatus status;
   size_t index;
 
+  // Gets device buffer index
   status = FindDevice(device_id, unique_id, &index);
 
   buffer.clear();
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    // perhaps
-    // buffer = std::move(devices_list_[index].can_rx_buffer);
     std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
+    // returns device's buffer
     buffer = devices_list_[index].can_rx_buffer;
     devices_list_[index].can_rx_buffer.clear();
   }
@@ -256,6 +253,7 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
   if (ndata > 8)  // DLC cannot be larger than 8!!
     ndata = 8;
 
+  // converts id to SONIA format
   message.id = UNICAST | (device_id << DEVICE_ID_POSITION) |
                (unique_id << UNIQUE_ID_POSITION) | (message_id & 0x0FFF);
   message.flag = canMSG_EXT;
@@ -266,6 +264,7 @@ SoniaDeviceStatus CanDispatcher::PushUnicastMessage(
   }
 
   tx_raw_buffer_mutex_.lock();
+  // Ensure the buffer does not overfill
   if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
   } else {
@@ -284,6 +283,7 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   if (ndata > 8)  // DLC cannot be larger than 8!!
     ndata = 8;
 
+  // Pushes a message using master id
   message.id = master_id_ | (message_id & 0x0FFF);
   message.flag = canMSG_EXT;
   message.dlc = ndata;
@@ -292,6 +292,7 @@ void CanDispatcher::PushBroadMessage(uint16_t message_id, uint8_t *buffer,
   }
 
   std::lock_guard<std::mutex> lock(tx_raw_buffer_mutex_);
+  // Ensure the tx buffer does not overfill
   if (tx_raw_buffer_.size() <= PC_BUFFER_SIZE) {
     tx_raw_buffer_.push_back(message);
   } else {
@@ -490,14 +491,16 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
     ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   ComputerMessage msg = {msg.method_number = req.method_number,
-                         msg.parameter_value = req.parameter_value};
+                         msg.parameter_value = req.parameter_value,
+						 msg.string_param = req.string_param};
   size_t index;
-  msg.string_param = req.string_param;
+  // get device index
   status = FindDevice(req.device_id, req.unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
     std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
 
+    // Ensure the buffer does not overfill
     if (devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE) {
       devices_list_[index].pc_messages_buffer.push_back(msg);
     } else {
@@ -522,11 +525,12 @@ SoniaDeviceStatus CanDispatcher::FetchComputerMessages(
 
   status = FindDevice(device_id, unique_id, &index);
 
+  // ensure the input buffer is empty
   buffer.clear();
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    // buffer = std::move(devices_list_[index].pc_messages_buffer);
     std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
+    // returns device buffer
     buffer = devices_list_[index].pc_messages_buffer;
     devices_list_[index].pc_messages_buffer.clear();
   }
