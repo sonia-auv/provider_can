@@ -29,6 +29,8 @@ typedef struct {
   uint8_t capabilities;
   // any data
   uint8_t device_data;
+  // RTR send rate, in ms. Not implemented
+  uint16_t poll_rate = 500;
 
 } DeviceProperties;
 

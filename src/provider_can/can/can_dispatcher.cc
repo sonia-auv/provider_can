@@ -206,22 +206,6 @@ canStatus CanDispatcher::SendIdRequest() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::SetPollRate(
-    uint8_t device_id, uint8_t unique_id, uint16_t poll_rate) ATLAS_NOEXCEPT {
-  SoniaDeviceStatus status;
-  size_t index;
-
-  status = FindDevice(device_id, unique_id, &index);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT) {
-    devices_list_[index].poll_rate = poll_rate;
-  }
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
 SoniaDeviceStatus CanDispatcher::FetchCanMessages(
     uint8_t device_id, uint8_t unique_id,
     std::vector<CanMessage> &buffer) ATLAS_NOEXCEPT {
@@ -361,23 +345,6 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)
 
 //------------------------------------------------------------------------------
 //
-/*  void CanDispatcher::PollDevices() {
-
-    uint32_t actual_time_ms = actual_time_.tv_nsec / 1000000;
-    uint32_t initial_time_ms = initial_time_.tv_nsec / 1000000;
-
-    for (size_t i = 0; i < devices_list_.size(); i++) {
-      if (((actual_time_ms - initial_time_ms) %
-           devices_list_[i].device_properties.poll_rate) < ((1.0 /
-                                                             (float) loop_rate_)
-                                                            * 1000.0)) {
-        SendRTR(devices_list_[i].global_address);
-      }
-    }
-  }*/
-
-//------------------------------------------------------------------------------
-//
 void CanDispatcher::SendRTR(uint32_t address) ATLAS_NOEXCEPT {
   CanMessage msg;
 
@@ -461,9 +428,6 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
         can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
         ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
       }
-
-      // Sends RTR to devices if asked
-      // PollDevices();  // TODO: uncomment when implemented in ELE part
 
       // verifying if devices where not found. if so, sends ID requests to try
       // to find undiscovered devices.

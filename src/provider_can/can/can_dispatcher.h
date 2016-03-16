@@ -61,9 +61,6 @@ typedef struct {
   std::vector<CanMessage> can_rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
 
-  // RTR send rate, in ms
-  uint16_t poll_rate = 500;
-
 } CanDeviceBuffers;
 
 typedef enum {
@@ -158,22 +155,6 @@ class CanDispatcher : public atlas::Runnable {
 
   //============================================================================
   // P U B L I C   M E T H O D S
-
-  /**
-  * The function sets the poll_rate value of the DeviceProperties struct of
-  * the
-  * selected device.
-  *
-  * This indicates how many times per second we want an RTR to be sent to the
-  * device.
-  *
-  * \param device_id SONIA Device ID to look for
-  * \param unique_id SONIA unique ID to look for
-  * \param poll_rate polling rate, in ms. max: 1 sec.
-  * \return SoniaDeviceStatus enum
-  */
-  SoniaDeviceStatus SetPollRate(uint8_t device_id, uint8_t unique_id,
-                                uint16_t poll_rate) ATLAS_NOEXCEPT;
 
   /**
   * This function allows to send a message to a specific device.
@@ -287,14 +268,6 @@ class CanDispatcher : public atlas::Runnable {
   *
   */
   canStatus SendIdRequest() ATLAS_NOEXCEPT;
-
-  /**
-  * Sends RTR to devices at rate specified in DeviceProperties struct, for
-  * every known device.
-  */
-  // void PollDevices();  // TODO: RTR functionnality should be implemented in
-  // ELE
-  // dans l'élé du sub
 
   /**
   * Sends an ID request on CAN bus and list all addresses received.
