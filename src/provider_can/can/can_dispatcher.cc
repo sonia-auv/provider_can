@@ -40,7 +40,7 @@ const uint16_t CanDispatcher::PROVIDER_CAN_STATUS = 0xF00;
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
                              uint32_t chan, uint32_t baudrate,
                              const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : can_driver_(chan, baudrate),
+    : can_driver_(),
       discovery_tries_(0),
       tx_error_(0),
       rx_error_(0),
@@ -48,17 +48,20 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
+
+  can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
+
   master_id_ =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);
 
-  can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+  can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
 
   clock_gettime(CLOCK_REALTIME, &actual_time_);
   clock_gettime(CLOCK_REALTIME, &initial_time_);
   clock_gettime(CLOCK_REALTIME, &id_req_time_);
 
-  can_driver_.FlushRxBuffer();
-  can_driver_.FlushTxBuffer();
+  can_driver_->FlushRxBuffer();
+  can_driver_->FlushTxBuffer();
 
   ListDevices();
 
@@ -151,16 +154,6 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
       else if ((devices_list_[index].global_address | PING) == message.id) {
         devices_list_[index].ping_response = true;
       }
-      // If the ID received corresponds to a parameter response
-      else if ((devices_list_[index].global_address | GET_PARAM_REQ) ==
-               message.id) {
-        devices_list_[index].device_parameters[0] =
-            message.data[0] | message.data[1] << 8 | message.data[2] << 16 |
-            message.data[3] << 24;
-        devices_list_[index].device_parameters[1] =
-            message.data[4] | message.data[5] << 8 | message.data[6] << 16 |
-            message.data[7] << 24;
-      }
       // If the ID received correspond to any other message
       else if (devices_list_[index].global_address ==
                (message.id & DEVICE_MAC_MASK)) {
@@ -194,7 +187,7 @@ canStatus CanDispatcher::ReadMessages() ATLAS_NOEXCEPT {
   canStatus status;
 
   std::lock_guard<std::mutex> lock(rx_raw_buffer_mutex_);
-  status = can_driver_.ReadAllMessages(rx_raw_buffer_);
+  status = can_driver_->ReadAllMessages(rx_raw_buffer_);
 
   return status;
 }
@@ -205,7 +198,7 @@ canStatus CanDispatcher::SendMessages() ATLAS_NOEXCEPT {
   canStatus status;
 
   std::lock_guard<std::mutex> lock(tx_raw_buffer_mutex_);
-  status = can_driver_.WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
+  status = can_driver_->WriteBuffer(tx_raw_buffer_, CAN_SEND_TIMEOUT);
   tx_raw_buffer_.clear();
   return status;
 }
@@ -221,7 +214,7 @@ canStatus CanDispatcher::SendIdRequest() ATLAS_NOEXCEPT {
   msg.flag = canMSG_EXT;
   msg.time = 0;
 
-  return (can_driver_.WriteMessage(msg, 1));
+  return (can_driver_->WriteMessage(msg, 1));
 }
 
 //------------------------------------------------------------------------------
@@ -242,7 +235,7 @@ SoniaDeviceStatus CanDispatcher::SetPollRate(
 
 //------------------------------------------------------------------------------
 //
-SoniaDeviceStatus CanDispatcher::FetchMessages(
+SoniaDeviceStatus CanDispatcher::FetchCanMessages(
     uint8_t device_id, uint8_t unique_id,
     std::vector<CanMessage> &buffer) ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
@@ -428,8 +421,14 @@ SoniaDeviceStatus CanDispatcher::GetDeviceFault(
   status = FindDevice(device_id, unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    devices_list_[index].device_fault = false;
-    fault = devices_list_[index].fault_message;
+    if(devices_list_[index].device_fault == true){
+      devices_list_[index].device_fault = false;
+      fault = devices_list_[index].fault_message;
+    }
+    else{
+      fault = nullptr;
+    }
+
   }
 
   return status;
@@ -504,7 +503,7 @@ void CanDispatcher::SendRTR(uint32_t address) ATLAS_NOEXCEPT {
   msg.flag = canMSG_RTR;
   msg.time = 0;
 
-  can_driver_.WriteMessage(msg, 1);
+  can_driver_->WriteMessage(msg, 1);
 }
 
 //------------------------------------------------------------------------------
@@ -551,7 +550,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
       sleep(ERROR_RECOVERY_DELAY);
 
       ROS_INFO("Retrying a recovery");
-      can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+      can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
 
     }
     // normal process
@@ -561,8 +560,8 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       // verifying errors
       if (status < canOK) {
-        can_driver_.PrintErrorText(status);
-        can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+        can_driver_->PrintErrorText(status);
+        can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
         ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
       }
 
@@ -574,8 +573,8 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       // verifying errors
       if (status < canOK) {
-        can_driver_.PrintErrorText(status);
-        can_driver_.GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+        can_driver_->PrintErrorText(status);
+        can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
         ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
       }
 

@@ -25,7 +25,8 @@
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
 #include "sonia_msgs/SendCanMessage.h"
-#include "provider_can/can/can_driver.h"
+#include "usb_canII.h"
+#include "can_driver.h"
 #include "provider_can/can_def.h"
 
 namespace provider_can {
@@ -65,7 +66,6 @@ typedef struct {
   uint32_t global_address;
 
   DeviceProperties device_properties;
-  uint32_t device_parameters[2];  // TODO: Not yet implemented in ELE part
 
   std::vector<CanMessage> can_rx_buffer;
   std::vector<ComputerMessage> pc_messages_buffer;
@@ -242,17 +242,14 @@ class CanDispatcher : public atlas::Runnable {
   * this function.
   * If the device asked does not exist, SoniaDeviceStatus will indicate it and
   * no can_rx_buffer will be returned.
-  * can_rx_buffer will only contain data messages, not ID request responses nor
-  * device fault messages. These are
-  * filtered by dispatchMessages().
   *
   * \param device_id SONIA Device ID to look for
   * \param unique_id SONIA unique ID to look for
   * \param buffer device's can_rx_buffer
   * \return SoniaDeviceStatus enum
   */
-  SoniaDeviceStatus FetchMessages(uint8_t device_id, uint8_t unique_id,
-                                  std::vector<CanMessage> &buffer)
+  SoniaDeviceStatus FetchCanMessages(uint8_t device_id, uint8_t unique_id,
+                                     std::vector<CanMessage> &buffer)
       ATLAS_NOEXCEPT;
 
   /**
@@ -438,7 +435,7 @@ class CanDispatcher : public atlas::Runnable {
 
   std::mutex rx_raw_buffer_mutex_, tx_raw_buffer_mutex_;
 
-  CanDriver can_driver_;  // Can communication object
+  UsbCanII::Ptr can_driver_;  // Can communication object
 
   timespec actual_time_;
   timespec initial_time_;

@@ -57,7 +57,8 @@ CanDevice::~CanDevice() ATLAS_NOEXCEPT {}
 //
 void CanDevice::SendProperties() const ATLAS_NOEXCEPT {
   sonia_msgs::CanDevicesProperties ros_msg;
-  DeviceProperties properties = GetProperties();
+  DeviceProperties properties;
+  can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
 
   ros_msg.capabilities = properties.capabilities;
   ros_msg.device_data = properties.device_data;
@@ -84,15 +85,19 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     }
 
     // if ping has been received
-    if (GetPingStatus()) {
+    bool ping_response;
+    can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &ping_response);
+    if (ping_response) {
       ros_msg_.ping_rcvd = true;
       message_rcvd = true;
     } else
       ros_msg_.ping_rcvd = false;
 
     // if a fault has been received
-    const uint8_t *fault = GetFault();
-    if (fault != NULL) {
+    uint8_t *fault;
+    can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault);
+
+    if (fault != nullptr) {
       for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
       message_rcvd = true;
     } else
@@ -102,30 +107,39 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    can_dispatcher_->FetchMessages(device_id_, unique_id_, from_can_rx_buffer_);
-    ;
+    can_dispatcher_->FetchCanMessages(device_id_, unique_id_, from_can_rx_buffer_);
+
+
 
     // fetching pc messages (ROS)
     can_dispatcher_->FetchComputerMessages(device_id_, unique_id_,
                                            from_pc_rx_buffer_);
 
-    // loops through all PC messages received
-    for (auto &pc_message : from_pc_rx_buffer_) {
-      // if messages askes to call set_level function
-      switch (pc_message.method_number) {
-        case ping_req:
-          can_dispatcher_->PingDevice(device_id_, unique_id_);
-          break;
-        case get_properties:
-          SendProperties();
-          break;
-        default:
-          break;
-      }
-    }
+    ProcessCommonPcMessages();
+
 
     // Allows the device to process specific messages
     ProcessMessages(from_can_rx_buffer_, from_pc_rx_buffer_);
+  }
+}
+
+//------------------------------------------------------------------------------
+//
+
+void CanDevice::ProcessCommonPcMessages(void)ATLAS_NOEXCEPT{
+  // loops through all PC messages received
+  for (auto &pc_message : from_pc_rx_buffer_) {
+    // if messages askes to call set_level function
+    switch (pc_message.method_number) {
+      case ping_req:
+        can_dispatcher_->PingDevice(device_id_, unique_id_);
+        break;
+      case get_properties:
+        SendProperties();
+        break;
+      default:
+        break;
+    }
   }
 }
 

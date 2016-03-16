@@ -108,27 +108,10 @@ class CanDevice {
   // P R I V A T E   M E T H O D S
 
   /**
-   * returns a structure containing device properties
-   *
-   * \return DeviceProperties
+   * Processes common pc messages contained in rx buffer. Common messages may be
+   * ping req, get param req, etc.
    */
-  DeviceProperties GetProperties() const ATLAS_NOEXCEPT;
-
-  /**
-   * returns a pointer to the device fault, if a fault has been received. If
-   * not, the pointer will be NULL;
-   *
-   * \return pointer to the fault, 8 characters long
-   */
-  const uint8_t *GetFault() const ATLAS_NOEXCEPT;
-
-  /**
-   * Returns if a ping response has been received or not since last call of
-   * this function.
-   *
-   * \returns true or false if response has been received or not
-   */
-  bool GetPingStatus() const ATLAS_NOEXCEPT;
+  void ProcessCommonPcMessages(void)ATLAS_NOEXCEPT;
 
   /**
    * Verifies if the device is present on the can bus.
@@ -196,36 +179,6 @@ ATLAS_INLINE const std::string &CanDevice::GetName() const ATLAS_NOEXCEPT {
 can_dispatcher_->SendResetRequest(device_id_, unique_id_);
 }
 */
-
-//------------------------------------------------------------------------------
-//
-ATLAS_INLINE DeviceProperties CanDevice::GetProperties() const ATLAS_NOEXCEPT {
-  DeviceProperties properties;
-  can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
-  return properties;
-}
-
-//------------------------------------------------------------------------------
-//
-ATLAS_INLINE const uint8_t *CanDevice::GetFault() const ATLAS_NOEXCEPT {
-  uint8_t *fault;
-  if (can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault) ==
-      SONIA_DEVICE_FAULT) {
-    return fault;
-  } else
-    return NULL;
-}
-
-//------------------------------------------------------------------------------
-//
-ATLAS_INLINE bool CanDevice::GetPingStatus() const ATLAS_NOEXCEPT {
-  bool response;
-  if (can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &response) !=
-      SONIA_DEVICE_NOT_PRESENT)
-    return response;
-  else
-    return false;
-}
 
 //------------------------------------------------------------------------------
 //
