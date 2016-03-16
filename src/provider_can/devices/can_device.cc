@@ -9,8 +9,8 @@
  */
 
 #include "provider_can/devices/can_device.h"
-#include <sonia_msgs/CanDevicesProperties.h>
 #include <sonia_msgs/CanDevicesNotices.h>
+#include <sonia_msgs/CanDevicesProperties.h>
 
 namespace provider_can {
 
@@ -107,16 +107,14 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
-    can_dispatcher_->FetchCanMessages(device_id_, unique_id_, from_can_rx_buffer_);
-
-
+    can_dispatcher_->FetchCanMessages(device_id_, unique_id_,
+                                      from_can_rx_buffer_);
 
     // fetching pc messages (ROS)
     can_dispatcher_->FetchComputerMessages(device_id_, unique_id_,
                                            from_pc_rx_buffer_);
 
     ProcessCommonPcMessages();
-
 
     // Allows the device to process specific messages
     ProcessMessages(from_can_rx_buffer_, from_pc_rx_buffer_);
@@ -126,7 +124,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 
-void CanDevice::ProcessCommonPcMessages(void)ATLAS_NOEXCEPT{
+void CanDevice::ProcessCommonPcMessages(void) ATLAS_NOEXCEPT {
   // loops through all PC messages received
   for (auto &pc_message : from_pc_rx_buffer_) {
     // if messages askes to call set_level function

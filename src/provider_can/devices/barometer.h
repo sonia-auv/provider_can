@@ -11,13 +11,13 @@
 #ifndef PROVIDER_CAN_BAROMETER_H_
 #define PROVIDER_CAN_BAROMETER_H_
 
-#include <memory>
-#include <vector>
-#include <cstring>
-#include <iostream>
 #include <ros/ros.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sonia_msgs/BarometerMsg.h>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 

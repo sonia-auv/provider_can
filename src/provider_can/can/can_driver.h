@@ -11,15 +11,26 @@
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_
 
+<<<<<<< HEAD
 #include <vector>
 #include <memory>
 #include <canlib.h>
 #include <lib_atlas/macros.h>
+=======
+#include <canlib.h>
+#include <lib_atlas/exceptions/io_exception.h>
+#include <lib_atlas/macros.h>
+#include <stdint.h>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <vector>
+>>>>>>> 94cfbfb6a8ce5b991edcbd6964534585e1c7995a
 
 namespace provider_can {
 
-//============================================================================
-// T Y P E D E F   A N D   E N U M
+  //============================================================================
+  // T Y P E D E F   A N D   E N U M
 
   typedef struct {
     /// device identifier. see SONIA's documentation
@@ -39,7 +50,7 @@ namespace provider_can {
   typedef enum { SONIA_CAN_OK = 0, SONIA_CAN_ERR = -1 } SoniaCanStatus;
 
   class CanDriver {
-  public:
+   public:
     //==========================================================================
     // T Y P E D E F   A N D   E N U M
 
@@ -58,8 +69,8 @@ namespace provider_can {
     * \param timeout_msec time to wait for a message to be received
     * \return canStatus enum
     */
-    virtual canStatus ReadMessage(CanMessage* msg,
-                          uint32_t timeout_msec) const ATLAS_NOEXCEPT = 0;
+    virtual canStatus ReadMessage(CanMessage* msg, uint32_t timeout_msec) const
+        ATLAS_NOEXCEPT = 0;
 
     /**
      * Allows the user to read all CAN messages received
@@ -70,7 +81,7 @@ namespace provider_can {
      * \return canStatus
      */
     virtual canStatus ReadAllMessages(std::vector<CanMessage>& msg_table) const
-    ATLAS_NOEXCEPT = 0;
+        ATLAS_NOEXCEPT = 0;
 
     /**
     * Allows the user to send one CAN message through a CAN device
@@ -79,10 +90,11 @@ namespace provider_can {
     * \param timeout_msec time to wait for a message to be sent
     * \return canStatus enum
     */
-    virtual canStatus WriteMessage(CanMessage msg,
-                           uint32_t timeout_msec) const ATLAS_NOEXCEPT = 0;
+    virtual canStatus WriteMessage(CanMessage msg, uint32_t timeout_msec) const
+        ATLAS_NOEXCEPT = 0;
     virtual canStatus WriteBuffer(std::vector<CanMessage>& msg_table,
-                          uint32_t timeout_msec) const ATLAS_NOEXCEPT = 0;
+                                  uint32_t timeout_msec) const
+        ATLAS_NOEXCEPT = 0;
 
     /**
     * Convert canStatus enum into text to show on terminal
@@ -101,9 +113,7 @@ namespace provider_can {
      * \return canStatus enum (canOK or canERR)
      */
     virtual canStatus GetErrorCount(uint32_t* tx_err, uint32_t* rx_err,
-                            uint32_t* ov_err) const ATLAS_NOEXCEPT = 0;
-
-
+                                    uint32_t* ov_err) const ATLAS_NOEXCEPT = 0;
   };
 
 }  // namespace provider_can

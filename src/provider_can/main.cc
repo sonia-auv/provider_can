@@ -8,8 +8,8 @@
  * found in the LICENSE file.
  */
 
-#include <memory>
 #include <ros/ros.h>
+#include <memory>
 #include "provider_can/can_node.h"
 
 int main(int argc, char** argv) {

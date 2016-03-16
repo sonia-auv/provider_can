@@ -11,10 +11,10 @@
 #ifndef PROVIDER_CAN_HYDROPHONES_H_
 #define PROVIDER_CAN_HYDROPHONES_H_
 
-#include <memory>
-#include <vector>
 #include <ros/ros.h>
 #include <sonia_msgs/HydrophonesMsg.h>
+#include <memory>
+#include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 

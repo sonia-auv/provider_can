@@ -8,7 +8,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef PROVIDER_CAN_USB_CANII_H_
 #define PROVIDER_CAN_USB_CANII_H_
 
@@ -24,11 +23,10 @@
 
 namespace provider_can {
 
-
 /**
  * This class is the driver for the KVaser UsbCanII device.
  */
-class UsbCanII : CanDriver{
+class UsbCanII : CanDriver {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
@@ -62,7 +60,7 @@ class UsbCanII : CanDriver{
   explicit UsbCanII(uint32_t chan, uint32_t baudrate);
 
   explicit UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1,
-  uint32_t ts2, uint32_t jump, uint32_t samp);
+                    uint32_t ts2, uint32_t jump, uint32_t samp);
 
   // Destructor
   ~UsbCanII() ATLAS_NOEXCEPT;
@@ -132,7 +130,7 @@ class UsbCanII : CanDriver{
   /**
    * Initialization methods
    */
-  bool InitUsbDevice() ATLAS_NOEXCEPT ;
+  bool InitUsbDevice() ATLAS_NOEXCEPT;
   canStatus Open() ATLAS_NOEXCEPT;
   canStatus SetBusParams() const ATLAS_NOEXCEPT;
   canStatus SetBusOff() const ATLAS_NOEXCEPT;
@@ -163,7 +161,6 @@ class UsbCanII : CanDriver{
   canStatus SetAcceptanceFilter(uint32_t enveloppe,
                                 int flag) const ATLAS_NOEXCEPT;
 
-
   //============================================================================
   // P R I V A T E   M E M B E R S
 
@@ -177,7 +174,6 @@ class UsbCanII : CanDriver{
   uint32_t noSamp_;  // The number of sampling points; can be 1 or 3.
 
   canHandle handle_;
-
 };
 
 }  // namespace provider_can

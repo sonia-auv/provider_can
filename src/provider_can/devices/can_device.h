@@ -11,11 +11,11 @@
 #ifndef PROVIDER_CAN_CAN_DEVICE_H
 #define PROVIDER_CAN_CAN_DEVICE_H
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <ros/ros.h>
 #include <lib_atlas/macros.h>
+#include <ros/ros.h>
+#include <memory>
+#include <string>
+#include <vector>
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/can_def.h"
 
@@ -111,7 +111,7 @@ class CanDevice {
    * Processes common pc messages contained in rx buffer. Common messages may be
    * ping req, get param req, etc.
    */
-  void ProcessCommonPcMessages(void)ATLAS_NOEXCEPT;
+  void ProcessCommonPcMessages(void) ATLAS_NOEXCEPT;
 
   /**
    * Verifies if the device is present on the can bus.

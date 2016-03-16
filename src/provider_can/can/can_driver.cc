@@ -12,11 +12,8 @@
 #include <lib_atlas/exceptions/io_exception.h>
 #include "can_driver.h"
 
-
 namespace provider_can {
 
 //==============================================================================
 // C / D T O R   S E C T I O N
-
-
 }

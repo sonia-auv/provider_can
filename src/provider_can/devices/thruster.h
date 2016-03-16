@@ -11,12 +11,12 @@
 #ifndef PROVIDER_CAN_THRUSTER_H_
 #define PROVIDER_CAN_THRUSTER_H_
 
-#include <memory>
-#include <vector>
-#include <cstring>
-#include <iostream>
 #include <ros/ros.h>
 #include <sonia_msgs/ThrusterMsg.h>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 

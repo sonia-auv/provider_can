@@ -48,7 +48,6 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
-
   can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
 
   master_id_ =
@@ -421,14 +420,12 @@ SoniaDeviceStatus CanDispatcher::GetDeviceFault(
   status = FindDevice(device_id, unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    if(devices_list_[index].device_fault == true){
+    if (devices_list_[index].device_fault == true) {
       devices_list_[index].device_fault = false;
       fault = devices_list_[index].fault_message;
-    }
-    else{
+    } else {
       fault = nullptr;
     }
-
   }
 
   return status;

@@ -11,16 +11,16 @@
 #ifndef PROVIDER_CAN_CAN_NODE_H_
 #define PROVIDER_CAN_CAN_NODE_H_
 
-#include <memory>
-#include <vector>
-#include <cstring>
-#include <iostream>
-#include <ros/node_handle.h>
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/ros/service_server_manager.h>
-#include "provider_can/can_configuration.h"
+#include <ros/node_handle.h>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
 #include "provider_can/can/can_dispatcher.h"
+#include "provider_can/can_configuration.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {

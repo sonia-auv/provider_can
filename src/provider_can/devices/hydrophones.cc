@@ -8,8 +8,8 @@
  * found in the LICENSE file.
  */
 
-#include <provider_can/can/can_dispatcher.h>
 #include "hydrophones.h"
+#include <provider_can/can/can_dispatcher.h>
 
 namespace provider_can {
 
@@ -37,12 +37,24 @@ const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
 const uint32_t Hydrophones::FFT_TRIG_MODE_PARAM = 190;
 
 const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
-    HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
-    ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM, CONTINUOUS_FILTER_FREQ_PARAM,
-    SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM, PHASE_CALC_ALG_PARAM,
-    SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM, FFT_ENABLE_PARAM,
-    FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM, FFT_PREFILTER_TYPE_PARAM,
-    FFT_BANDWIDTH_PARAM, FFT_TRIG_MODE_PARAM};
+    HYDRO_ENABLE_PARAM,
+    WAVE_ENABLE_PARAM,
+    PINGER_FREQ_PARAM,
+    GAIN_PARAM,
+    ACQ_THRESHOLD_PARAM,
+    FILTER_THRESHOLD_PARAM,
+    CONTINUOUS_FILTER_FREQ_PARAM,
+    SAMPLE_COUNT_PARAM,
+    ACQ_THRS_MODE_PARAM,
+    PHASE_CALC_ALG_PARAM,
+    SET_FREQ_CUTOFF_PARAM,
+    SET_PREAMP_GAIN_PARAM,
+    FFT_ENABLE_PARAM,
+    FFT_THRESHOLD_PARAM,
+    FFT_PREFILTER_PARAM,
+    FFT_PREFILTER_TYPE_PARAM,
+    FFT_BANDWIDTH_PARAM,
+    FFT_TRIG_MODE_PARAM};
 
 // Receivable CAN messages
 const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
@@ -72,8 +84,8 @@ Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
       scope_samples_count_(MAX_SCOPE_SAMPLES) {
   active_sonar_pub_ =
       nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
-      
-  GetParams();    
+
+  GetParams();
 }
 
 //------------------------------------------------------------------------------
@@ -243,11 +255,10 @@ void Hydrophones::SendDataReq() const ATLAS_NOEXCEPT {
 //
 
 void Hydrophones::GetParams() const ATLAS_NOEXCEPT {
-  for(auto param : 	PARAM_TYPES_TABLE){
-	  uint8_t *msg = (uint8_t *)&(param);
-	  PushMessage(GET_PARAM_MSG, msg, 4);
+  for (auto param : PARAM_TYPES_TABLE) {
+    uint8_t *msg = (uint8_t *)&(param);
+    PushMessage(GET_PARAM_MSG, msg, 4);
   }
-  
 }
 
 //------------------------------------------------------------------------------

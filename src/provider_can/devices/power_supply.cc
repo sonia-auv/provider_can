@@ -8,8 +8,8 @@
  * found in the LICENSE file.
  */
 
-#include <sonia_msgs/CanDevicesProperties.h>
 #include "provider_can/devices/power_supply.h"
+#include <sonia_msgs/CanDevicesProperties.h>
 
 namespace provider_can {
 

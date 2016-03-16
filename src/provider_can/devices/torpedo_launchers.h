@@ -11,14 +11,14 @@
 #ifndef PROVIDER_CAN_TORPEDO_LAUNCHERS_H_
 #define PROVIDER_CAN_TORPEDO_LAUNCHERS_H_
 
-#include <memory>
-#include <vector>
+#include <ros/ros.h>
 #include <cstring>
 #include <iostream>
-#include <ros/ros.h>
-#include "sonia_msgs/TorpedoLaunchersMsg.h"
+#include <memory>
+#include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
+#include "sonia_msgs/TorpedoLaunchersMsg.h"
 
 namespace provider_can {
 

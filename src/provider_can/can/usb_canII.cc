@@ -18,37 +18,37 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-  UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate)
+UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate)
     : baudrate_(baudrate),
       channel_(chan),
       tseg1_(0),
       tseg2_(0),
       sjw_(1),
-      noSamp_(16){
-    if (!InitUsbDevice()) {
-      throw atlas::IOException("USB CAN II device initialization");
-    }
+      noSamp_(16) {
+  if (!InitUsbDevice()) {
+    throw atlas::IOException("USB CAN II device initialization");
   }
+}
 
 //------------------------------------------------------------------------------
 //
-  UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1,
-                       uint32_t ts2, uint32_t jump, uint32_t samp)
+UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
+                   uint32_t jump, uint32_t samp)
     : baudrate_(baudrate),
       channel_(chan),
       tseg1_(ts1),
       tseg2_(ts2),
       sjw_(jump),
       noSamp_(samp) {
-    if (!InitUsbDevice()) {
-      throw atlas::IOException("USB CAN II device initialization");
-    }
+  if (!InitUsbDevice()) {
+    throw atlas::IOException("USB CAN II device initialization");
   }
+}
 
-  UsbCanII::~UsbCanII()ATLAS_NOEXCEPT {
-    FlushRxBuffer();
-    FlushTxBuffer();
-  }
+UsbCanII::~UsbCanII() ATLAS_NOEXCEPT {
+  FlushRxBuffer();
+  FlushTxBuffer();
+}
 
 //==============================================================================
 // M E T H O D S   S E C T I O N
@@ -153,7 +153,7 @@ canStatus UsbCanII::Close() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::WriteMessage(CanMessage msg,
-                                  uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   if (timeout_msec == 0) {
     status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
@@ -167,7 +167,7 @@ canStatus UsbCanII::WriteMessage(CanMessage msg,
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::WriteBuffer(std::vector<CanMessage> &msg_table,
-                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                                uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
@@ -182,7 +182,7 @@ canStatus UsbCanII::WriteBuffer(std::vector<CanMessage> &msg_table,
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::ReadMessage(CanMessage *msg,
-                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                                uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   long int id;
   long unsigned int time;
@@ -242,7 +242,7 @@ void UsbCanII::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::SetAcceptanceFilter(uint32_t enveloppe,
-                                         int flag) const ATLAS_NOEXCEPT {
+                                        int flag) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canAccept(handle_, enveloppe, flag);
@@ -253,7 +253,7 @@ canStatus UsbCanII::SetAcceptanceFilter(uint32_t enveloppe,
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
-                                   uint32_t *ov_err) const ATLAS_NOEXCEPT {
+                                  uint32_t *ov_err) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
@@ -304,8 +304,8 @@ canStatus UsbCanII::FlushTxBuffer() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus UsbCanII::GetBusParams(long *freq, unsigned int *tseg1,
-                                  unsigned int *tseg2, unsigned int *sjw,
-                                  unsigned int *no_samp) const ATLAS_NOEXCEPT {
+                                 unsigned int *tseg2, unsigned int *sjw,
+                                 unsigned int *no_samp) const ATLAS_NOEXCEPT {
   canStatus status;
   uint32_t dummy;
 
