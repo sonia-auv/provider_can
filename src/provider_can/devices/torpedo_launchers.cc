@@ -53,7 +53,7 @@ void TorpedoLaunchers::ProcessMessages(
   // if messages have been received
   // loops through all grabber messages received
   for (auto &can_message : from_can_rx_buffer) {
-    switch (can_message.id & DEVICE_MSG_MASK) {
+    switch (can_message.id) {
       case PRESS_MSG:
         ros_msg_.pressure = can_message.data[0] + (can_message.data[1] << 8) +
                             (can_message.data[2] << 16) +

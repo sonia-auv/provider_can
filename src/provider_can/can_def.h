@@ -21,37 +21,6 @@ const uint8_t ISP = 0x01;
 const uint8_t RESET = 0x02;
 const uint8_t SLEEP = 0x04;
 
-// Messages types
-const uint32_t UNICAST = 0x10000000;
-const uint8_t RESET_REQ = 0xfe;
-const uint8_t WAKEUP_REQ = 0xf1;
-const uint8_t SLEEP_REQ = 0xf0;
-const uint8_t DEVICE_FAULT = 0xff;
-const uint8_t PING = 0x01;
-const uint8_t SET_PARAM_REQ = 0x21;
-const uint8_t GET_PARAM_REQ = 0x20;
-
-// Address parameters positions
-const uint8_t UNIQUE_ID_POSITION = 12;
-const uint8_t DEVICE_ID_POSITION = 20;
-
-// Mac address mask
-const uint32_t DEVICE_MAC_MASK = 0x0FFFF000;
-
-// Message type mask
-const uint32_t DEVICE_MSG_MASK = 0x00000FFF;
-
-// Messages DLCs
-const uint8_t IDENTIFY_REPLY_DLC = 7;
-const uint8_t DEVICE_FAULT_DLC = 8;
-const uint8_t PING_REQUEST_DLC = 0;
-const uint8_t PING_REPLY_DLC = 0;
-const uint8_t GET_PARAMETER_DLC = 1;
-const uint8_t SET_PARAMETER_DLC = 5;
-const uint8_t SLEEP_REQUEST_DLC = 0;
-const uint8_t WAKEUP_REQUEST_DLC = 0;
-const uint8_t RESET_REQUEST_DLC = 0;
-
 enum MessageType { global = 0x0, application = 0xf };
 
 //============================================================================

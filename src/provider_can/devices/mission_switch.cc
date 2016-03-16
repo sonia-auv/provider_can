@@ -49,7 +49,7 @@ void MissionSwitch::ProcessMessages(
   // if messages have been received
   // loops through all barometer messages received
   for (auto &can_message : from_can_rx_buffer) {
-    switch (can_message.id & DEVICE_MSG_MASK) {
+    switch (can_message.id) {
       case MISSION_SWITCH_STATE:
         ros_msg_.state = (bool)can_message.data[0] ^ 0x01;
         message_rcvd = true;

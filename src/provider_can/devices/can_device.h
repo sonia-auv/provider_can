@@ -21,6 +21,17 @@
 
 namespace provider_can {
 
+typedef struct {
+  uint16_t firmware_version;
+  // Signature of LPC chip
+  uint32_t uc_signature;
+  // may be RESET, SLEEP, WAKEUP or ISP
+  uint8_t capabilities;
+  // any data
+  uint8_t device_data;
+
+} DeviceProperties;
+
 /**
  * This class is a frame for all CAN devices. It groups all common functions
  * for all devices. Specific devices' functions must be implemented outside
@@ -43,6 +54,17 @@ class CanDevice {
   using ConstPtr = std::shared_ptr<const CanDevice>;
   using PtrList = std::vector<CanDevice::Ptr>;
   using ConstPtrList = std::vector<CanDevice::ConstPtr>;
+
+  // transmittable can messages
+  static const uint8_t RESET_REQ;
+  static const uint8_t WAKEUP_REQ;
+  static const uint8_t SLEEP_REQ;
+  static const uint8_t PING;
+
+  // receivable can messages
+  static const uint8_t DEVICE_FAULT;
+  static const uint8_t ID_REQ_RESPONSE;
+  static const uint8_t PING_RESPONSE;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -114,6 +136,13 @@ class CanDevice {
   void ProcessCommonPcMessages(void) ATLAS_NOEXCEPT;
 
   /**
+   * Processes common can messages contained in rx buffer. Common messages may
+   * be
+   * ping response, id req, etc.
+   */
+  void ProcessCommonCanMessages(void) ATLAS_NOEXCEPT;
+
+  /**
    * Verifies if the device is present on the can bus.
    *
    * \returns true or false if device is present or not
@@ -129,19 +158,24 @@ class CanDevice {
    * Sends a reset message to the device
    * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void Reset();
+  void SendWakeUpRequest(void) const ATLAS_NOEXCEPT;
 
   /**
    * Sends a sleep request to the device
    * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void SleepMode();
+  void SendSleepRequest(void) const ATLAS_NOEXCEPT;
 
   /**
    * Sends a wake up request to the device
    * TODO Alexi Demers: This will have to be implemented in ELE part
    */
-  // void WakeUp();
+  void SendResetRequest(void) const ATLAS_NOEXCEPT;
+
+  /**
+   * Ping the selected device
+   */
+  void PingDevice(void) const ATLAS_NOEXCEPT;
 
   // TODO: to be added: SetPollRate when implemented in ELE
 
@@ -162,11 +196,19 @@ class CanDevice {
   std::vector<CanMessage> from_can_rx_buffer_;
   std::vector<ComputerMessage> from_pc_rx_buffer_;
 
-  bool properties_sent_;
+  bool device_found_;
+
+  DeviceProperties device_properties_;
 };
 
 //==============================================================================
 // I N L I N E   F U N C T I O N S   D E F I N I T I O N S
+
+const uint8_t RESET_REQ = 0xfe;
+const uint8_t WAKEUP_REQ = 0xf1;
+const uint8_t SLEEP_REQ = 0xf0;
+const uint8_t DEVICE_FAULT = 0xff;
+const uint8_t PING = 0x01;
 
 //------------------------------------------------------------------------------
 //
@@ -182,29 +224,46 @@ can_dispatcher_->SendResetRequest(device_id_, unique_id_);
 
 //------------------------------------------------------------------------------
 //
+ATLAS_INLINE void CanDevice::PingDevice(void) const ATLAS_NOEXCEPT {
+  uint8_t *msg = nullptr;
+  can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, PING, msg, 0);
+}
+
+//------------------------------------------------------------------------------
+//
 ATLAS_INLINE bool CanDevice::DevicePresenceCheck() const ATLAS_NOEXCEPT {
-  if (can_dispatcher_->FindDevice(device_id_, unique_id_) !=
-      SONIA_DEVICE_NOT_PRESENT)
-    return true;
-  else
-    return false;
+  return can_dispatcher_->FindDevice(device_id_, unique_id_) !=
+         SONIA_DEVICE_NOT_PRESENT;
 }
 
-/*
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE void CanDevice::SleepMode() const ATLAS_NOEXCEPT {
-  can_dispatcher_->SendSleepRequest(device_id_,unique_id_);
-}
-*/
 
-/*
+ATLAS_INLINE void CanDevice::SendResetRequest(void) const ATLAS_NOEXCEPT {
+  uint8_t *msg = nullptr;
+  can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, RESET_REQ, msg,
+                                      0);
+}
+
 //------------------------------------------------------------------------------
 //
-ATLAS_INLINE void CanDevice::WakeUp() const ATLAS_NOEXCEPT {
-  can_dispatcher_->SendWakeUpRequest(device_id_,unique_id_);
+
+ATLAS_INLINE void CanDevice::SendSleepRequest(void) const ATLAS_NOEXCEPT {
+  uint8_t *msg = nullptr;
+
+  can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, SLEEP_REQ, msg,
+                                      0);
 }
-*/
+
+//------------------------------------------------------------------------------
+//
+
+ATLAS_INLINE void CanDevice::SendWakeUpRequest() const ATLAS_NOEXCEPT {
+  uint8_t *msg = nullptr;
+
+  can_dispatcher_->PushUnicastMessage(device_id_, unique_id_, WAKEUP_REQ, msg,
+                                      0);
+}
 
 //------------------------------------------------------------------------------
 //

@@ -61,7 +61,7 @@ void PowerSupply::ProcessMessages(
   // if messages have been received
   // loops through all power supply messages received
   for (auto &can_message : from_can_rx_buffer) {
-    switch (can_message.id & DEVICE_MSG_MASK) {
+    switch (can_message.id) {
       case KILL_STATE_MSG:
         ros_msg_.kill_switch_state = (bool)can_message.data[0];
         message_rcvd = true;

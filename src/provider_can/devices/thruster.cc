@@ -56,7 +56,7 @@ void Thruster::ProcessMessages(
   // if messages have been received
   // loops through all thruster messages received
   for (auto &can_message : from_can_rx_buffer) {
-    switch (can_message.id & DEVICE_MSG_MASK) {
+    switch (can_message.id) {
       case THRUSTER_STATE_MSG:
         ros_msg.factory_infos = can_message.data[0];
         ros_msg.current = can_message.data[1];

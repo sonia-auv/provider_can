@@ -115,7 +115,7 @@ void Hydrophones::ProcessMessages(
   // if messages have been received
   // loops through all barometer messages received
   for (auto &can_message : from_can_rx_buffer) {
-    switch (can_message.id & DEVICE_MSG_MASK) {
+    switch (can_message.id) {
       case SCOPE_MSG:
 
         // Scope msg will be sent MAX_SAMPLES times by hydrophones. once all

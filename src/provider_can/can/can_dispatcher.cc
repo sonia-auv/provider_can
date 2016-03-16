@@ -8,7 +8,9 @@
  * found in the LICENSE file.
  */
 
+#include <mutex>
 #include "can_dispatcher.h"
+#include "can_driver.h"
 
 namespace provider_can {
 
@@ -26,11 +28,24 @@ const uint8_t CanDispatcher::ERROR_RECOVERY_DELAY = 2;
 // Delay to wait for a message to be sent (ms)
 const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
-const uint32_t CanDispatcher::THREAD_INTERVAL_US = 100;
+const uint32_t CanDispatcher::THREAD_INTERVAL_US = 1000;
 
 const uint32_t CanDispatcher::PC_BUFFER_SIZE = 100;
 
 const uint16_t CanDispatcher::PROVIDER_CAN_STATUS = 0xF00;
+
+// Messages types
+const uint32_t CanDispatcher::UNICAST = 0x10000000;
+
+// Address parameters positions
+const uint8_t CanDispatcher::UNIQUE_ID_POSITION = 12;
+const uint8_t CanDispatcher::DEVICE_ID_POSITION = 20;
+
+// Mac address mask
+const uint32_t CanDispatcher::DEVICE_MAC_MASK = 0x0FFFF000;
+
+// Message type mask
+const uint32_t CanDispatcher::DEVICE_MSG_MASK = 0x00000FFF;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
@@ -99,7 +114,7 @@ canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
   // For each messages received during sleep,
   rx_raw_buffer_mutex_.lock();
   for (auto &message : rx_raw_buffer_) {
-    CanDeviceStruct new_device;
+    CanDeviceBuffers new_device;
     // If the address of the message has never been seen
     if (FindDeviceWithAddress(message.id) == SONIA_DEVICE_NOT_PRESENT) {
       // Apending new device to the vector
@@ -130,45 +145,21 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
     status = FindDeviceWithAddress(message.id, &index);
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {  // If device exists
-      // If the ID received correspond to an ID request response
-      // saves device's parameters.
-      if (devices_list_[index].global_address == message.id) {
-        devices_list_[index].device_properties.firmware_version =
-            (message.data[1] << 8) | message.data[0];
 
-        devices_list_[index].device_properties.uc_signature =
-            (message.data[4] << 16) | (message.data[3] << 8) | message.data[2];
+      std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
 
-        devices_list_[index].device_properties.capabilities = message.data[5];
-
-        devices_list_[index].device_properties.device_data = message.data[6];
+      // Avoids buffer overflow
+      if (devices_list_[index].can_rx_buffer.size() >=
+          DISPATCHED_RX_BUFFER_SIZE) {
+        devices_list_[index].can_rx_buffer.clear();
+        ROS_WARN("Device %X: Can Rx Buffer Overflow. Messages dropped.",
+                 devices_list_[index].global_address);
       }
-      // If the ID received correspond to a device fault
-      else if ((devices_list_[index].global_address | DEVICE_FAULT) ==
-               message.id) {
-        devices_list_[index].device_fault = true;
-        devices_list_[index].fault_message = message.data;
-      }
-      // If the ID received corresponds to a ping response
-      else if ((devices_list_[index].global_address | PING) == message.id) {
-        devices_list_[index].ping_response = true;
-      }
-      // If the ID received correspond to any other message
-      else if (devices_list_[index].global_address ==
-               (message.id & DEVICE_MAC_MASK)) {
-        std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
 
-        // Avoids buffer overflow
-        if (devices_list_[index].can_rx_buffer.size() >=
-            DISPATCHED_RX_BUFFER_SIZE) {
-          devices_list_[index].can_rx_buffer.clear();
-          ROS_WARN("Device %X: Can Rx Buffer Overflow. Messages dropped.",
-                   devices_list_[index].global_address);
-        }
-
-        // Saves message into dispatched devices' buffers.
-        devices_list_[index].can_rx_buffer.push_back(message);
-      }
+      // isolate the message type.
+      message.id = message.id & DEVICE_MSG_MASK;
+      // Saves message into dispatched devices' buffers.
+      devices_list_[index].can_rx_buffer.push_back(message);
 
     } else {  // If address is unknown
       // Adds the address to the unknown addresses table
@@ -226,7 +217,7 @@ SoniaDeviceStatus CanDispatcher::SetPollRate(
   status = FindDevice(device_id, unique_id, &index);
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    devices_list_[index].device_properties.poll_rate = poll_rate;
+    devices_list_[index].poll_rate = poll_rate;
   }
 
   return status;
@@ -251,29 +242,6 @@ SoniaDeviceStatus CanDispatcher::FetchCanMessages(
     buffer = devices_list_[index].can_rx_buffer;
     devices_list_[index].can_rx_buffer.clear();
   }
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::GetDevicesProperties(
-    uint8_t device_id, uint8_t unique_id,
-    DeviceProperties &properties) ATLAS_NOEXCEPT {
-  SoniaDeviceStatus status;
-  size_t index;
-
-  // The following lines will allow to return nothing if device isn't present
-  properties.capabilities = 0;
-  properties.device_data = 0;
-  properties.firmware_version = 0;
-  properties.poll_rate = 0;
-  properties.uc_signature = 0;
-
-  status = FindDevice(device_id, unique_id, &index);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT)
-    properties = devices_list_[index].device_properties;
 
   return status;
 }
@@ -361,7 +329,7 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(
   address = address & DEVICE_MAC_MASK;
 
   // predicate used for seeking for a device in device_list_ vector
-  auto add_search_pred = [address](const CanDeviceStruct &device) {
+  auto add_search_pred = [address](const CanDeviceBuffers &device) {
     return device.global_address == address;
   };
 
@@ -372,11 +340,7 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(
   if (vec_it != devices_list_.end()) {
     // Calculating the exact index
     *index = std::distance(devices_list_.begin(), vec_it);
-    if (devices_list_[*index].device_fault) {
-      status = SONIA_DEVICE_FAULT;
-    } else {
-      status = SONIA_DEVICE_PRESENT;
-    }
+    status = SONIA_DEVICE_PRESENT;
   }
 
   if (status == SONIA_DEVICE_NOT_PRESENT) {
@@ -410,84 +374,6 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(uint32_t address)
       }
     }
   }*/
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::GetDeviceFault(
-    uint8_t device_id, uint8_t unique_id, uint8_t *&fault) ATLAS_NOEXCEPT {
-  SoniaDeviceStatus status;
-  size_t index;
-  status = FindDevice(device_id, unique_id, &index);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT) {
-    if (devices_list_[index].device_fault == true) {
-      devices_list_[index].device_fault = false;
-      fault = devices_list_[index].fault_message;
-    } else {
-      fault = nullptr;
-    }
-  }
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::SendResetRequest(
-    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
-  uint8_t *msg = nullptr;
-
-  return (PushUnicastMessage(device_id, unique_id, RESET_REQ, msg,
-                             RESET_REQUEST_DLC));
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::SendSleepRequest(
-    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
-  uint8_t *msg = nullptr;
-
-  return (PushUnicastMessage(device_id, unique_id, SLEEP_REQ, msg,
-                             SLEEP_REQUEST_DLC));
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::PingDevice(uint8_t device_id,
-                                            uint8_t unique_id) ATLAS_NOEXCEPT {
-  uint8_t *msg = nullptr;
-
-  return (
-      PushUnicastMessage(device_id, unique_id, PING, msg, PING_REQUEST_DLC));
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::VerifyPingResponse(
-    uint8_t device_id, uint8_t unique_id, bool *response) ATLAS_NOEXCEPT {
-  SoniaDeviceStatus status;
-  size_t index;
-  status = FindDevice(device_id, unique_id, &index);
-
-  if (status != SONIA_DEVICE_NOT_PRESENT)
-    *response = devices_list_[index].ping_response;
-  else
-    *response = false;
-
-  devices_list_[index].ping_response = false;
-
-  return status;
-}
-
-//------------------------------------------------------------------------------
-//
-SoniaDeviceStatus CanDispatcher::SendWakeUpRequest(
-    uint8_t device_id, uint8_t unique_id) ATLAS_NOEXCEPT {
-  uint8_t *msg = nullptr;
-
-  return (PushUnicastMessage(device_id, unique_id, WAKEUP_REQ, msg,
-                             WAKEUP_REQUEST_DLC));
-}
 
 //------------------------------------------------------------------------------
 //

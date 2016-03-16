@@ -15,6 +15,20 @@
 namespace provider_can {
 
 //==============================================================================
+// S T A T I C   M E M B E R S
+
+// transmittable can messages
+const uint8_t CanDevice::RESET_REQ = 0xfe;
+const uint8_t CanDevice::WAKEUP_REQ = 0xf1;
+const uint8_t CanDevice::SLEEP_REQ = 0xf0;
+const uint8_t CanDevice::PING = 0x01;
+
+// receivable can messages
+const uint8_t CanDevice::DEVICE_FAULT = 0xff;
+const uint8_t CanDevice::ID_REQ_RESPONSE = 0x00;
+const uint8_t CanDevice::PING_RESPONSE = 0x01;
+
+//==============================================================================
 // C / D T O R   S E C T I O N
 
 //------------------------------------------------------------------------------
@@ -32,7 +46,8 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
       device_notices_pub_(),
       from_can_rx_buffer_(),
       from_pc_rx_buffer_(),
-      properties_sent_(false) {
+      device_found_(false),
+      device_properties_() {
   properties_pub_ = nh->advertise<sonia_msgs::CanDevicesProperties>(
       name_ + "_properties", 100);
 
@@ -41,8 +56,7 @@ CanDevice::CanDevice(const DeviceClass &device_id, uint8_t unique_id,
 
   // sends device's properties if device is present
   if (DevicePresenceCheck()) {
-    SendProperties();
-    properties_sent_ = true;
+    device_found_ = true;
     ROS_INFO_STREAM("Device " + name_ + " Found");
   } else {
     ROS_WARN_STREAM("Device " + name_ + " not found");
@@ -57,14 +71,11 @@ CanDevice::~CanDevice() ATLAS_NOEXCEPT {}
 //
 void CanDevice::SendProperties() const ATLAS_NOEXCEPT {
   sonia_msgs::CanDevicesProperties ros_msg;
-  DeviceProperties properties;
-  can_dispatcher_->GetDevicesProperties(device_id_, unique_id_, properties);
 
-  ros_msg.capabilities = properties.capabilities;
-  ros_msg.device_data = properties.device_data;
-  ros_msg.firmware_version = properties.firmware_version;
-  ros_msg.uc_signature = properties.uc_signature;
-  // ros_msg.poll_rate = properties.poll_rate; // unsupported
+  ros_msg.capabilities = device_properties_.capabilities;
+  ros_msg.device_data = device_properties_.device_data;
+  ros_msg.firmware_version = device_properties_.firmware_version;
+  ros_msg.uc_signature = device_properties_.uc_signature;
 
   properties_pub_.publish(ros_msg);
 }
@@ -73,47 +84,24 @@ void CanDevice::SendProperties() const ATLAS_NOEXCEPT {
 //
 
 void CanDevice::Process() ATLAS_NOEXCEPT {
-  bool message_rcvd = false;
-  sonia_msgs::CanDevicesNotices ros_msg_;
-
   if (DevicePresenceCheck()) {
     // is device is present and properties has not been sent
-    if (!properties_sent_) {
-      SendProperties();
-      properties_sent_ = true;
+    if (!device_found_) {
+      device_found_ = true;
       ROS_INFO_STREAM("Device" + name_ + "Found");
     }
-
-    // if ping has been received
-    bool ping_response;
-    can_dispatcher_->VerifyPingResponse(device_id_, unique_id_, &ping_response);
-    if (ping_response) {
-      ros_msg_.ping_rcvd = true;
-      message_rcvd = true;
-    } else
-      ros_msg_.ping_rcvd = false;
-
-    // if a fault has been received
-    uint8_t *fault;
-    can_dispatcher_->GetDeviceFault(device_id_, unique_id_, fault);
-
-    if (fault != nullptr) {
-      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = fault[i];
-      message_rcvd = true;
-    } else
-      for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = ' ';
-
-    // Sends notices if something happened
-    if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 
     // fetching CAN messages
     can_dispatcher_->FetchCanMessages(device_id_, unique_id_,
                                       from_can_rx_buffer_);
+    // looking for common devices messages into buffer
+    ProcessCommonCanMessages();
 
     // fetching pc messages (ROS)
     can_dispatcher_->FetchComputerMessages(device_id_, unique_id_,
                                            from_pc_rx_buffer_);
 
+    // looking for common devices messages into buffer
     ProcessCommonPcMessages();
 
     // Allows the device to process specific messages
@@ -127,10 +115,10 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
 void CanDevice::ProcessCommonPcMessages(void) ATLAS_NOEXCEPT {
   // loops through all PC messages received
   for (auto &pc_message : from_pc_rx_buffer_) {
-    // if messages askes to call set_level function
+    // if messages askes to call a common function
     switch (pc_message.method_number) {
       case ping_req:
-        can_dispatcher_->PingDevice(device_id_, unique_id_);
+        PingDevice();
         break;
       case get_properties:
         SendProperties();
@@ -139,6 +127,52 @@ void CanDevice::ProcessCommonPcMessages(void) ATLAS_NOEXCEPT {
         break;
     }
   }
+}
+
+//------------------------------------------------------------------------------
+//
+
+void CanDevice::ProcessCommonCanMessages(void) ATLAS_NOEXCEPT {
+  bool message_rcvd = false;
+  sonia_msgs::CanDevicesNotices ros_msg_;
+  // loops through all PC messages received
+  for (auto &can_message : from_can_rx_buffer_) {
+    switch (can_message.id) {
+      case PING_RESPONSE:
+        // ping has been received from device
+        ros_msg_.ping_rcvd = (uint8_t) true;
+        message_rcvd = true;
+        break;
+
+      case ID_REQ_RESPONSE:
+        // Properties have been received from device
+        device_properties_.firmware_version =
+            (can_message.data[1] << 8) | can_message.data[0];
+
+        device_properties_.uc_signature = (can_message.data[4] << 16) |
+                                          (can_message.data[3] << 8) |
+                                          can_message.data[2];
+
+        device_properties_.capabilities = can_message.data[5];
+
+        device_properties_.device_data = can_message.data[6];
+
+        // Send properties on ROS topic
+        SendProperties();
+        break;
+
+      case DEVICE_FAULT:
+        for (uint8_t i = 0; i < 8; i++) ros_msg_.fault[i] = can_message.data[i];
+        message_rcvd = true;
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  // Sends notices on ROS topic if something happened
+  if (message_rcvd) device_notices_pub_.publish(ros_msg_);
 }
 
 }  // namespace provider_can
