@@ -15,9 +15,7 @@
 #include <memory>
 #include <canlib.h>
 #include <lib_atlas/macros.h>
-
 #include <canlib.h>
-#include <lib_atlas/exceptions/io_exception.h>
 #include <lib_atlas/macros.h>
 #include <stdint.h>
 #include <iomanip>

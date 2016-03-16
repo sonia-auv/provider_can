@@ -9,6 +9,7 @@
  */
 
 #include <mutex>
+#include <lib_atlas/exceptions/io_exception.h>
 #include "can_dispatcher.h"
 #include "can_driver.h"
 
@@ -53,8 +54,8 @@ const uint32_t CanDispatcher::DEVICE_MSG_MASK = 0x00000FFF;
 //------------------------------------------------------------------------------
 //
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
-                             uint32_t chan, uint32_t baudrate,
-                             const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
+                             uint32_t chan, uint32_t baudrate,std::string usb_device,
+                             const ros::NodeHandlePtr &nh)
     : can_driver_(),
       discovery_tries_(0),
       tx_error_(0),
@@ -63,7 +64,14 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
-  can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
+
+  if(usb_device == "UsbCanII"){
+	  can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
+  }
+  else{
+	  ROS_WARN_STREAM("Unknown USB Device "+usb_device);
+	  throw atlas::IOException("Unknown USB device");
+  }
 
   master_id_ =
       (device_id << DEVICE_ID_POSITION) | (unique_id << UNIQUE_ID_POSITION);

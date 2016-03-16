@@ -30,6 +30,7 @@
 #include <ros/ros.h>
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace provider_can {
 
@@ -63,6 +64,7 @@ class CanConfiguration {
   int device_id;
   int unique_id;
   int channel;
+  std::string usb_device;
 
  private:
   //============================================================================

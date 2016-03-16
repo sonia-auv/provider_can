@@ -147,8 +147,8 @@ class CanDispatcher : public atlas::Runnable {
   // param device_id PC ID
   // param unique_id PC ID
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                         uint32_t baudrate,
-                         const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+                         uint32_t baudrate,std::string usb_device,
+                         const ros::NodeHandlePtr &nh);
 
   // Destructor
   ~CanDispatcher() ATLAS_NOEXCEPT;

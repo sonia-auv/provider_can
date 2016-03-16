@@ -37,6 +37,7 @@ CanConfiguration::CanConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       device_id(1),
       unique_id(1),
       channel(0),
+	  usb_device("UsbCanII"),
       nh_(nh) {}
 
 //------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ CanConfiguration::CanConfiguration(const CanConfiguration &rhs) ATLAS_NOEXCEPT {
   device_id = rhs.device_id;
   unique_id = rhs.unique_id;
   channel = rhs.channel;
+  usb_device = rhs.usb_device;
   nh_ = rhs.nh_;
 }
 
@@ -63,6 +65,7 @@ void CanConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
   FindParameter("driver/device_id", device_id);
   FindParameter("driver/unique_id", unique_id);
   FindParameter("driver/channel", channel);
+  FindParameter("driver/usb_device", usb_device);
 }
 
 //------------------------------------------------------------------------------
