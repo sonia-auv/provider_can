@@ -27,7 +27,7 @@
 #include <lib_atlas/macros.h>
 #include <lib_atlas/pattern/runnable.h>
 #include "sonia_msgs/SendCanMessage.h"
-#include "usb_canII.h"
+#include "kvaser.h"
 #include "can_driver.h"
 #include <thread>
 #include <vector>
@@ -147,7 +147,7 @@ class CanDispatcher : public atlas::Runnable {
   // param device_id PC ID
   // param unique_id PC ID
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                         uint32_t baudrate,std::string usb_device,
+                         int32_t baudrate,std::string usb_device,
                          const ros::NodeHandlePtr &nh);
 
   // Destructor
@@ -338,7 +338,7 @@ class CanDispatcher : public atlas::Runnable {
 
   std::mutex rx_raw_buffer_mutex_, tx_raw_buffer_mutex_;
 
-  UsbCanII::Ptr can_driver_;  // Can communication object
+  KVaser::Ptr can_driver_;  // Can communication object
 
   timespec actual_time_;
   timespec initial_time_;

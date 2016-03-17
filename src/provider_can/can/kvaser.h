@@ -1,5 +1,5 @@
 /**
- * \file	usb_canII.h
+ * \file	kvaser.h
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	15/03/2015
  *
@@ -24,17 +24,17 @@
 namespace provider_can {
 
 /**
- * This class is the driver for the KVaser UsbCanII device.
+ * This class is the driver for the KVaser KVaser device.
  */
-class UsbCanII : CanDriver {
+class KVaser : CanDriver {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
-  using Ptr = std::shared_ptr<UsbCanII>;
-  using ConstPtr = std::shared_ptr<const UsbCanII>;
-  using PtrList = std::vector<UsbCanII::Ptr>;
-  using ConstPtrList = std::vector<UsbCanII::ConstPtr>;
+  using Ptr = std::shared_ptr<KVaser>;
+  using ConstPtr = std::shared_ptr<const KVaser>;
+  using PtrList = std::vector<KVaser::Ptr>;
+  using ConstPtrList = std::vector<KVaser::ConstPtr>;
 
   //============================================================================
   // P U B L I C   C / D T O R S
@@ -57,13 +57,13 @@ class UsbCanII : CanDriver {
    * \param samp The number of sampling points; can be 1 or 3.
    */
 
-  explicit UsbCanII(uint32_t chan, uint32_t baudrate);
+  explicit KVaser(uint32_t chan, int32_t baudrate);
 
-  explicit UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1,
+  explicit KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1,
                     uint32_t ts2, uint32_t jump, uint32_t samp);
 
   // Destructor
-  ~UsbCanII() ATLAS_NOEXCEPT;
+  ~KVaser() ATLAS_NOEXCEPT;
 
   //============================================================================
   // P U B L I C   M E T H O D S
@@ -164,7 +164,7 @@ class UsbCanII : CanDriver {
   //============================================================================
   // P R I V A T E   M E M B E R S
 
-  uint32_t baudrate_;
+  int32_t baudrate_;
   uint32_t channel_;
 
   uint32_t tseg1_;  // Time segment 1

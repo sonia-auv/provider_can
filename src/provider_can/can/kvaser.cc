@@ -1,5 +1,5 @@
 /**
- * \file	usb_canII.cc
+ * \file	kvaser.cc
  * \author	Alexi Demers <alexidemers@gmail.com>
  * \date	15/03/2015
  *
@@ -8,7 +8,7 @@
  * found in the LICENSE file.
  */
 
-#include "usb_canII.h"
+#include "kvaser.h"
 #include <ros/ros.h>
 
 namespace provider_can {
@@ -18,7 +18,7 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate)
+KVaser::KVaser(uint32_t chan, int32_t baudrate)
     : baudrate_(baudrate),
       channel_(chan),
       tseg1_(0),
@@ -26,13 +26,13 @@ UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate)
       sjw_(1),
       noSamp_(16) {
   if (!InitUsbDevice()) {
-    throw atlas::IOException("USB CAN II device initialization");
+    throw atlas::IOException("KVaser device initialization");
   }
 }
 
 //------------------------------------------------------------------------------
 //
-UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
+KVaser::KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1, uint32_t ts2,
                    uint32_t jump, uint32_t samp)
     : baudrate_(baudrate),
       channel_(chan),
@@ -41,11 +41,11 @@ UsbCanII::UsbCanII(uint32_t chan, uint32_t baudrate, uint32_t ts1, uint32_t ts2,
       sjw_(jump),
       noSamp_(samp) {
   if (!InitUsbDevice()) {
-    throw atlas::IOException("USB CAN II device initialization");
+    throw atlas::IOException("KVaser device initialization");
   }
 }
 
-UsbCanII::~UsbCanII() ATLAS_NOEXCEPT {
+KVaser::~KVaser() ATLAS_NOEXCEPT {
   FlushRxBuffer();
   FlushTxBuffer();
 }
@@ -55,10 +55,10 @@ UsbCanII::~UsbCanII() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::Open() ATLAS_NOEXCEPT {
+canStatus KVaser::Open() ATLAS_NOEXCEPT {
+
   handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
   // CAN channel handler
-
   unsigned short version = 0;
   version = canGetVersion();
 
@@ -69,7 +69,7 @@ canStatus UsbCanII::Open() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-bool UsbCanII::InitUsbDevice() ATLAS_NOEXCEPT {
+bool KVaser::InitUsbDevice() ATLAS_NOEXCEPT {
   canStatus status;
 
   status = Open();  // Open CAN channel
@@ -98,18 +98,30 @@ bool UsbCanII::InitUsbDevice() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::SetBusParams() const ATLAS_NOEXCEPT {
+canStatus KVaser::SetBusParams() const ATLAS_NOEXCEPT {
   canStatus status;
 
   switch (baudrate_) {
-    case BAUD_1M:
-    case BAUD_500K:
-    case BAUD_250K:
-    case BAUD_125K:
-    case BAUD_100K:
-    case BAUD_62K:
-    case BAUD_50K:
-      status = canSetBusParams(handle_, baudrate_, 0, 0, 0, 0, 0);
+    case 1000:
+      status = canSetBusParams(handle_, BAUD_1M, 0, 0, 0, 0, 0);
+      break;
+    case 500:
+      status = canSetBusParams(handle_, BAUD_500K, 0, 0, 0, 0, 0);
+      break;
+    case 250:
+      status = canSetBusParams(handle_, BAUD_250K, 0, 0, 0, 0, 0);
+      break;
+    case 125:
+      status = canSetBusParams(handle_, BAUD_125K, 0, 0, 0, 0, 0);
+      break;
+    case 100:
+      status = canSetBusParams(handle_, BAUD_100K, 0, 0, 0, 0, 0);
+      break;
+    case 62:
+      status = canSetBusParams(handle_, BAUD_62K, 0, 0, 0, 0, 0);
+      break;
+    case 50:
+      status = canSetBusParams(handle_, BAUD_50K, 0, 0, 0, 0, 0);
       break;
     default:
       status =
@@ -122,7 +134,7 @@ canStatus UsbCanII::SetBusParams() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::SetBusOff() const ATLAS_NOEXCEPT {
+canStatus KVaser::SetBusOff() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOff(handle_);
@@ -132,7 +144,7 @@ canStatus UsbCanII::SetBusOff() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::SetBusOn() const ATLAS_NOEXCEPT {
+canStatus KVaser::SetBusOn() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canBusOn(handle_);
@@ -142,7 +154,7 @@ canStatus UsbCanII::SetBusOn() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::Close() const ATLAS_NOEXCEPT {
+canStatus KVaser::Close() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canClose(handle_);
@@ -152,7 +164,7 @@ canStatus UsbCanII::Close() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::WriteMessage(CanMessage msg,
+canStatus KVaser::WriteMessage(CanMessage msg,
                                  uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   if (timeout_msec == 0) {
@@ -166,7 +178,7 @@ canStatus UsbCanII::WriteMessage(CanMessage msg,
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::WriteBuffer(std::vector<CanMessage> &msg_table,
+canStatus KVaser::WriteBuffer(std::vector<CanMessage> &msg_table,
                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
@@ -181,7 +193,7 @@ canStatus UsbCanII::WriteBuffer(std::vector<CanMessage> &msg_table,
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::ReadMessage(CanMessage *msg,
+canStatus KVaser::ReadMessage(CanMessage *msg,
                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   long int id;
@@ -202,7 +214,7 @@ canStatus UsbCanII::ReadMessage(CanMessage *msg,
 //------------------------------------------------------------------------------
 //
 
-canStatus UsbCanII::ReadAllMessages(std::vector<CanMessage> &msg_table) const
+canStatus KVaser::ReadAllMessages(std::vector<CanMessage> &msg_table) const
     ATLAS_NOEXCEPT {
   canStatus status;
   CanMessage msg;
@@ -226,7 +238,7 @@ canStatus UsbCanII::ReadAllMessages(std::vector<CanMessage> &msg_table) const
 
 //------------------------------------------------------------------------------
 //
-void UsbCanII::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
+void KVaser::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
   char errMsg[128];
   errMsg[0] = '\0';
 
@@ -241,7 +253,7 @@ void UsbCanII::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::SetAcceptanceFilter(uint32_t enveloppe,
+canStatus KVaser::SetAcceptanceFilter(uint32_t enveloppe,
                                         int flag) const ATLAS_NOEXCEPT {
   canStatus status;
 
@@ -252,7 +264,7 @@ canStatus UsbCanII::SetAcceptanceFilter(uint32_t enveloppe,
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
+canStatus KVaser::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
                                   uint32_t *ov_err) const ATLAS_NOEXCEPT {
   canStatus status;
 
@@ -263,7 +275,7 @@ canStatus UsbCanII::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::GetRxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
+canStatus KVaser::GetRxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_RX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -273,7 +285,7 @@ canStatus UsbCanII::GetRxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::GetTxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
+canStatus KVaser::GetTxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_GET_TX_BUFFER_LEVEL, lvl, sizeof(lvl));
@@ -283,7 +295,7 @@ canStatus UsbCanII::GetTxBufLevel(uint32_t *lvl) const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::FlushRxBuffer() const ATLAS_NOEXCEPT {
+canStatus KVaser::FlushRxBuffer() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_RX_BUFFER, 0, 0);
@@ -293,7 +305,7 @@ canStatus UsbCanII::FlushRxBuffer() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::FlushTxBuffer() const ATLAS_NOEXCEPT {
+canStatus KVaser::FlushTxBuffer() const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canIoCtl(handle_, canIOCTL_FLUSH_TX_BUFFER, 0, 0);
@@ -303,7 +315,7 @@ canStatus UsbCanII::FlushTxBuffer() const ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus UsbCanII::GetBusParams(long *freq, unsigned int *tseg1,
+canStatus KVaser::GetBusParams(long *freq, unsigned int *tseg1,
                                  unsigned int *tseg2, unsigned int *sjw,
                                  unsigned int *no_samp) const ATLAS_NOEXCEPT {
   canStatus status;

@@ -33,11 +33,11 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
 CanConfiguration::CanConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : baudrate(-4),
+    : baudrate(125),
       device_id(1),
       unique_id(1),
       channel(0),
-	  usb_device("UsbCanII"),
+	  usb_device("KVaser"),
       nh_(nh) {}
 
 //------------------------------------------------------------------------------
