@@ -35,6 +35,7 @@ class Hydrophones : public CanDevice {
   static const uint32_t WAVE_ENABLE_PARAM;
   static const uint32_t PINGER_FREQ_PARAM;
   static const uint32_t GAIN_PARAM;
+  static const uint32_t NO_PARAM;
   static const uint32_t ACQ_THRESHOLD_PARAM;
   static const uint32_t FILTER_THRESHOLD_PARAM;
   static const uint32_t CONTINUOUS_FILTER_FREQ_PARAM;
@@ -50,7 +51,7 @@ class Hydrophones : public CanDevice {
   static const uint32_t FFT_BANDWIDTH_PARAM;
   static const uint32_t FFT_TRIG_MODE_PARAM;
 
-  static const uint32_t PARAM_TYPES_TABLE[18];
+  static const uint32_t PARAM_TYPES_TABLE[19];
 
   // Receivable CAN messages
   static const uint16_t SCOPE_MSG;
@@ -101,7 +102,7 @@ class Hydrophones : public CanDevice {
   /**
    * Asks the hydros to sends their config parameters
    */
-  void GetParams() const ATLAS_NOEXCEPT;
+  void GetParams() ATLAS_NOEXCEPT;
 
   /**
    * Change a config parameter of the hydrophones
@@ -115,6 +116,8 @@ class Hydrophones : public CanDevice {
   // P R I V A T E   M E M B E R S
 
   const static std::string NAME;
+
+  bool get_params_sent_;
 
   uint32_t scope_samples_count_;
 

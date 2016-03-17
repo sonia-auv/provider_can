@@ -54,7 +54,8 @@ const uint32_t CanDispatcher::DEVICE_MSG_MASK = 0x00000FFF;
 //------------------------------------------------------------------------------
 //
 CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
-                             uint32_t chan, uint32_t baudrate,std::string usb_device,
+                             uint32_t chan, uint32_t baudrate,
+                             std::string usb_device,
                              const ros::NodeHandlePtr &nh)
     : can_driver_(),
       discovery_tries_(0),
@@ -64,13 +65,11 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
-
-  if(usb_device == "UsbCanII"){
-	  can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
-  }
-  else{
-	  ROS_WARN_STREAM("Unknown USB Device "+usb_device);
-	  throw atlas::IOException("Unknown USB device");
+  if (usb_device == "UsbCanII") {
+    can_driver_ = std::make_shared<provider_can::UsbCanII>(chan, baudrate);
+  } else {
+    ROS_WARN_STREAM("Unknown USB Device " + usb_device);
+    throw atlas::IOException("Unknown USB device");
   }
 
   master_id_ =
@@ -463,8 +462,8 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
     ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
   ComputerMessage msg = {msg.method_number = req.method_number,
-                         msg.parameter_value = req.parameter_value,
-						 msg.string_param = req.string_param};
+                         msg.parameter_value = req.parameter_value};
+  msg.string_param = req.string_param;
   size_t index;
   // get device index
   status = FindDevice(req.device_id, req.unique_id, &index);

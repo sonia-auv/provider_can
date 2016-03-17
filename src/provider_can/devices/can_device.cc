@@ -94,6 +94,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     // fetching CAN messages
     can_dispatcher_->FetchCanMessages(device_id_, unique_id_,
                                       from_can_rx_buffer_);
+
     // looking for common devices messages into buffer
     ProcessCommonCanMessages();
 

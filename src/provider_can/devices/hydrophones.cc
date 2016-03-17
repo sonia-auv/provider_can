@@ -10,6 +10,7 @@
 
 #include "hydrophones.h"
 #include <provider_can/can/can_dispatcher.h>
+#include <provider_can/can/can_driver.h>
 
 namespace provider_can {
 
@@ -21,6 +22,7 @@ const uint32_t Hydrophones::HYDRO_ENABLE_PARAM = 10;
 const uint32_t Hydrophones::WAVE_ENABLE_PARAM = 20;
 const uint32_t Hydrophones::PINGER_FREQ_PARAM = 30;
 const uint32_t Hydrophones::GAIN_PARAM = 40;
+const uint32_t Hydrophones::NO_PARAM = 50;
 const uint32_t Hydrophones::ACQ_THRESHOLD_PARAM = 60;
 const uint32_t Hydrophones::FILTER_THRESHOLD_PARAM = 70;
 const uint32_t Hydrophones::CONTINUOUS_FILTER_FREQ_PARAM = 80;
@@ -36,25 +38,13 @@ const uint32_t Hydrophones::FFT_PREFILTER_TYPE_PARAM = 170;
 const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
 const uint32_t Hydrophones::FFT_TRIG_MODE_PARAM = 190;
 
-const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
-    HYDRO_ENABLE_PARAM,
-    WAVE_ENABLE_PARAM,
-    PINGER_FREQ_PARAM,
-    GAIN_PARAM,
-    ACQ_THRESHOLD_PARAM,
-    FILTER_THRESHOLD_PARAM,
-    CONTINUOUS_FILTER_FREQ_PARAM,
-    SAMPLE_COUNT_PARAM,
-    ACQ_THRS_MODE_PARAM,
-    PHASE_CALC_ALG_PARAM,
-    SET_FREQ_CUTOFF_PARAM,
-    SET_PREAMP_GAIN_PARAM,
-    FFT_ENABLE_PARAM,
-    FFT_THRESHOLD_PARAM,
-    FFT_PREFILTER_PARAM,
-    FFT_PREFILTER_TYPE_PARAM,
-    FFT_BANDWIDTH_PARAM,
-    FFT_TRIG_MODE_PARAM};
+const uint32_t Hydrophones::PARAM_TYPES_TABLE[19] = {
+    HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
+    NO_PARAM, ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM,
+    CONTINUOUS_FILTER_FREQ_PARAM, SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM,
+    PHASE_CALC_ALG_PARAM, SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM,
+    FFT_ENABLE_PARAM, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
+    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM, FFT_TRIG_MODE_PARAM};
 
 // Receivable CAN messages
 const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
@@ -81,6 +71,7 @@ const uint16_t Hydrophones::MAX_MAGNITUDE_SAMPLES = 16;
 Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
                          const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : CanDevice(sonars, hydrophones, can_dispatcher, NAME, nh),
+      get_params_sent_(false),
       scope_samples_count_(MAX_SCOPE_SAMPLES) {
   active_sonar_pub_ =
       nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
@@ -117,7 +108,6 @@ void Hydrophones::ProcessMessages(
   for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id) {
       case SCOPE_MSG:
-
         // Scope msg will be sent MAX_SAMPLES times by hydrophones. once all
         // samples are
         // received, this method will send a ROS msg.
@@ -168,14 +158,27 @@ void Hydrophones::ProcessMessages(
           index = can_message.data[0] + (can_message.data[1] << 8) +
                   (can_message.data[2] << 16) + (can_message.data[3] << 24);
 
-          // Index are coded by steps of 10. see constants under header
-          if (((index / 10) - 1) < sizeof(PARAM_TYPES_TABLE)) {
+          // Index are coded by steps of 10. see constants under header.
+          // verifying the index does not step out of the buffer
+          if (((index / 10) - 1) <
+              (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
             ros_msg_.parameters_values[index / 10 - 1] =
                 can_message.data[4] + (can_message.data[5] << 8) +
                 (can_message.data[6] << 16) + (can_message.data[7] << 24);
           }
-          message_rcvd = true;
-          ros_msg_.params_updated = (uint8_t) true;
+
+          // avoids sending parameters 19 times after GetParams() is called
+          if (get_params_sent_) {
+            if ((index / 10) ==
+                (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
+              message_rcvd = true;
+              ros_msg_.params_updated = (uint8_t) true;
+            }
+          } else {
+            message_rcvd = true;
+            ros_msg_.params_updated = (uint8_t) true;
+          }
+
         } else {
           ROS_WARN("Hydrophones: parameter address %d does not exist",
                    (can_message.data[0] + (can_message.data[1] << 8) +
@@ -254,7 +257,8 @@ void Hydrophones::SendDataReq() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 
-void Hydrophones::GetParams() const ATLAS_NOEXCEPT {
+void Hydrophones::GetParams() ATLAS_NOEXCEPT {
+  get_params_sent_ = true;
   for (auto param : PARAM_TYPES_TABLE) {
     uint8_t *msg = (uint8_t *)&(param);
     PushMessage(GET_PARAM_MSG, msg, 4);

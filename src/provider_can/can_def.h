@@ -1,7 +1,7 @@
 /**
  * \file	can_def.h
  * \author	Alexi Demers
- * \date	04/02/2016
+ * \date	17/03/2016
  *
  * \copyright	Copyright (c) 2015 SONIA AUV ETS. All rights reserved.
  * Use of this source code is governed by the MIT license that can be
@@ -22,38 +22,6 @@ const uint8_t RESET = 0x02;
 const uint8_t SLEEP = 0x04;
 
 enum MessageType { global = 0x0, application = 0xf };
-
-//============================================================================
-// D E V I C E S   P A R A M E T E R S
-
-// These are the parameter numbers for each device. It may be passed to
-// setParameterReq function or it is used to select device_parameters table
-// index for each param.
-enum MotorsParams {
-
-};
-
-enum DepthMeterParams { voltage_offset_abs = 0, voltage_offset_rel };
-
-enum DroppersParams { droppers_drop_time = 0 };
-
-enum GrabberParams {
-
-};
-
-enum LedIndicatorParams {
-
-};
-
-enum LightParams {
-
-};
-
-enum SonarRotatorParams {
-
-};
-
-enum TorpedoLauncherParams { torpedo_launch_time = 0, torpedo_max_pressure };
 
 //============================================================================
 // D E V I C E   I D
