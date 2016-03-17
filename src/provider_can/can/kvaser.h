@@ -26,7 +26,7 @@ namespace provider_can {
 /**
  * This class is the driver for the KVaser KVaser device.
  */
-class KVaser : CanDriver {
+class KVaser : public CanDriver {
  public:
   //==========================================================================
   // T Y P E D E F   A N D   E N U M

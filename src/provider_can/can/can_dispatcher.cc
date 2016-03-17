@@ -64,6 +64,7 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
+
   if (usb_device == "KVaser") {
     can_driver_ = std::make_shared<provider_can::KVaser>(chan, baudrate);
   } else {

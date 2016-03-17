@@ -338,7 +338,7 @@ class CanDispatcher : public atlas::Runnable {
 
   std::mutex rx_raw_buffer_mutex_, tx_raw_buffer_mutex_;
 
-  KVaser::Ptr can_driver_;  // Can communication object
+  CanDriver::Ptr can_driver_;  // Can communication object
 
   timespec actual_time_;
   timespec initial_time_;

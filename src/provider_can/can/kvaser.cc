@@ -19,7 +19,8 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
 KVaser::KVaser(uint32_t chan, int32_t baudrate)
-    : baudrate_(baudrate),
+    : CanDriver(),
+      baudrate_(baudrate),
       channel_(chan),
       tseg1_(0),
       tseg2_(0),
@@ -34,7 +35,8 @@ KVaser::KVaser(uint32_t chan, int32_t baudrate)
 //
 KVaser::KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1, uint32_t ts2,
                    uint32_t jump, uint32_t samp)
-    : baudrate_(baudrate),
+    : CanDriver(),
+      baudrate_(baudrate),
       channel_(chan),
       tseg1_(ts1),
       tseg2_(ts2),
