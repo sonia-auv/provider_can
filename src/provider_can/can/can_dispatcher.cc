@@ -64,7 +64,6 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
       master_id_(),
       nh_(nh),
       call_device_srv_() {
-
   if (usb_device == "KVaser") {
     can_driver_ = std::make_shared<provider_can::KVaser>(chan, baudrate);
   } else {
@@ -461,9 +460,12 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
                                      sonia_msgs::SendCanMessage::Response &res)
     ATLAS_NOEXCEPT {
   SoniaDeviceStatus status;
-  ComputerMessage msg = {msg.method_number = req.method_number,
-                         msg.parameter_value = req.parameter_value};
+  ComputerMessage msg;
+
+  msg.method_number = req.method_number;
+  msg.parameter_value = req.parameter_value;
   msg.string_param = req.string_param;
+
   size_t index;
   // get device index
   status = FindDevice(req.device_id, req.unique_id, &index);

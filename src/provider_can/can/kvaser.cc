@@ -34,7 +34,7 @@ KVaser::KVaser(uint32_t chan, int32_t baudrate)
 //------------------------------------------------------------------------------
 //
 KVaser::KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1, uint32_t ts2,
-                   uint32_t jump, uint32_t samp)
+               uint32_t jump, uint32_t samp)
     : CanDriver(),
       baudrate_(baudrate),
       channel_(chan),
@@ -58,7 +58,6 @@ KVaser::~KVaser() ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::Open() ATLAS_NOEXCEPT {
-
   handle_ = canOpenChannel(channel_, canWANT_EXCLUSIVE | canWANT_EXTENDED);
   // CAN channel handler
   unsigned short version = 0;
@@ -73,6 +72,8 @@ canStatus KVaser::Open() ATLAS_NOEXCEPT {
 //
 bool KVaser::InitUsbDevice() ATLAS_NOEXCEPT {
   canStatus status;
+
+  canInitializeLibrary();
 
   status = Open();  // Open CAN channel
 
@@ -94,6 +95,14 @@ bool KVaser::InitUsbDevice() ATLAS_NOEXCEPT {
     PrintErrorText(status);
     return false;
   }
+
+  status = canSetBusOutputControl(handle_, canDRIVER_NORMAL);
+
+  if (status < canOK) {  // If bus can't turn on
+    PrintErrorText(status);
+    return false;
+  }
+
   ROS_INFO("CAN Bus is set to on");
   return true;  // Init success
 }
@@ -167,7 +176,7 @@ canStatus KVaser::Close() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::WriteMessage(CanMessage msg,
-                                 uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                               uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   if (timeout_msec == 0) {
     status = canWrite(handle_, msg.id, msg.data, msg.dlc, msg.flag);
@@ -181,7 +190,7 @@ canStatus KVaser::WriteMessage(CanMessage msg,
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::WriteBuffer(std::vector<CanMessage> &msg_table,
-                                uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                              uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status = canOK;
   for (std::vector<CanMessage>::size_type i = 0; i < msg_table.size(); i++) {
     status = WriteMessage(msg_table[i], timeout_msec);
@@ -196,7 +205,7 @@ canStatus KVaser::WriteBuffer(std::vector<CanMessage> &msg_table,
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::ReadMessage(CanMessage *msg,
-                                uint32_t timeout_msec) const ATLAS_NOEXCEPT {
+                              uint32_t timeout_msec) const ATLAS_NOEXCEPT {
   canStatus status;
   long int id;
   long unsigned int time;
@@ -207,7 +216,6 @@ canStatus KVaser::ReadMessage(CanMessage *msg,
     status = canReadWait(handle_, &id, &msg->data, &msg->dlc, &msg->flag, &time,
                          timeout_msec);
   }
-
   msg->id = id;
   msg->time = time;
   return status;
@@ -256,7 +264,7 @@ void KVaser::PrintErrorText(canStatus error) const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::SetAcceptanceFilter(uint32_t enveloppe,
-                                        int flag) const ATLAS_NOEXCEPT {
+                                      int flag) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canAccept(handle_, enveloppe, flag);
@@ -267,7 +275,7 @@ canStatus KVaser::SetAcceptanceFilter(uint32_t enveloppe,
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::GetErrorCount(uint32_t *tx_err, uint32_t *rx_err,
-                                  uint32_t *ov_err) const ATLAS_NOEXCEPT {
+                                uint32_t *ov_err) const ATLAS_NOEXCEPT {
   canStatus status;
 
   status = canReadErrorCounters(handle_, tx_err, rx_err, ov_err);
@@ -318,8 +326,8 @@ canStatus KVaser::FlushTxBuffer() const ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 canStatus KVaser::GetBusParams(long *freq, unsigned int *tseg1,
-                                 unsigned int *tseg2, unsigned int *sjw,
-                                 unsigned int *no_samp) const ATLAS_NOEXCEPT {
+                               unsigned int *tseg2, unsigned int *sjw,
+                               unsigned int *no_samp) const ATLAS_NOEXCEPT {
   canStatus status;
   uint32_t dummy;
 

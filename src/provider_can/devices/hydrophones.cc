@@ -233,8 +233,9 @@ void Hydrophones::ProcessMessages(
         SendDataReq();
         break;
       default:
-        SetParam((HydrophonesMethods)pc_message.method_number,
-                 (int32_t)pc_message.parameter_value);
+        if (pc_message.method_number < 100)
+          SetParam((HydrophonesMethods)pc_message.method_number,
+                   (int32_t)pc_message.parameter_value);
         break;
     }
   }
