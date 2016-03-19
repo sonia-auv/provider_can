@@ -2,8 +2,7 @@
 	<node name="provider_can_node"
 	    pkg="provider_can"
 	    type="provider_can_node"
-	    output="log"
-	    launch-prefix="gdb -ex run --args" />
+	    output="log" />
 
     <rosparam command="load"
         file="$(find provider_can)/config/kvazer_conf.yaml"/>
