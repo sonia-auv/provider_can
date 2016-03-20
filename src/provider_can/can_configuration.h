@@ -29,8 +29,8 @@
 #include <lib_atlas/macros.h>
 #include <ros/ros.h>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace provider_can {
 

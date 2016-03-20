@@ -11,16 +11,16 @@
 #ifndef PROVIDER_CAN_CAN_DRIVER_H_
 #define PROVIDER_CAN_CAN_DRIVER_H_
 
-#include <vector>
-#include <memory>
+#include <canlib.h>
 #include <canlib.h>
 #include <lib_atlas/macros.h>
-#include <canlib.h>
 #include <lib_atlas/macros.h>
 #include <stdint.h>
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <memory>
+#include <vector>
 #include <vector>
 
 namespace provider_can {
@@ -55,7 +55,6 @@ class CanDriver {
   using ConstPtr = std::shared_ptr<const CanDriver>;
   using PtrList = std::vector<CanDriver::Ptr>;
   using ConstPtrList = std::vector<CanDriver::ConstPtr>;
-
 
   //============================================================================
   // P U B L I C   M E T H O D S

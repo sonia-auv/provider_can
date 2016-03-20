@@ -14,25 +14,25 @@
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
 
 #include <lib_atlas/macros.h>
+#include <lib_atlas/macros.h>
+#include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/pattern/runnable.h>
 #include <ros/node_handle.h>
+#include <ros/node_handle.h>
+#include <ros/ros.h>
 #include <ros/ros.h>
 #include <stdint.h>
 #include <sys/times.h>
 #include <algorithm>
 #include <memory>
 #include <mutex>
-#include <ros/ros.h>
-#include <ros/node_handle.h>
-#include <lib_atlas/macros.h>
-#include <lib_atlas/pattern/runnable.h>
-#include "sonia_msgs/SendCanMessage.h"
-#include "kvaser.h"
-#include "can_driver.h"
 #include <thread>
 #include <vector>
+#include "can_driver.h"
+#include "kvaser.h"
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can_def.h"
+#include "sonia_msgs/SendCanMessage.h"
 
 namespace provider_can {
 
@@ -147,7 +147,7 @@ class CanDispatcher : public atlas::Runnable {
   // param device_id PC ID
   // param unique_id PC ID
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
-                         int32_t baudrate,std::string usb_device,
+                         int32_t baudrate, std::string usb_device,
                          const ros::NodeHandlePtr &nh);
 
   // Destructor

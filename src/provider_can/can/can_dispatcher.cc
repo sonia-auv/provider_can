@@ -8,9 +8,9 @@
  * found in the LICENSE file.
  */
 
-#include <mutex>
-#include <lib_atlas/exceptions/io_exception.h>
 #include "can_dispatcher.h"
+#include <lib_atlas/exceptions/io_exception.h>
+#include <mutex>
 
 namespace provider_can {
 

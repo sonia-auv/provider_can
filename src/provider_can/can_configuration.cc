@@ -37,7 +37,7 @@ CanConfiguration::CanConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       device_id(1),
       unique_id(1),
       channel(0),
-	  usb_device("KVaser"),
+      usb_device("KVaser"),
       nh_(nh) {}
 
 //------------------------------------------------------------------------------

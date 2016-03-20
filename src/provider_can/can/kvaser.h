@@ -11,15 +11,15 @@
 #ifndef PROVIDER_CAN_USB_CANII_H_
 #define PROVIDER_CAN_USB_CANII_H_
 
-#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <stdint.h>
-#include <memory>
 #include <canlib.h>
-#include "can_driver.h"
-#include <lib_atlas/macros.h>
 #include <lib_atlas/exceptions/io_exception.h>
+#include <lib_atlas/macros.h>
+#include <stdint.h>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <vector>
+#include "can_driver.h"
 
 namespace provider_can {
 
@@ -59,8 +59,8 @@ class KVaser : public CanDriver {
 
   explicit KVaser(uint32_t chan, int32_t baudrate);
 
-  explicit KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1,
-                    uint32_t ts2, uint32_t jump, uint32_t samp);
+  explicit KVaser(uint32_t chan, int32_t baudrate, uint32_t ts1, uint32_t ts2,
+                  uint32_t jump, uint32_t samp);
 
   // Destructor
   ~KVaser() ATLAS_NOEXCEPT;
