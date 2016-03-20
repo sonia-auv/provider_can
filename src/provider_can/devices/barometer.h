@@ -58,9 +58,18 @@ class Barometer : public CanDevice {
 
  private:
   //============================================================================
+  // P R I V A T E   M E T H O D S
+
+  /**
+   * Used to correct the barometer offset
+   */
+  void Calibrate() ATLAS_NOEXCEPT;
+
+  //============================================================================
   // P R I V A T E   M E M B E R S
 
   const static std::string NAME;
+  const static uint32_t OFFSET_CORRECT = 1736;
 
   uint32_t seq_id_;
   timespec actual_time_;

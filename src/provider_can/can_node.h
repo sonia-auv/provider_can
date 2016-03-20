@@ -29,7 +29,7 @@ namespace provider_can {
  * This class contains the main process for can_provider. it calls all devices'
  * messages processing.
  */
-class CanNode : public atlas::Runnable {
+class CanNode {
   //==========================================================================
   // T Y P E D E F   A N D   E N U M
 
@@ -59,7 +59,7 @@ class CanNode : public atlas::Runnable {
    * Call this process periodically in the main. Its function is to call
    * all devices processes for messages processing
    */
-  void Run() ATLAS_NOEXCEPT override;
+  void Run() ATLAS_NOEXCEPT;
 
  private:
   //============================================================================

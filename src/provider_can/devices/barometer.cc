@@ -69,8 +69,8 @@ void Barometer::ProcessMessages(
 
         fluid_press_msg_.fluid_pressure =
             (can_message.data[4] + (can_message.data[5] << 8) +
-             (can_message.data[6] << 16) + (can_message.data[7] << 24)) /
-            1000.0;
+             (can_message.data[6] << 16) + (can_message.data[7] << 24)) +
+            101350 - OFFSET_CORRECT;
         fluid_press_msg_.variance = 0;
         fluid_press_msg_.header.frame_id = NAME;
         fluid_press_msg_.header.seq = seq_id_;

@@ -17,11 +17,7 @@ int main(int argc, char** argv) {
 
   ros::NodeHandlePtr nh(new ros::NodeHandle("~"));
   provider_can::CanNode can_node_ptr(nh);
-  can_node_ptr.Start();
-
-  while (ros::ok()) {
-    ros::spinOnce();
-  }
+  can_node_ptr.Run();
 
   return 0;
 }

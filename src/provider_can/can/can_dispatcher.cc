@@ -121,6 +121,7 @@ canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
     CanDeviceBuffers new_device;
     // If the address of the message has never been seen
     if (FindDeviceWithAddress(message.id) == SONIA_DEVICE_NOT_PRESENT) {
+      std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
       // Apending new device to the vector
       new_device.global_address = (message.id & DEVICE_MAC_MASK);
 
@@ -150,7 +151,7 @@ void CanDispatcher::DispatchMessages() ATLAS_NOEXCEPT {
 
     if (status != SONIA_DEVICE_NOT_PRESENT) {  // If device exists
 
-      std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
+      std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
 
       // Avoids buffer overflow
       if (devices_list_[index].can_rx_buffer.size() >=
@@ -224,7 +225,7 @@ SoniaDeviceStatus CanDispatcher::FetchCanMessages(
   buffer.clear();
 
   if (status != SONIA_DEVICE_NOT_PRESENT) {
-    std::lock_guard<std::mutex> lock(can_rx_buffer_mutex);
+    std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
     // returns device's buffer
     buffer = devices_list_[index].can_rx_buffer;
     devices_list_[index].can_rx_buffer.clear();
@@ -324,6 +325,8 @@ SoniaDeviceStatus CanDispatcher::FindDeviceWithAddress(
     return device.global_address == address;
   };
 
+  std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
+
   auto vec_it =
       std::find_if(devices_list_.begin(), devices_list_.end(), add_search_pred);
 
@@ -366,6 +369,7 @@ void CanDispatcher::SendRTR(uint32_t address) ATLAS_NOEXCEPT {
 //------------------------------------------------------------------------------
 //
 uint64_t CanDispatcher::GetNumberOfDevices() ATLAS_NOEXCEPT {
+  std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
   return devices_list_.size();
 }
 
@@ -391,7 +395,7 @@ void CanDispatcher::AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT {
 void CanDispatcher::Run() ATLAS_NOEXCEPT {
   canStatus status;
 
-  while (1) {
+  while (IsRunning()) {
     clock_gettime(CLOCK_REALTIME, &actual_time_);
 
     // verifying CAN errors
@@ -450,7 +454,6 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
         id_req_time_ = actual_time_;
       }
     }
-    usleep(THREAD_INTERVAL_US);
   }
 }
 

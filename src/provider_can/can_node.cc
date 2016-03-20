@@ -40,7 +40,8 @@ CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
       can_ptr_(nullptr),
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(
-      conf_.device_id, conf_.unique_id, conf_.channel, conf_.baudrate,conf_.usb_device, nh_);
+      conf_.device_id, conf_.unique_id, conf_.channel, conf_.baudrate,
+      conf_.usb_device, nh_);
 
   // initialize all new devices here
   can_devices_vector_.push_back(
@@ -99,11 +100,11 @@ CanNode::~CanNode() ATLAS_NOEXCEPT {}
 //------------------------------------------------------------------------------
 //
 void CanNode::Run() ATLAS_NOEXCEPT {
-  while (IsRunning()) {
+  while (!ros::isShuttingDown()) {
+    ros::spinOnce();
     for (auto &device : can_devices_vector_) {
       device->Process();
     }
-    usleep(THREAD_INTERVAL_US);
   }
 }
 
