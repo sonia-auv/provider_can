@@ -1,6 +1,6 @@
 #********** Driver Parameters ************
 
-provider_can/driver/baudrate: -4 # From canlib values
+provider_can/driver/baudrate: 125000
 provider_can/driver/device_id: 1
 provider_can/driver/unique_id: 1
 provider_can/driver/channel: 0
