@@ -1,5 +1,5 @@
 <launch>
-	<node name="provider_can_node"
+	<node name="provider_can"
 	    pkg="provider_can"
 	    type="provider_can_node"
 	    output="log" />
