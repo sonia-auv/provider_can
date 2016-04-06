@@ -42,6 +42,8 @@ PowerSupply::PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
     : CanDevice(power, power_distribution, can_dispatcher, NAME, nh) {
   power_supply_pub_ =
       nh->advertise<sonia_msgs::PowerSupplyMsg>(NAME + "_msgs", 100);
+
+  SetChannel(6);
 }
 
 //------------------------------------------------------------------------------

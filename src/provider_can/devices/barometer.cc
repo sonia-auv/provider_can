@@ -72,7 +72,7 @@ void Barometer::ProcessMessages(
              (can_message.data[6] << 16) + (can_message.data[7] << 24)) +
             101350 - OFFSET_CORRECT;
         fluid_press_msg_.variance = 0;
-        fluid_press_msg_.header.frame_id = NAME;
+        fluid_press_msg_.header.frame_id = "";
         fluid_press_msg_.header.seq = seq_id_;
         fluid_press_msg_.header.stamp = ros::Time::now();
         extern_press_rcvd = true;
