@@ -43,14 +43,14 @@ class KVaser : public CanDriver {
    * Initialize KVaser device
    *
    * \param chan KVaser channel 0 or 1
-   * \param baudrate possible values
-   *          BAUD_1M:
-              BAUD_500K:
-              BAUD_250K:
-              BAUD_125K:
-              BAUD_100K:
-              BAUD_62K:
-              BAUD_50K:
+   * \param baudrate possible values, in kbits/sec:
+   *          1000:
+              500:
+              250:
+              125:
+              100:
+              62:
+              50:
    * \param ts1 Time segment 1
    * \param ts2 Time segment 2
    * \param jump The Synchronization Jump Width; can be 1,2,3, or 4.

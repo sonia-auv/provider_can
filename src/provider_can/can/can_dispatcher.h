@@ -142,10 +142,13 @@ class CanDispatcher : public atlas::Runnable {
   //============================================================================
   // P U B L I C   C / D T O R S
 
-  //! Constructor
-  // param loop_rate main process loop rate. Must be the same as ROS loop_rate
-  // param device_id PC ID
-  // param unique_id PC ID
+  /**
+  *   \param device_id PC ID
+  *   \param unique_id PC ID
+  *   \param chan channel 0 or 1
+  *   \param baudrate see kvaser.h
+  *   \param usb_device name of the usb device used. (actually: "KVaser")
+  */
   explicit CanDispatcher(uint32_t device_id, uint32_t unique_id, uint32_t chan,
                          int32_t baudrate, std::string usb_device,
                          const ros::NodeHandlePtr &nh);
