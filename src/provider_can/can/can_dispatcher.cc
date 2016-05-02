@@ -28,8 +28,6 @@ const uint8_t CanDispatcher::ERROR_RECOVERY_DELAY = 2;
 // Delay to wait for a message to be sent (ms)
 const uint32_t CanDispatcher::CAN_SEND_TIMEOUT = 10;
 
-const uint32_t CanDispatcher::THREAD_INTERVAL_US = 1000;
-
 const uint32_t CanDispatcher::PC_BUFFER_SIZE = 100;
 
 const uint16_t CanDispatcher::PROVIDER_CAN_STATUS = 0xF00;
