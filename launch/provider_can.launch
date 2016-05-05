@@ -5,5 +5,5 @@
 	    output="log" />
 
     <rosparam command="load"
-        file="$(find provider_can)/config/kvazer_conf.yaml"/>
+        file="$(find provider_can)/config/can_conf.yaml"/>
 </launch>

@@ -112,6 +112,7 @@ enum HydrophonesMethods {
   wave_enable,
   set_pinger_freq,
   set_gain,
+  no_param,
   set_acq_threshold,
   set_filter_threshold,
   set_cont_filter_freq,

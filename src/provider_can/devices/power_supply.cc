@@ -30,6 +30,8 @@ const uint16_t PowerSupply::PC_RST_MSG = 0xF01;
 const uint16_t PowerSupply::SET_CHANNEL_MSG = 0xF03;
 const uint16_t PowerSupply::REMOTE_KILL_MSG = 0xF02;
 
+const uint8_t PowerSupply::NUMBER_OF_CHANNELS = 9;
+
 const std::string PowerSupply::NAME = "power_supply";
 
 //==============================================================================
@@ -44,6 +46,27 @@ PowerSupply::PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
       nh->advertise<sonia_msgs::PowerSupplyMsg>(NAME + "_msgs", 100);
 
   SetChannel(6);
+}
+
+//------------------------------------------------------------------------------
+//
+PowerSupply::PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
+                         const ros::NodeHandlePtr &nh,
+                         const InitialPsuParams params) ATLAS_NOEXCEPT
+    : CanDevice(power, power_distribution, can_dispatcher, NAME, nh) {
+  power_supply_pub_ =
+      nh->advertise<sonia_msgs::PowerSupplyMsg>(NAME + "_msgs", 100);
+
+  // used to go through the struct using index
+  bool *struct_indexing = (bool*)&params;
+
+  for(uint16_t i = 0; i < NUMBER_OF_CHANNELS; i++){
+    if(struct_indexing[i] == true)
+      SetChannel(i);
+    else
+      ClrChannel(i);
+  }
+
 }
 
 //------------------------------------------------------------------------------

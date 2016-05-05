@@ -32,15 +32,27 @@ namespace provider_can {
 
 //------------------------------------------------------------------------------
 //
-DevicesConfiguration::DevicesConfiguration(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
-    : barometer_en_(true),bottom_light_en_(true), diver_interface_en_(true),
-      droppers_en_(true), grabber_en_(true), hydrophones_en_(true),
-      led_indicator_en_(true), mission_switch_en_(true), power_supply_en_(true),
-      thruster_starboard_en_(true), thruster_port_en_(true),
-      thruster_back_depth_en_(true), torpedo_launcher_en_(true),
-      thruster_front_depth_en_(true), thruster_back_head_en_(true),
-      thruster_front_head_en_(true),
-      nh_(nh) {
+DevicesConfiguration::DevicesConfiguration(const ros::NodeHandlePtr &nh)
+    ATLAS_NOEXCEPT : barometer_en_(true),
+                     bottom_light_en_(true),
+                     diver_interface_en_(true),
+                     droppers_en_(true),
+                     grabber_en_(true),
+                     hydrophones_en_(true),
+                     led_indicator_en_(true),
+                     mission_switch_en_(true),
+                     power_supply_en_(true),
+                     thruster_starboard_en_(true),
+                     thruster_port_en_(true),
+                     thruster_back_depth_en_(true),
+                     torpedo_launcher_en_(true),
+                     thruster_front_depth_en_(true),
+                     thruster_back_head_en_(true),
+                     thruster_front_head_en_(true),
+                     hydros_params_{0,0,14,4,0,1124800758,15,5,256,1,0,24,1,1,38000,1,5,1,1},
+                     psu_params_{1,1,1,1,1,1,1,1,1},
+                     nh_(nh) {
+  DeserializeConfiguration();
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +65,6 @@ DevicesConfiguration::~DevicesConfiguration() ATLAS_NOEXCEPT {}
 //------------------------------------------------------------------------------
 //
 void DevicesConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
-
   FindParameter("barometer/enable", barometer_en_);
   FindParameter("bottom_light/enable", bottom_light_en_);
   FindParameter("diver_interface/enable", diver_interface_en_);
@@ -73,13 +84,16 @@ void DevicesConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
 
   FindParameter("hydrophones/acq_threshold", hydros_params_.acq_threshold);
   FindParameter("hydrophones/acq_thrs_mode", hydros_params_.acq_thrs_mode);
-  FindParameter("hydrophones/continuous_filter_freq", hydros_params_.continuous_filter_freq);
+  FindParameter("hydrophones/continuous_filter_freq",
+                hydros_params_.continuous_filter_freq);
   FindParameter("hydrophones/fft_bandwidth", hydros_params_.fft_bandwidth);
   FindParameter("hydrophones/fft_enable", hydros_params_.fft_enable);
   FindParameter("hydrophones/fft_prefilter", hydros_params_.fft_prefilter);
-  FindParameter("hydrophones/fft_prefilter_type", hydros_params_.fft_prefilter_type);
+  FindParameter("hydrophones/fft_prefilter_type",
+                hydros_params_.fft_prefilter_type);
   FindParameter("hydrophones/fft_threshold", hydros_params_.fft_threshold);
-  FindParameter("hydrophones/fft_trig_mode_Param", hydros_params_.fft_trig_mode_Param);
+  FindParameter("hydrophones/fft_trig_mode_Param",
+                hydros_params_.fft_trig_mode_Param);
   FindParameter("hydrophones/hydro_enable", hydros_params_.hydro_enable);
   FindParameter("hydrophones/phase_calc_alg", hydros_params_.phase_calc_alg);
   FindParameter("hydrophones/pinger_freq", hydros_params_.pinger_freq);
@@ -87,10 +101,12 @@ void DevicesConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
   FindParameter("hydrophones/set_cutoff_freq", hydros_params_.set_cutoff_freq);
   FindParameter("hydrophones/set_preamp_gain", hydros_params_.set_preamp_gain);
   FindParameter("hydrophones/wave_enable", hydros_params_.wave_enable);
-  FindParameter("hydrophones/filter_threshold", hydros_params_.filter_threshold);
-  FindParameter("hydrophones/filter_gain", hydros_params_.gain);
+  FindParameter("hydrophones/filter_threshold",
+                hydros_params_.filter_threshold);
+  FindParameter("hydrophones/gain", hydros_params_.gain);
 
-  FindParameter("power_supply/actuator_bus_state", psu_params_.actuator_bus_state);
+  FindParameter("power_supply/actuator_bus_state",
+                psu_params_.actuator_bus_state);
   FindParameter("power_supply/dvl_state", psu_params_.dvl_state);
   FindParameter("power_supply/light_state", psu_params_.light_state);
   FindParameter("power_supply/motor_bus1_state", psu_params_.motor_bus1_state);
@@ -99,14 +115,13 @@ void DevicesConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
   FindParameter("power_supply/pc_state", psu_params_.pc_state);
   FindParameter("power_supply/volt_bus1_state", psu_params_.volt_bus1_state);
   FindParameter("power_supply/motor_bus3_state", psu_params_.volt_bus2_state);
-
 }
 
 //------------------------------------------------------------------------------
 //
 template <typename Tp_>
 void DevicesConfiguration::FindParameter(const std::string &str,
-                                     Tp_ &p) ATLAS_NOEXCEPT {
+                                         Tp_ &p) ATLAS_NOEXCEPT {
   if (nh_->hasParam(str)) {
     nh_->getParam("provider_can/" + str, p);
   } else {

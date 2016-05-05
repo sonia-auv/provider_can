@@ -21,6 +21,7 @@
 #include <vector>
 #include "provider_can/can/can_dispatcher.h"
 #include "provider_can/can_configuration.h"
+#include "provider_can/devices_configuration.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {
@@ -68,6 +69,7 @@ class CanNode {
   ros::NodeHandlePtr nh_;
 
   CanConfiguration conf_;
+  DevicesConfiguration devices_conf_;
 
   CanDispatcher::Ptr can_ptr_;
 

@@ -39,25 +39,12 @@ const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
 const uint32_t Hydrophones::FFT_TRIG_MODE_PARAM = 190;
 
 const uint32_t Hydrophones::PARAM_TYPES_TABLE[19] = {
-    HYDRO_ENABLE_PARAM,
-    WAVE_ENABLE_PARAM,
-    PINGER_FREQ_PARAM,
-    GAIN_PARAM,
-    NO_PARAM,
-    ACQ_THRESHOLD_PARAM,
-    FILTER_THRESHOLD_PARAM,
-    CONTINUOUS_FILTER_FREQ_PARAM,
-    SAMPLE_COUNT_PARAM,
-    ACQ_THRS_MODE_PARAM,
-    PHASE_CALC_ALG_PARAM,
-    SET_FREQ_CUTOFF_PARAM,
-    SET_PREAMP_GAIN_PARAM,
-    FFT_ENABLE_PARAM,
-    FFT_THRESHOLD_PARAM,
-    FFT_PREFILTER_PARAM,
-    FFT_PREFILTER_TYPE_PARAM,
-    FFT_BANDWIDTH_PARAM,
-    FFT_TRIG_MODE_PARAM};
+    HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
+    NO_PARAM, ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM,
+    CONTINUOUS_FILTER_FREQ_PARAM, SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM,
+    PHASE_CALC_ALG_PARAM, SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM,
+    FFT_ENABLE_PARAM, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
+    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM, FFT_TRIG_MODE_PARAM};
 
 // Receivable CAN messages
 const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
@@ -86,11 +73,36 @@ Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
     : CanDevice(sonars, hydrophones, can_dispatcher, NAME, nh),
       get_params_sent_(false),
       scope_samples_count_(MAX_SCOPE_SAMPLES) {
-  hydro_pub_ =
-      nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
+  hydro_pub_ = nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
 
   hydro_params_pub_ =
       nh->advertise<sonia_msgs::HydrophonesParams>(NAME + "_params", 10);
+
+  GetParams();
+}
+
+//------------------------------------------------------------------------------
+//
+Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
+                         const ros::NodeHandlePtr &nh,
+                         const InitialHydrosParams params) ATLAS_NOEXCEPT
+    : CanDevice(sonars, hydrophones, can_dispatcher, NAME, nh),
+      get_params_sent_(false),
+      scope_samples_count_(MAX_SCOPE_SAMPLES) {
+
+  hydro_pub_ = nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
+
+  hydro_params_pub_ =
+      nh->advertise<sonia_msgs::HydrophonesParams>(NAME + "_params", 10);
+
+  // used to go through the struct using index
+  int32_t *struct_indexing = (int32_t*)&params;
+
+  // In "sizeof(PARAM_TYPES_TABLE)-2", the "-1" is used because there is one
+  // dummy parameter in hydrophones. The PARAM_TYPES_TABLE is forced
+  // to initialize it because it exists, but we cant set its value.
+  for(uint16_t i = 0; i < (sizeof(PARAM_TYPES_TABLE)/sizeof(uint32_t)); i++)
+    SetParam((HydrophonesMethods)i, struct_indexing[i]);
 
   GetParams();
 }
@@ -177,46 +189,64 @@ void Hydrophones::ProcessMessages(
           // verifying the index does not step out of the buffer
           if (((index / 10) - 1) <
               (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
-            int32_t data =
-                can_message.data[4] + (can_message.data[5] << 8) +
-                (can_message.data[6] << 16) + (can_message.data[7] << 24);
+            int32_t data = can_message.data[4] + (can_message.data[5] << 8) +
+                           (can_message.data[6] << 16) +
+                           (can_message.data[7] << 24);
 
-            switch (index / 10 - 1){
-              case 0: ros_param_msg_.hydro_enable = data;
+            switch (index / 10 - 1) {
+              case 0:
+                ros_param_msg_.hydro_enable = data;
                 break;
-              case 1: ros_param_msg_.wave_enable = data;
+              case 1:
+                ros_param_msg_.wave_enable = data;
                 break;
-              case 2: ros_param_msg_.pinger_freq = data;
+              case 2:
+                ros_param_msg_.pinger_freq = data;
                 break;
-              case 3: ros_param_msg_.gain = data;
+              case 3:
+                ros_param_msg_.gain = data;
                 break;
-              case 4: ros_param_msg_.acq_threshold = data;
+              case 4:
+                ros_param_msg_.acq_threshold = data;
                 break;
-              case 5: ros_param_msg_.filter_threshold = data;
+              case 6:
+                ros_param_msg_.filter_threshold = data;
                 break;
-              case 6: ros_param_msg_.continuous_filter_freq = data;
+              case 7:
+                ros_param_msg_.continuous_filter_freq = data;
                 break;
-              case 7: ros_param_msg_.sample_count = data;
+              case 8:
+                ros_param_msg_.sample_count = data;
                 break;
-              case 8: ros_param_msg_.acq_thrs_mode = data;
+              case 9:
+                ros_param_msg_.acq_thrs_mode = data;
                 break;
-              case 9: ros_param_msg_.phase_calc_alg = data;
+              case 10:
+                ros_param_msg_.phase_calc_alg = data;
                 break;
-              case 10: ros_param_msg_.set_cutoff_freq = data;
+              case 11:
+                ros_param_msg_.set_cutoff_freq = data;
                 break;
-              case 11: ros_param_msg_.set_preamp_gain = data;
+              case 12:
+                ros_param_msg_.set_preamp_gain = data;
                 break;
-              case 12: ros_param_msg_.fft_enable = data;
+              case 13:
+                ros_param_msg_.fft_enable = data;
                 break;
-              case 13: ros_param_msg_.fft_threshold = data;
+              case 14:
+                ros_param_msg_.fft_threshold = data;
                 break;
-              case 14: ros_param_msg_.fft_prefilter_type = data;
+              case 15:
+                ros_param_msg_.fft_prefilter_type = data;
                 break;
-              case 15: ros_param_msg_.fft_threshold = data;
+              case 16:
+                ros_param_msg_.fft_threshold = data;
                 break;
-              case 16: ros_param_msg_.fft_bandwidth = data;
+              case 17:
+                ros_param_msg_.fft_bandwidth = data;
                 break;
-              case 17: ros_param_msg_.fft_trig_mode_Param = data;
+              case 18:
+                ros_param_msg_.fft_trig_mode_Param = data;
                 break;
             }
           }

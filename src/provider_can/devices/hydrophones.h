@@ -22,11 +22,12 @@
 namespace provider_can {
 
 // initialisation parameters
-struct InitialHydrosParams{
+struct InitialHydrosParams {
   int32_t hydro_enable;
   int32_t wave_enable;
   int32_t pinger_freq;
   int32_t gain;
+  int32_t no_param;
   int32_t acq_threshold;
   int32_t filter_threshold;
   int32_t continuous_filter_freq;
@@ -98,6 +99,10 @@ class Hydrophones : public CanDevice {
 
   explicit Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
                        const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+
+  explicit Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
+                       const ros::NodeHandlePtr &nh,
+                       const InitialHydrosParams params) ATLAS_NOEXCEPT;
 
   virtual ~Hydrophones();
 

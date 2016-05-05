@@ -23,7 +23,8 @@
 namespace provider_can {
 
 // initialisation parameters
-struct InitialPsuParams{
+struct InitialPsuParams {
+  // channels are in order from 0 to 8
   bool volt_bus1_state;
   bool volt_bus2_state;
   bool pc_state;
@@ -34,7 +35,6 @@ struct InitialPsuParams{
   bool actuator_bus_state;
   bool light_state;
 };
-
 
 class PowerSupply : public CanDevice {
   //==========================================================================
@@ -50,6 +50,10 @@ class PowerSupply : public CanDevice {
  public:
   explicit PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
                        const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT;
+
+  explicit PowerSupply(const CanDispatcher::Ptr &can_dispatcher,
+                       const ros::NodeHandlePtr &nh,
+                       const InitialPsuParams params) ATLAS_NOEXCEPT;
 
   virtual ~PowerSupply();
 
@@ -82,6 +86,8 @@ class PowerSupply : public CanDevice {
   static const uint16_t PC_RST_MSG;
   static const uint16_t SET_CHANNEL_MSG;
   static const uint16_t REMOTE_KILL_MSG;
+
+  static const uint8_t NUMBER_OF_CHANNELS;
 
   //============================================================================
   // P R I V A T E   M E T H O D S

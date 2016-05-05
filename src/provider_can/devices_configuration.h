@@ -56,10 +56,11 @@ class DevicesConfiguration {
   //============================================================================
   // P U B L I C   M E M B E R S
 
-  bool barometer_en_,bottom_light_en_, diver_interface_en_, droppers_en_, grabber_en_,
-  hydrophones_en_, led_indicator_en_, mission_switch_en_, power_supply_en_,
-  thruster_starboard_en_, thruster_port_en_, thruster_back_depth_en_, torpedo_launcher_en_,
-      thruster_front_depth_en_, thruster_back_head_en_, thruster_front_head_en_;
+  bool barometer_en_, bottom_light_en_, diver_interface_en_, droppers_en_,
+      grabber_en_, hydrophones_en_, led_indicator_en_, mission_switch_en_,
+      power_supply_en_, thruster_starboard_en_, thruster_port_en_,
+      thruster_back_depth_en_, torpedo_launcher_en_, thruster_front_depth_en_,
+      thruster_back_head_en_, thruster_front_head_en_;
 
   provider_can::InitialHydrosParams hydros_params_;
   provider_can::InitialPsuParams psu_params_;
