@@ -86,8 +86,11 @@ Hydrophones::Hydrophones(const CanDispatcher::Ptr &can_dispatcher,
     : CanDevice(sonars, hydrophones, can_dispatcher, NAME, nh),
       get_params_sent_(false),
       scope_samples_count_(MAX_SCOPE_SAMPLES) {
-  active_sonar_pub_ =
+  hydro_pub_ =
       nh->advertise<sonia_msgs::HydrophonesMsg>(NAME + "_msgs", 10);
+
+  hydro_params_pub_ =
+      nh->advertise<sonia_msgs::HydrophonesParams>(NAME + "_params", 10);
 
   GetParams();
 }
@@ -113,7 +116,6 @@ void Hydrophones::ProcessMessages(
   ros_msg_.magn_samples_updated = (uint8_t) false;
   ros_msg_.dephasage1_updated = (uint8_t) false;
   ros_msg_.dephasage2_updated = (uint8_t) false;
-  ros_msg_.params_updated = (uint8_t) false;
   ros_msg_.scope_samples_updated = (uint8_t) false;
 
   // if messages have been received
@@ -175,9 +177,48 @@ void Hydrophones::ProcessMessages(
           // verifying the index does not step out of the buffer
           if (((index / 10) - 1) <
               (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
-            ros_msg_.parameters_values[index / 10 - 1] =
+            int32_t data =
                 can_message.data[4] + (can_message.data[5] << 8) +
                 (can_message.data[6] << 16) + (can_message.data[7] << 24);
+
+            switch (index / 10 - 1){
+              case 0: ros_param_msg_.hydro_enable = data;
+                break;
+              case 1: ros_param_msg_.wave_enable = data;
+                break;
+              case 2: ros_param_msg_.pinger_freq = data;
+                break;
+              case 3: ros_param_msg_.gain = data;
+                break;
+              case 4: ros_param_msg_.acq_threshold = data;
+                break;
+              case 5: ros_param_msg_.filter_threshold = data;
+                break;
+              case 6: ros_param_msg_.continuous_filter_freq = data;
+                break;
+              case 7: ros_param_msg_.sample_count = data;
+                break;
+              case 8: ros_param_msg_.acq_thrs_mode = data;
+                break;
+              case 9: ros_param_msg_.phase_calc_alg = data;
+                break;
+              case 10: ros_param_msg_.set_cutoff_freq = data;
+                break;
+              case 11: ros_param_msg_.set_preamp_gain = data;
+                break;
+              case 12: ros_param_msg_.fft_enable = data;
+                break;
+              case 13: ros_param_msg_.fft_threshold = data;
+                break;
+              case 14: ros_param_msg_.fft_prefilter_type = data;
+                break;
+              case 15: ros_param_msg_.fft_threshold = data;
+                break;
+              case 16: ros_param_msg_.fft_bandwidth = data;
+                break;
+              case 17: ros_param_msg_.fft_trig_mode_Param = data;
+                break;
+            }
           }
 
           // avoids sending parameters 19 times after GetParams() is called
@@ -185,11 +226,11 @@ void Hydrophones::ProcessMessages(
             if ((index / 10) ==
                 (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
               message_rcvd = true;
-              ros_msg_.params_updated = (uint8_t) true;
+              hydro_params_pub_.publish(ros_param_msg_);
             }
           } else {
             message_rcvd = true;
-            ros_msg_.params_updated = (uint8_t) true;
+            hydro_params_pub_.publish(ros_param_msg_);
           }
 
         } else {
@@ -253,7 +294,7 @@ void Hydrophones::ProcessMessages(
     }
   }
 
-  if (message_rcvd) active_sonar_pub_.publish(ros_msg_);
+  if (message_rcvd) hydro_pub_.publish(ros_msg_);
 
   if (clr_scope_samples) {
     ros_msg_.scope_values.clear();

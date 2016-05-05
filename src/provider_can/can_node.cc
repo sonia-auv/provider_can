@@ -35,6 +35,7 @@ namespace provider_can {
 CanNode::CanNode(const ros::NodeHandlePtr &nh) ATLAS_NOEXCEPT
     : nh_(nh),
       conf_(nh),
+
       can_ptr_(nullptr),
       can_devices_vector_({}) {
   can_ptr_ = std::make_shared<provider_can::CanDispatcher>(

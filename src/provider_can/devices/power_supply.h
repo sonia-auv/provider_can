@@ -22,6 +22,20 @@
 
 namespace provider_can {
 
+// initialisation parameters
+struct InitialPsuParams{
+  bool volt_bus1_state;
+  bool volt_bus2_state;
+  bool pc_state;
+  bool motor_bus1_state;
+  bool motor_bus2_state;
+  bool motor_bus3_state;
+  bool dvl_state;
+  bool actuator_bus_state;
+  bool light_state;
+};
+
+
 class PowerSupply : public CanDevice {
   //==========================================================================
   // T Y P E D E F   A N D   E N U M

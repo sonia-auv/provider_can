@@ -13,12 +13,35 @@
 
 #include <ros/ros.h>
 #include <sonia_msgs/HydrophonesMsg.h>
+#include <sonia_msgs/HydrophonesParams.h>
 #include <memory>
 #include <vector>
 #include "provider_can/can_def.h"
 #include "provider_can/devices/can_device.h"
 
 namespace provider_can {
+
+// initialisation parameters
+struct InitialHydrosParams{
+  int32_t hydro_enable;
+  int32_t wave_enable;
+  int32_t pinger_freq;
+  int32_t gain;
+  int32_t acq_threshold;
+  int32_t filter_threshold;
+  int32_t continuous_filter_freq;
+  int32_t sample_count;
+  int32_t acq_thrs_mode;
+  int32_t phase_calc_alg;
+  int32_t set_cutoff_freq;
+  int32_t set_preamp_gain;
+  int32_t fft_enable;
+  int32_t fft_threshold;
+  int32_t fft_prefilter;
+  int32_t fft_prefilter_type;
+  int32_t fft_bandwidth;
+  int32_t fft_trig_mode_Param;
+};
 
 class Hydrophones : public CanDevice {
  public:
@@ -121,9 +144,11 @@ class Hydrophones : public CanDevice {
 
   uint32_t scope_samples_count_;
 
-  ros::Publisher active_sonar_pub_;
+  ros::Publisher hydro_pub_;
+  ros::Publisher hydro_params_pub_;
 
   sonia_msgs::HydrophonesMsg ros_msg_;
+  sonia_msgs::HydrophonesParams ros_param_msg_;
 };
 
 }  // namespace provider_can
