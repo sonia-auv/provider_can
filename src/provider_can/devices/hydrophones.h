@@ -140,6 +140,15 @@ class Hydrophones : public CanDevice {
    */
   void SetParam(HydrophonesMethods param, int32_t value) const ATLAS_NOEXCEPT;
 
+  /**
+   * processing different complicated messages and sending ros msg with data
+   *
+   * \param can_message can message containing specific message
+   */
+  bool ProcessScopeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
+  bool ProcessMagnitudeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT ;
+  void ProcessParamsMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
+
   //============================================================================
   // P R I V A T E   M E M B E R S
 
@@ -154,6 +163,7 @@ class Hydrophones : public CanDevice {
 
   sonia_msgs::HydrophonesMsg ros_msg_;
   sonia_msgs::HydrophonesParams ros_param_msg_;
+
 };
 
 }  // namespace provider_can

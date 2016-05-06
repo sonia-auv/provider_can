@@ -121,8 +121,6 @@ void Hydrophones::ProcessMessages(
     const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
   bool clr_scope_samples = false;
-  uint32_t index;
-  uint16_t address;
 
   ros_msg_.hydro_freq_updated = (uint8_t) false;
   ros_msg_.magn_samples_updated = (uint8_t) false;
@@ -135,142 +133,17 @@ void Hydrophones::ProcessMessages(
   for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id) {
       case SCOPE_MSG:
-        // Scope msg will be sent MAX_SAMPLES times by hydrophones. once all
-        // samples are
-        // received, this method will send a ROS msg.
-        address = (can_message.data[0] << 8) + can_message.data[1];
-        index = can_message.data[3] - 1;
-
-        // resize the table for the number of samples to be received
-        if (ros_msg_.scope_values.size() != scope_samples_count_) {
-          ros_msg_.scope_values.resize(scope_samples_count_);
-        }
-
-        // there is only 4 values per sample collected. Index should not be
-        // higher than 3
-        if (index < 4 && address < scope_samples_count_) {
-          ros_msg_.scope_values[address].samples[index] =
-              can_message.data[4] + (can_message.data[5] << 8) +
-              (can_message.data[6] << 16) + (can_message.data[7] << 24);
-        }
-
-        if (address == (scope_samples_count_ - 1)) clr_scope_samples = true;
-        message_rcvd = true;
-        ros_msg_.scope_samples_updated = (uint8_t) true;
+    	clr_scope_samples = ProcessScopeMsgs(can_message);
+        message_rcvd = clr_scope_samples;
         break;
 
       case FFT_MAGNITUDE_MSG:
-        // magnitude msg will be sent MAX_SAMPLES times by hydrophones. once all
-        // samples are
-        // received, this method will send a ROS msg.
-        index = can_message.data[0] - 1;
-
-        // there is only 4 values per sample collected. Index should not be
-        // higher than 3
-        if (index < MAX_MAGNITUDE_SAMPLES) {
-          ros_msg_.magnitude_values[index] =
-              can_message.data[1] + (can_message.data[2] << 8) +
-              (can_message.data[3] << 16) + (can_message.data[4] << 24);
-        }
-
-        if (index == (MAX_MAGNITUDE_SAMPLES - 1)) {
-          ros_msg_.magn_samples_updated = (uint8_t) true;
-          message_rcvd = true;
-        }
+        message_rcvd = ProcessMagnitudeMsgs(can_message);
         break;
 
       case SET_PARAM_RESPONSE_MSG:
       case GET_PARAM_RESPONSE_MSG:
-
-    	// When dlc == 8, it correspond to a successfull param read
-        if (can_message.dlc == 8) {
-          index = can_message.data[0] + (can_message.data[1] << 8) +
-                  (can_message.data[2] << 16) + (can_message.data[3] << 24);
-
-          // Index are coded by steps of 10. see constants under header.
-          // verifying the index not to step out of the buffer
-          if (index <= FFT_TRIG_MODE_PARAM) {
-            int32_t data = can_message.data[4] + (can_message.data[5] << 8) +
-                           (can_message.data[6] << 16) +
-                           (can_message.data[7] << 24);
-
-            switch (index) {
-              case HYDRO_ENABLE_PARAM:
-                ros_param_msg_.hydro_enable = data;
-                break;
-              case WAVE_ENABLE_PARAM:
-                ros_param_msg_.wave_enable = data;
-                break;
-              case PINGER_FREQ_PARAM:
-                ros_param_msg_.pinger_freq = data;
-                break;
-              case GAIN_PARAM:
-                ros_param_msg_.gain = data;
-                break;
-              case ACQ_THRESHOLD_PARAM:
-                ros_param_msg_.acq_threshold = data;
-                break;
-              case FILTER_THRESHOLD_PARAM:
-                ros_param_msg_.filter_threshold = data;
-                break;
-              case CONTINUOUS_FILTER_FREQ_PARAM:
-                ros_param_msg_.continuous_filter_freq = data;
-                break;
-              case SAMPLE_COUNT_PARAM:
-                ros_param_msg_.sample_count = data;
-                break;
-              case ACQ_THRS_MODE_PARAM:
-                ros_param_msg_.acq_thrs_mode = data;
-                break;
-              case PHASE_CALC_ALG_PARAM:
-                ros_param_msg_.phase_calc_alg = data;
-                break;
-              case SET_FREQ_CUTOFF_PARAM:
-                ros_param_msg_.set_cutoff_freq = data;
-                break;
-              case SET_PREAMP_GAIN_PARAM:
-                ros_param_msg_.set_preamp_gain = data;
-                break;
-              case FFT_ENABLE_PARAM:
-                ros_param_msg_.fft_enable = data;
-                break;
-              case FFT_THRESHOLD_PARAM:
-                ros_param_msg_.fft_threshold = data;
-                break;
-              case FFT_PREFILTER_PARAM:
-                ros_param_msg_.fft_prefilter = data;
-                break;
-              case FFT_PREFILTER_TYPE_PARAM:
-                ros_param_msg_.fft_prefilter_type = data;
-                break;
-              case FFT_BANDWIDTH_PARAM:
-                ros_param_msg_.fft_bandwidth = data;
-                break;
-              case FFT_TRIG_MODE_PARAM:
-                ros_param_msg_.fft_trig_mode_Param = data;
-                break;
-            }
-          }
-
-          // avoids sending parameters 19 times after GetParams() is called
-          if (get_params_sent_) {
-            if ((index / 10) ==
-                (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
-              message_rcvd = true;
-              hydro_params_pub_.publish(ros_param_msg_);
-            }
-          } else {
-            message_rcvd = true;
-            hydro_params_pub_.publish(ros_param_msg_);
-          }
-
-          // if DLC != 8, unsuccessfull param read
-        } else {
-          ROS_WARN("Hydrophones: parameter address %d does not exist",
-                   (can_message.data[0] + (can_message.data[1] << 8) +
-                    (can_message.data[2] << 16) + (can_message.data[3] << 24)));
-        }
-
+    	ProcessParamsMsgs(can_message);
         break;
 
       case DEPHASAGE_MSG:
@@ -367,6 +240,164 @@ void Hydrophones::SetParam(HydrophonesMethods param,
     ROS_WARN("Hydrophones: method number %d does not exist", (uint32_t)param);
   }
 }
+
+//------------------------------------------------------------------------------
+//
+
+bool Hydrophones::ProcessScopeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT {
+
+	uint32_t index;
+	uint16_t address;
+
+	// Scope msg will be sent MAX_SAMPLES times by hydrophones. once all
+	// samples are
+	// received, this method will send a ROS msg.
+	address = (can_message.data[0] << 8) + can_message.data[1];
+	index = can_message.data[3] - 1;
+
+	// resize the table for the number of samples to be received
+	if (ros_msg_.scope_values.size() != scope_samples_count_) {
+	  ros_msg_.scope_values.resize(scope_samples_count_);
+	}
+
+	// there is only 4 values per sample collected. Index should not be
+	// higher than 3
+	if (index < 4 && address < scope_samples_count_) {
+	  ros_msg_.scope_values[address].samples[index] =
+		  can_message.data[4] + (can_message.data[5] << 8) +
+		  (can_message.data[6] << 16) + (can_message.data[7] << 24);
+	}
+
+	ros_msg_.scope_samples_updated = (uint8_t) true;
+
+	if (address == (scope_samples_count_ - 1)) return  true;
+
+	return false;
+}
+
+//------------------------------------------------------------------------------
+//
+
+bool Hydrophones::ProcessMagnitudeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT {
+
+	uint32_t index;
+
+	// magnitude msg will be sent MAX_SAMPLES times by hydrophones. once all
+	// samples are
+	// received, this method will send a ROS msg.
+	index = can_message.data[0] - 1;
+
+	// there is only 4 values per sample collected. Index should not be
+	// higher than 3
+	if (index < MAX_MAGNITUDE_SAMPLES) {
+	  ros_msg_.magnitude_values[index] =
+		  can_message.data[1] + (can_message.data[2] << 8) +
+		  (can_message.data[3] << 16) + (can_message.data[4] << 24);
+	}
+
+	if (index == (MAX_MAGNITUDE_SAMPLES - 1)) {
+	  ros_msg_.magn_samples_updated = (uint8_t) true;
+	  return true;
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+//
+
+void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT {
+
+	uint32_t index;
+
+	// When dlc == 8, it correspond to a successfull param read
+	if (can_message.dlc == 8) {
+	  index = can_message.data[0] + (can_message.data[1] << 8) +
+			  (can_message.data[2] << 16) + (can_message.data[3] << 24);
+
+	  // Index are coded by steps of 10. see constants under header.
+	  // verifying the index not to step out of the buffer
+	  if (index <= FFT_TRIG_MODE_PARAM) {
+		int32_t data = can_message.data[4] + (can_message.data[5] << 8) +
+					   (can_message.data[6] << 16) +
+					   (can_message.data[7] << 24);
+
+		switch (index) {
+		  case HYDRO_ENABLE_PARAM:
+			ros_param_msg_.hydro_enable = data;
+			break;
+		  case WAVE_ENABLE_PARAM:
+			ros_param_msg_.wave_enable = data;
+			break;
+		  case PINGER_FREQ_PARAM:
+			ros_param_msg_.pinger_freq = data;
+			break;
+		  case GAIN_PARAM:
+			ros_param_msg_.gain = data;
+			break;
+		  case ACQ_THRESHOLD_PARAM:
+			ros_param_msg_.acq_threshold = data;
+			break;
+		  case FILTER_THRESHOLD_PARAM:
+			ros_param_msg_.filter_threshold = data;
+			break;
+		  case CONTINUOUS_FILTER_FREQ_PARAM:
+			ros_param_msg_.continuous_filter_freq = data;
+			break;
+		  case SAMPLE_COUNT_PARAM:
+			ros_param_msg_.sample_count = data;
+			break;
+		  case ACQ_THRS_MODE_PARAM:
+			ros_param_msg_.acq_thrs_mode = data;
+			break;
+		  case PHASE_CALC_ALG_PARAM:
+			ros_param_msg_.phase_calc_alg = data;
+			break;
+		  case SET_FREQ_CUTOFF_PARAM:
+			ros_param_msg_.set_cutoff_freq = data;
+			break;
+		  case SET_PREAMP_GAIN_PARAM:
+			ros_param_msg_.set_preamp_gain = data;
+			break;
+		  case FFT_ENABLE_PARAM:
+			ros_param_msg_.fft_enable = data;
+			break;
+		  case FFT_THRESHOLD_PARAM:
+			ros_param_msg_.fft_threshold = data;
+			break;
+		  case FFT_PREFILTER_PARAM:
+			ros_param_msg_.fft_prefilter = data;
+			break;
+		  case FFT_PREFILTER_TYPE_PARAM:
+			ros_param_msg_.fft_prefilter_type = data;
+			break;
+		  case FFT_BANDWIDTH_PARAM:
+			ros_param_msg_.fft_bandwidth = data;
+			break;
+		  case FFT_TRIG_MODE_PARAM:
+			ros_param_msg_.fft_trig_mode_Param = data;
+			break;
+		}
+	  }
+
+	  // avoids sending parameters 19 times after GetParams() is called
+	  if (get_params_sent_) {
+		if ((index / 10) ==
+			(sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
+		  hydro_params_pub_.publish(ros_param_msg_);
+		}
+	  } else {
+		hydro_params_pub_.publish(ros_param_msg_);
+	  }
+
+	  // if DLC != 8, unsuccessfull param read
+	} else {
+	  ROS_WARN("Hydrophones: parameter address %d does not exist",
+			   (can_message.data[0] + (can_message.data[1] << 8) +
+				(can_message.data[2] << 16) + (can_message.data[3] << 24)));
+	}
+}
+
+
 
 //------------------------------------------------------------------------------
 //
