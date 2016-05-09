@@ -418,7 +418,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
       status = ReadMessages();
 
       // verifying errors
-      if (status < canOK) {
+      if (status < canOK && status != canERR_NOMSG) {
         can_driver_->PrintErrorText(status);
         can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
         ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
@@ -431,7 +431,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
       status = SendMessages();
 
       // verifying errors
-      if (status < canOK) {
+      if (status < canOK && status != canERR_NOMSG) {
         can_driver_->PrintErrorText(status);
         can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
         ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);

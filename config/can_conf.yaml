@@ -9,7 +9,7 @@ provider_can/driver/usb_device: "KVaser"
 #********** Devices parameters ***********
 
 # barometer
-provider_can/barometer/enable: true
+provider_can/barometer/enable: false
 
 # bottom light
 provider_can/bottom_light/enable: true
@@ -28,7 +28,7 @@ provider_can/hydrophones/enable: true
 provider_can/hydrophones/hydro_enable: 0
 provider_can/hydrophones/wave_enable: 0
 provider_can/hydrophones/pinger_freq: 14
-provider_can/hydrophones/gain: 4
+provider_can/hydrophones/gain: 3
 provider_can/hydrophones/acq_threshold: 1124800758
 provider_can/hydrophones/filter_threshold: 15
 provider_can/hydrophones/continuous_filter_freq: 5
