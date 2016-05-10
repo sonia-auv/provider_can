@@ -171,7 +171,7 @@ void Hydrophones::ProcessMessages(
 
       case FREQ_MSG:
         ros_msg_.hydro_freq_index = can_message.data[0];
-        ros_msg_.frequency = can_message.data[1] + (can_message.data[2] << 8) +
+        ros_msg_.amplitude = can_message.data[1] + (can_message.data[2] << 8) +
                              (can_message.data[3] << 16) +
                              (can_message.data[4] << 24);
         message_rcvd = true;
