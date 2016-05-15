@@ -27,11 +27,7 @@ provider_can/grabber/enable: true
 provider_can/hydrophones/enable: true
 provider_can/hydrophones/hydro_enable: 0
 provider_can/hydrophones/wave_enable: 0
-provider_can/hydrophones/pinger_freq: 14		# This is an arbitrary value set in hydrphones code representing a specific freq 
-							# (5 or 16 = 13000Hz), (6 or 17 = 15000Hz), (7 or 18 = 22000Hz), (8 or 19 = 23000Hz),
-							# (9 or 20 = 24000Hz), (10 or 21 = 25000Hz), (11 or 22 = 26000Hz), 
-							# (12 or 23 = 27000Hz), (13 or 24 = 28000Hz), (14 or 25 = 29000Hz), 
-							# (15 or 26 = 30000Hz).
+provider_can/hydrophones/pinger_freq: 14 # This is an arbitrary value set in hydrphones code representing a specific freq (5 or 16 = 13000Hz), (6 or 17 = 15000Hz), (7 or 18 = 22000Hz), (8 or 19 = 23000Hz), (9 or 20 = 24000Hz), (10 or 21 = 25000Hz), (11 or 22 = 26000Hz), (12 or 23 = 27000Hz), (13 or 24 = 28000Hz), (14 or 25 = 29000Hz), (15 or 26 = 30000Hz).
 provider_can/hydrophones/gain: 4
 provider_can/hydrophones/acq_threshold: 1124800758
 provider_can/hydrophones/filter_threshold: 15
