@@ -88,7 +88,7 @@ void CanDevice::Process() ATLAS_NOEXCEPT {
     // is device is present and properties has not been sent
     if (!device_found_) {
       device_found_ = true;
-      ROS_INFO_STREAM("Device" + name_ + "Found");
+      ROS_INFO_STREAM("Device " + name_ + " Found");
     }
 
     // fetching CAN messages

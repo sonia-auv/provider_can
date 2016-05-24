@@ -14,6 +14,8 @@
 
 namespace provider_can {
 
+#define DEBUG
+
 //==============================================================================
 // S T A T I C   M E M B E R S
 
@@ -63,6 +65,12 @@ void Thruster::ProcessMessages(
         ros_msg.speed = can_message.data[2] + (can_message.data[3] << 8);
         ros_msg.temperature = can_message.data[4];
         ros_msg.i2c_fault_number = can_message.data[5];
+
+        #ifdef DEBUG
+            if(ros_msg.speed != 0)
+              ROS_INFO("%s read speed: %d", thruster_specific_name_.c_str(), ros_msg.speed);
+        #endif
+
         message_rcvd = true;
         break;
       default:
@@ -93,6 +101,10 @@ void Thruster::SetSpeed(int8_t speed) const ATLAS_NOEXCEPT {
   if (speed < -100) speed = 0;
 
   uint8_t absolute_speed = (uint8_t)speed;
+
+  #ifdef DEBUG
+    ROS_INFO("%s setting new speed: %d", thruster_specific_name_.c_str(), speed);
+  #endif
 
   PushMessage(SET_SPEED_MSG, &absolute_speed, 1);
 }
