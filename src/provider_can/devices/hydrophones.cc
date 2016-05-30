@@ -174,7 +174,7 @@ void Hydrophones::ProcessMessages(
         ros_msg_.amplitude = can_message.data[1] + (can_message.data[2] << 8) +
                              (can_message.data[3] << 16) +
                              (can_message.data[4] << 24);
-        message_rcvd = true;
+        //message_rcvd = true;
         ros_msg_.hydro_freq_updated = (uint8_t) true;
         break;
       default:

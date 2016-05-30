@@ -60,7 +60,7 @@ provider_can/power_supply/motor_bus2_state: true
 provider_can/power_supply/motor_bus3_state: true
 provider_can/power_supply/pc_state: true
 provider_can/power_supply/volt_bus1_state: true
-provider_can/power_supply/motor_bus3_state: true
+provider_can/power_supply/volt_bus2_state: true
 
 # thrusters
 provider_can/thruster_starboard/enable: true

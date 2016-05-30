@@ -114,7 +114,7 @@ void DevicesConfiguration::DeserializeConfiguration() ATLAS_NOEXCEPT {
   FindParameter("power_supply/motor_bus3_state", psu_params_.motor_bus3_state);
   FindParameter("power_supply/pc_state", psu_params_.pc_state);
   FindParameter("power_supply/volt_bus1_state", psu_params_.volt_bus1_state);
-  FindParameter("power_supply/motor_bus3_state", psu_params_.volt_bus2_state);
+  FindParameter("power_supply/volt_bus2_state", psu_params_.volt_bus2_state);
 }
 
 //------------------------------------------------------------------------------
