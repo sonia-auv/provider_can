@@ -33,25 +33,27 @@ namespace provider_can {
 //------------------------------------------------------------------------------
 //
 DevicesConfiguration::DevicesConfiguration(const ros::NodeHandlePtr &nh)
-    ATLAS_NOEXCEPT : barometer_en_(true),
-                     bottom_light_en_(true),
-                     diver_interface_en_(true),
-                     droppers_en_(true),
-                     grabber_en_(true),
-                     hydrophones_en_(true),
-                     led_indicator_en_(true),
-                     mission_switch_en_(true),
-                     power_supply_en_(true),
-                     thruster_starboard_en_(true),
-                     thruster_port_en_(true),
-                     thruster_back_depth_en_(true),
-                     torpedo_launcher_en_(true),
-                     thruster_front_depth_en_(true),
-                     thruster_back_head_en_(true),
-                     thruster_front_head_en_(true),
-                     hydros_params_{0,0,14,4,0,1124800758,15,5,256,1,0,24,1,1,38000,1,5,1,1},
-                     psu_params_{1,1,1,1,1,1,1,1,1},
-                     nh_(nh) {
+    ATLAS_NOEXCEPT
+    : barometer_en_(true),
+      bottom_light_en_(true),
+      diver_interface_en_(true),
+      droppers_en_(true),
+      grabber_en_(true),
+      hydrophones_en_(true),
+      led_indicator_en_(true),
+      mission_switch_en_(true),
+      power_supply_en_(true),
+      thruster_starboard_en_(true),
+      thruster_port_en_(true),
+      thruster_back_depth_en_(true),
+      torpedo_launcher_en_(true),
+      thruster_front_depth_en_(true),
+      thruster_back_head_en_(true),
+      thruster_front_head_en_(true),
+      hydros_params_{0, 0,  14, 4, 0,     1124800758, 15, 5, 256, 1,
+                     0, 24, 1,  1, 38000, 1,          5,  1, 1},
+      psu_params_{1, 1, 1, 1, 1, 1, 1, 1, 1},
+      nh_(nh) {
   DeserializeConfiguration();
 }
 

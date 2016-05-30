@@ -130,7 +130,7 @@ class Hydrophones : public CanDevice {
   /**
    * Asks the hydros to sends their config parameters
    */
-  void GetParams() ATLAS_NOEXCEPT;
+  void GetParams(bool reset) ATLAS_NOEXCEPT;
 
   /**
    * Change a config parameter of the hydrophones
@@ -146,7 +146,7 @@ class Hydrophones : public CanDevice {
    * \param can_message can message containing specific message
    */
   bool ProcessScopeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
-  bool ProcessMagnitudeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT ;
+  bool ProcessMagnitudeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
   void ProcessParamsMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
 
   //============================================================================
@@ -164,6 +164,7 @@ class Hydrophones : public CanDevice {
   sonia_msgs::HydrophonesMsg ros_msg_;
   sonia_msgs::HydrophonesParams ros_param_msg_;
 
+  uint32_t get_params_index_;
 };
 
 }  // namespace provider_can
