@@ -273,12 +273,10 @@ class CanDispatcher : public atlas::Runnable {
   canStatus SendIdRequest() ATLAS_NOEXCEPT;
 
   /**
-  * Sends an ID request on CAN bus and list all addresses received.
-  *
-  * This function creates a CanDevice struct for each device that answered to
-  * the ID request.
+  * If a device responds to an ID request, this method adds the device to the
+  * list of known devices
   */
-  canStatus ListDevices() ATLAS_NOEXCEPT;
+  void ProcessIdResponses() ATLAS_NOEXCEPT;
 
   /**
   * Reads all messages received on CAN bus and stores them into rx_raw_buffer_
@@ -327,6 +325,14 @@ class CanDispatcher : public atlas::Runnable {
   * \param address
   */
   void AddUnknownAddress(uint32_t address) ATLAS_NOEXCEPT;
+
+  /**
+  * Verifies the result of driver communication (canlib) and print
+  * to console.
+  *
+  * \param can_status canStatus enum received from canlib methods
+  */
+  void CanErrorsCheck(canStatus can_status) ATLAS_NOEXCEPT;
 
   //============================================================================
   // P R I V A T E   M E M B E R S

@@ -81,7 +81,7 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
   can_driver_->FlushRxBuffer();
   can_driver_->FlushTxBuffer();
 
-  ListDevices();
+  SendIdRequest();
 
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
@@ -103,36 +103,24 @@ CanDispatcher::~CanDispatcher() ATLAS_NOEXCEPT {
 
 //------------------------------------------------------------------------------
 //
-canStatus CanDispatcher::ListDevices() ATLAS_NOEXCEPT {
-  canStatus status;
-
-  status = SendIdRequest();  // Ask ID from every device on CAN bus
-  if (status < canOK) return status;
-
-  usleep(ID_REQ_WAIT);      // Wait for all responses
-  status = ReadMessages();  // Reads all messages into rx_raw_buffer_
-  if (status < canOK) return status;
-
-  // For each messages received during sleep,
+void CanDispatcher::ProcessIdResponses() ATLAS_NOEXCEPT {
   rx_raw_buffer_mutex_.lock();
   for (auto &message : rx_raw_buffer_) {
-    CanDeviceBuffers new_device;
-    // If the address of the message has never been seen
-    if (FindDeviceWithAddress(message.id) == SONIA_DEVICE_NOT_PRESENT) {
-      std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
-      // Apending new device to the vector
-      new_device.global_address = (message.id & DEVICE_MAC_MASK);
+    if ((message.id & DEVICE_MSG_MASK) == 0) {
+      CanDeviceBuffers new_device;
+      // If the address of the message has never been seen
+      if (FindDeviceWithAddress(message.id) == SONIA_DEVICE_NOT_PRESENT) {
+        std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
+        // Apending new device to the vector
+        new_device.global_address = (message.id & DEVICE_MAC_MASK);
 
-      devices_list_.push_back(new_device);
+        devices_list_.push_back(new_device);
+
+        unknown_addresses_table_.clear();
+      }
     }
   }
-
   rx_raw_buffer_mutex_.unlock();
-  DispatchMessages();  // Dispatch and saves all received messages
-
-  unknown_addresses_table_.clear();  // resets unknown addresses discovery.
-
-  return status;
 }
 
 //------------------------------------------------------------------------------
@@ -418,11 +406,9 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
       status = ReadMessages();
 
       // verifying errors
-      if (status < canOK && status != canERR_NOMSG) {
-        can_driver_->PrintErrorText(status);
-        can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
-      }
+      CanErrorsCheck(status);
+
+      ProcessIdResponses();
 
       // Dispatching read messages
       DispatchMessages();
@@ -431,11 +417,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
       status = SendMessages();
 
       // verifying errors
-      if (status < canOK && status != canERR_NOMSG) {
-        can_driver_->PrintErrorText(status);
-        can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
-        ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
-      }
+      CanErrorsCheck(status);
 
       // verifying if devices where not found. if so, sends ID requests to try
       // to find undiscovered devices.
@@ -447,11 +429,23 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
         for (auto &address : unknown_addresses_table_)
           printf("%X\n\r", address);
         ROS_INFO("Retrying ID Request");
-        ListDevices();
+        SendIdRequest();
         discovery_tries_++;
         id_req_time_ = actual_time_;
       }
     }
+  }
+}
+
+//------------------------------------------------------------------------------
+//
+
+void CanDispatcher::CanErrorsCheck(canStatus can_status) ATLAS_NOEXCEPT {
+  // verifying errors
+  if (can_status < canOK && can_status != canERR_NOMSG) {
+    can_driver_->PrintErrorText(can_status);
+    can_driver_->GetErrorCount(&tx_error_, &rx_error_, &ovrr_error_);
+    ROS_WARN("tx: %d, rx: %d, ovrr: %d", tx_error_, rx_error_, ovrr_error_);
   }
 }
 
