@@ -61,7 +61,7 @@ const uint16_t Hydrophones::SET_PARAM_MSG = 0x021;
 const uint16_t Hydrophones::SEND_DATA_REQUEST_MSG = 0xF06;
 
 const uint16_t Hydrophones::MAX_SCOPE_SAMPLES = 256;
-const uint16_t Hydrophones::MAX_MAGNITUDE_SAMPLES = 256;
+const uint16_t Hydrophones::MAX_MAGNITUDE_SAMPLES = 128;
 
 //==============================================================================
 // C / D T O R   S E C T I O N
