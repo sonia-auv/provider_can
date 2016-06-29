@@ -14,7 +14,7 @@
 
 namespace provider_can {
 
-//#define DEBUG
+#define DEBUG
 
 //==============================================================================
 // S T A T I C   M E M B E R S

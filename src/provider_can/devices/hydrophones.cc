@@ -124,6 +124,9 @@ void Hydrophones::ProcessMessages(
   ros_msg_.dephasage2_updated = (uint8_t) false;
   ros_msg_.scope_samples_updated = (uint8_t) false;
 
+  uint32_t conversion_var;
+  float *conversion_var_float;
+
   // if messages have been received
   // loops through all messages received
   for (auto &can_message : from_can_rx_buffer) {
@@ -167,9 +170,13 @@ void Hydrophones::ProcessMessages(
 
       case FREQ_MSG:
         ros_msg_.hydro_freq_index = can_message.data[0];
-        ros_msg_.amplitude = can_message.data[1] + (can_message.data[2] << 8) +
-                             (can_message.data[3] << 16) +
-                             (can_message.data[4] << 24);
+
+        conversion_var = can_message.data[1] + (can_message.data[2] << 8) +
+                         (can_message.data[3] << 16) +
+                         (can_message.data[4] << 24);
+        conversion_var_float = (float *)&conversion_var;
+        ros_msg_.amplitude = *conversion_var_float;
+
         message_rcvd = true;
         ros_msg_.hydro_freq_updated = (uint8_t) true;
         break;
@@ -309,13 +316,17 @@ bool Hydrophones::ProcessMagnitudeMsgs(const CanMessage &can_message)
   // samples are
   // received, this method will send a ROS msg.
   index = can_message.data[0] - 1;
+  uint32_t conversion_var;
+  float *conversion_var_float;
 
   // there is only 4 values per sample collected. Index should not be
   // higher than 3
   if (index < MAX_MAGNITUDE_SAMPLES) {
-    ros_msg_.magnitude_values[index] =
-        can_message.data[1] + (can_message.data[2] << 8) +
-        (can_message.data[3] << 16) + (can_message.data[4] << 24);
+    conversion_var = (can_message.data[1] << 24) + (can_message.data[2] << 16) +
+                     (can_message.data[3] << 8) + (can_message.data[4]);
+
+    conversion_var_float = (float *)&conversion_var;
+    ros_msg_.magnitude_values[index] = *conversion_var_float;
   }
 
   if (index == (MAX_MAGNITUDE_SAMPLES - 1)) {

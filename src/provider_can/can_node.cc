@@ -121,13 +121,11 @@ CanNode::~CanNode() ATLAS_NOEXCEPT {}
 //------------------------------------------------------------------------------
 //
 void CanNode::Run() ATLAS_NOEXCEPT {
-  ros::Rate loop_rate(500);
   while (!ros::isShuttingDown()) {
     ros::spinOnce();
     for (auto &device : can_devices_vector_) {
       device->Process();
     }
-    loop_rate.sleep();
   }
 }
 
