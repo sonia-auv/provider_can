@@ -14,7 +14,7 @@
 
 namespace provider_can {
 
-#define DEBUG
+//#define DEBUG
 
 //==============================================================================
 // S T A T I C   M E M B E R S
@@ -54,6 +54,8 @@ void Thruster::ProcessMessages(
     const std::vector<CanMessage> &from_can_rx_buffer,
     const std::vector<ComputerMessage> &from_pc_rx_buffer) ATLAS_NOEXCEPT {
   bool message_rcvd = false;
+  int *speed_raw_convert;
+  uint16_t speed_raw;
 
   // if messages have been received
   // loops through all thruster messages received
@@ -62,7 +64,9 @@ void Thruster::ProcessMessages(
       case THRUSTER_STATE_MSG:
         ros_msg.factory_infos = can_message.data[0];
         ros_msg.current = can_message.data[1];
-        ros_msg.speed = can_message.data[2] + (can_message.data[3] << 8);
+        speed_raw = can_message.data[2] + (can_message.data[3] << 8);
+        speed_raw_convert = (int *)&speed_raw;
+        ros_msg.speed = *speed_raw_convert;
         ros_msg.temperature = can_message.data[4];
         ros_msg.i2c_fault_number = can_message.data[5];
 
