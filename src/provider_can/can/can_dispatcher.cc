@@ -87,6 +87,10 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
   call_device_srv_ = nh_->advertiseService(
       "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod, this);
 
+  // subscribing to self service to ensure it always exists
+  can_service_client_ = nh_->serviceClient<sonia_msgs::SendCanMessage>(
+      "/provider_can/send_can_message");
+
   uint8_t can_enabled_ = 1;
   PushBroadMessage(PROVIDER_CAN_STATUS, &can_enabled_, 1);
 }
@@ -433,6 +437,13 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
         discovery_tries_++;
         id_req_time_ = actual_time_;
       }
+
+      if (!can_service_client_.exists() || !can_service_client_.isValid()) {
+        ROS_INFO("ROS Service lost. Trying to re-advertise...");
+        call_device_srv_ = nh_->advertiseService(
+            "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod,
+            this);
+      }
     }
   }
 }
@@ -480,6 +491,12 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
   }
 
   res.device_status = status;
+
+  ROS_INFO("service called:");
+  ROS_INFO_STREAM(req.device_id);
+  ROS_INFO_STREAM(req.unique_id);
+  ROS_INFO("\n");
+
   return true;
 }
 

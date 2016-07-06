@@ -364,6 +364,9 @@ class CanDispatcher : public atlas::Runnable {
 
   ros::NodeHandlePtr nh_;
   ros::ServiceServer call_device_srv_;
+
+  // service client used to verify ServiceServer validity
+  ros::ServiceClient can_service_client_;
 };
 
 }  // namespace provider_can
