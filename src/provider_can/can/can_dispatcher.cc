@@ -440,6 +440,7 @@ void CanDispatcher::Run() ATLAS_NOEXCEPT {
 
       if (!can_service_client_.exists() || !can_service_client_.isValid()) {
         ROS_INFO("ROS Service lost. Trying to re-advertise...");
+        call_device_srv_.shutdown();
         call_device_srv_ = nh_->advertiseService(
             "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod,
             this);
@@ -491,11 +492,6 @@ bool CanDispatcher::CallDeviceMethod(sonia_msgs::SendCanMessage::Request &req,
   }
 
   res.device_status = status;
-
-  ROS_INFO("service called:");
-  ROS_INFO_STREAM(req.device_id);
-  ROS_INFO_STREAM(req.unique_id);
-  ROS_INFO("\n");
 
   return true;
 }
