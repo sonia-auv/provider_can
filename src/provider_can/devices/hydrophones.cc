@@ -129,11 +129,6 @@ void Hydrophones::ProcessMessages(
   // loops through all messages received
   for (auto &can_message : from_can_rx_buffer) {
     switch (can_message.id) {
-      case SCOPE_MSG:
-        clr_scope_samples = ProcessScopeMsgs(can_message);
-        message_rcvd = clr_scope_samples;
-        break;
-
       case FFT_MAGNITUDE_MSG:
         message_rcvd = ProcessMagnitudeMsgs(can_message);
         break;
@@ -267,40 +262,6 @@ void Hydrophones::SetParam(HydrophonesMethods param,
   } else {
     ROS_WARN("Hydrophones: method number %d does not exist", (uint32_t)param);
   }
-}
-
-//------------------------------------------------------------------------------
-//
-
-bool Hydrophones::ProcessScopeMsgs(const CanMessage &can_message)
-    ATLAS_NOEXCEPT {
-  uint32_t index;
-  uint16_t address;
-
-  // Scope msg will be sent MAX_SAMPLES times by hydrophones. once all
-  // samples are
-  // received, this method will send a ROS msg.
-  address = (can_message.data[0] << 8) + can_message.data[1];
-  index = can_message.data[3] - 1;
-
-  // resize the table for the number of samples to be received
-  if (ros_msg_.scope_values.size() != scope_samples_count_) {
-    ros_msg_.scope_values.resize(scope_samples_count_);
-  }
-
-  // there is only 4 values per sample collected. Index should not be
-  // higher than 3
-  if (index < 4 && address < scope_samples_count_) {
-    ros_msg_.scope_values[address].samples[index] =
-        can_message.data[4] + (can_message.data[5] << 8) +
-        (can_message.data[6] << 16) + (can_message.data[7] << 24);
-  }
-
-  ros_msg_.scope_samples_updated = (uint8_t) true;
-
-  if (address == (scope_samples_count_ - 1)) return true;
-
-  return false;
 }
 
 //------------------------------------------------------------------------------

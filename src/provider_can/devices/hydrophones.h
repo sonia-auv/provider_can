@@ -143,7 +143,6 @@ class Hydrophones : public CanDevice {
    *
    * \param can_message can message containing specific message
    */
-  bool ProcessScopeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
   bool ProcessMagnitudeMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
   void ProcessParamsMsgs(const CanMessage &can_message) ATLAS_NOEXCEPT;
 
