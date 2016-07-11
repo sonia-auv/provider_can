@@ -73,9 +73,8 @@ class Hydrophones : public CanDevice {
   static const uint32_t FFT_PREFILTER_PARAM;
   static const uint32_t FFT_PREFILTER_TYPE_PARAM;
   static const uint32_t FFT_BANDWIDTH_PARAM;
-  static const uint32_t FFT_TRIG_MODE_PARAM;
 
-  static const uint32_t PARAM_TYPES_TABLE[19];
+  static const uint32_t PARAM_TYPES_TABLE[18];
 
   // Receivable CAN messages
   static const uint16_t SCOPE_MSG;

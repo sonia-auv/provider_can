@@ -36,15 +36,14 @@ const uint32_t Hydrophones::FFT_THRESHOLD_PARAM = 150;
 const uint32_t Hydrophones::FFT_PREFILTER_PARAM = 160;
 const uint32_t Hydrophones::FFT_PREFILTER_TYPE_PARAM = 170;
 const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
-const uint32_t Hydrophones::FFT_TRIG_MODE_PARAM = 190;
 
-const uint32_t Hydrophones::PARAM_TYPES_TABLE[19] = {
+const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
     HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
     NO_PARAM, ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM,
     CONTINUOUS_FILTER_FREQ_PARAM, SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM,
     PHASE_CALC_ALG_PARAM, SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM,
     FFT_ENABLE_PARAM, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
-    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM, FFT_TRIG_MODE_PARAM};
+    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM};
 
 // Receivable CAN messages
 const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
@@ -348,7 +347,7 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
   if (can_message.dlc == 8) {
     // Index are coded by steps of 10. see constants under header.
     // verifying the index not to step out of the buffer
-    if (get_params_index_ <= FFT_TRIG_MODE_PARAM) {
+    if (get_params_index_ <= FFT_BANDWIDTH_PARAM) {
       int32_t data = can_message.data[4] + (can_message.data[5] << 8) +
                      (can_message.data[6] << 16) + (can_message.data[7] << 24);
 
@@ -403,9 +402,6 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
           break;
         case FFT_BANDWIDTH_PARAM:
           ros_param_msg_.fft_bandwidth = data;
-          break;
-        case FFT_TRIG_MODE_PARAM:
-          ros_param_msg_.fft_trig_mode_Param = data;
           break;
       }
     }
