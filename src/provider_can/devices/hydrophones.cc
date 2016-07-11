@@ -22,16 +22,16 @@ const uint32_t Hydrophones::HYDRO_ENABLE_PARAM = 10;
 const uint32_t Hydrophones::WAVE_ENABLE_PARAM = 20;
 const uint32_t Hydrophones::PINGER_FREQ_PARAM = 30;
 const uint32_t Hydrophones::GAIN_PARAM = 40;
-const uint32_t Hydrophones::NO_PARAM = 50;
-const uint32_t Hydrophones::ACQ_THRESHOLD_PARAM = 60;
+const uint32_t Hydrophones::NO_PARAM1 = 50;
+const uint32_t Hydrophones::NO_PARAM2 = 60;
 const uint32_t Hydrophones::FILTER_THRESHOLD_PARAM = 70;
 const uint32_t Hydrophones::CONTINUOUS_FILTER_FREQ_PARAM = 80;
 const uint32_t Hydrophones::SAMPLE_COUNT_PARAM = 90;
-const uint32_t Hydrophones::ACQ_THRS_MODE_PARAM = 100;
-const uint32_t Hydrophones::PHASE_CALC_ALG_PARAM = 110;
+const uint32_t Hydrophones::NO_PARAM3 = 100;
+const uint32_t Hydrophones::NO_PARAM5 = 110;
 const uint32_t Hydrophones::SET_FREQ_CUTOFF_PARAM = 120;
 const uint32_t Hydrophones::SET_PREAMP_GAIN_PARAM = 130;
-const uint32_t Hydrophones::FFT_ENABLE_PARAM = 140;
+const uint32_t Hydrophones::NO_PARAM4 = 140;
 const uint32_t Hydrophones::FFT_THRESHOLD_PARAM = 150;
 const uint32_t Hydrophones::FFT_PREFILTER_PARAM = 160;
 const uint32_t Hydrophones::FFT_PREFILTER_TYPE_PARAM = 170;
@@ -39,10 +39,9 @@ const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
 
 const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
     HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
-    NO_PARAM, ACQ_THRESHOLD_PARAM, FILTER_THRESHOLD_PARAM,
-    CONTINUOUS_FILTER_FREQ_PARAM, SAMPLE_COUNT_PARAM, ACQ_THRS_MODE_PARAM,
-    PHASE_CALC_ALG_PARAM, SET_FREQ_CUTOFF_PARAM, SET_PREAMP_GAIN_PARAM,
-    FFT_ENABLE_PARAM, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
+    NO_PARAM1, NO_PARAM2, FILTER_THRESHOLD_PARAM, CONTINUOUS_FILTER_FREQ_PARAM,
+    SAMPLE_COUNT_PARAM, NO_PARAM3, NO_PARAM5, SET_FREQ_CUTOFF_PARAM,
+    SET_PREAMP_GAIN_PARAM, NO_PARAM4, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
     FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM};
 
 // Receivable CAN messages
@@ -364,9 +363,6 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
         case GAIN_PARAM:
           ros_param_msg_.gain = data;
           break;
-        case ACQ_THRESHOLD_PARAM:
-          ros_param_msg_.acq_threshold = data;
-          break;
         case FILTER_THRESHOLD_PARAM:
           ros_param_msg_.filter_threshold = data;
           break;
@@ -376,20 +372,11 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
         case SAMPLE_COUNT_PARAM:
           ros_param_msg_.sample_count = data;
           break;
-        case ACQ_THRS_MODE_PARAM:
-          ros_param_msg_.acq_thrs_mode = data;
-          break;
-        case PHASE_CALC_ALG_PARAM:
-          ros_param_msg_.phase_calc_alg = data;
-          break;
         case SET_FREQ_CUTOFF_PARAM:
           ros_param_msg_.set_cutoff_freq = data;
           break;
         case SET_PREAMP_GAIN_PARAM:
           ros_param_msg_.set_preamp_gain = data;
-          break;
-        case FFT_ENABLE_PARAM:
-          ros_param_msg_.fft_enable = data;
           break;
         case FFT_THRESHOLD_PARAM:
           ros_param_msg_.fft_threshold = data;
