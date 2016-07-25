@@ -2,11 +2,16 @@
 <package>
   <name>provider_can</name>
   <version>1.0.0</version>
-  <description>The provider_can package</description>
+  <description>
+    The provider_can package is the software layer that allows us to communicate with
+    the Kvaser CAN device.
+  </description>
 
-  <maintainer email="alexidemers@gmail.com">osboxes</maintainer>
+  <author>Alexi Demers</author>
 
-  <license>GPL3</license>
+  <maintainer email="alexidemers@gmail.com">Alexi Demers</maintainer>
+
+  <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
