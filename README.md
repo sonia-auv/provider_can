@@ -5,7 +5,7 @@
 :zap: *A software developed by S.O.N.I.A. team from ETS Montreal* :zap:
 
 # Provider CAN Package
-
+Package to handle the CAN network.
 ## Installation
 
 ???
