@@ -124,7 +124,8 @@ void Hydrophones::ProcessMessages(
 
   uint32_t conversion_var;
   float *conversion_var_float;
-
+  int16_t *conversion_var_int16;
+  uint16_t deph_raw1, deph_raw2, deph_raw3;
   // if messages have been received
   // loops through all messages received
   for (auto &can_message : from_can_rx_buffer) {
@@ -139,14 +140,18 @@ void Hydrophones::ProcessMessages(
         break;
 
       case DEPHASAGE_MSG:
-        ros_msg_.dephasage1_d1 =
-            can_message.data[0] + (can_message.data[1] << 8);
-        ros_msg_.dephasage1_d2 =
-            can_message.data[2] + (can_message.data[3] << 8);
-        ros_msg_.dephasage1_d3 =
-            can_message.data[4] + (can_message.data[5] << 8);
-        ros_msg_.dephasage1_pinger_freq =
-            can_message.data[6] + (can_message.data[7] << 8);
+        deph_raw1 = can_message.data[0] + (can_message.data[1] << 8);
+        conversion_var_int16 = (int16_t*)&deph_raw1;
+        ros_msg_.dephasage1_d1 = *conversion_var_int16;
+
+        deph_raw2 = can_message.data[2] + (can_message.data[3] << 8);
+        conversion_var_int16 = (int16_t*)&deph_raw2;
+        ros_msg_.dephasage1_d2 = *conversion_var_int16;
+
+        deph_raw3 = can_message.data[4] + (can_message.data[5] << 8);
+        conversion_var_int16 = (int16_t*)&deph_raw3;
+        ros_msg_.dephasage1_d3 = *conversion_var_int16;
+
         ros_msg_.dephasage1_updated = (uint8_t) true;
         message_rcvd = true;
         break;
