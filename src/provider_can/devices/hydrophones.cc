@@ -151,7 +151,7 @@ void Hydrophones::ProcessMessages(
         deph_raw3 = can_message.data[4] + (can_message.data[5] << 8);
         conversion_var_int16 = (int16_t*)&deph_raw3;
         ros_msg_.dephasage1_d3 = *conversion_var_int16;
-
+        ros_msg_.dephasage1_pinger_freq = can_message.data[6] + (can_message.data[7] << 8);
         ros_msg_.dephasage1_updated = (uint8_t) true;
         message_rcvd = true;
         break;
