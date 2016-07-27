@@ -14,12 +14,8 @@
 #define PROVIDER_CAN_CAN_DISPATCHER_H_
 
 #include <lib_atlas/macros.h>
-#include <lib_atlas/macros.h>
-#include <lib_atlas/pattern/runnable.h>
 #include <lib_atlas/pattern/runnable.h>
 #include <ros/node_handle.h>
-#include <ros/node_handle.h>
-#include <ros/ros.h>
 #include <ros/ros.h>
 #include <stdint.h>
 #include <sys/times.h>
@@ -33,6 +29,7 @@
 #include "provider_can/can/can_driver.h"
 #include "provider_can/can_def.h"
 #include "sonia_msgs/SendCanMessage.h"
+#include "sonia_msgs/SendCanMsg.h"
 
 namespace provider_can {
 
@@ -256,6 +253,8 @@ class CanDispatcher : public atlas::Runnable {
   SoniaDeviceStatus FindDevice(uint8_t device_id,
                                uint8_t unique_id) ATLAS_NOEXCEPT;
 
+  void CanMsgCallback(const sonia_msgs::SendCanMsgConstPtr &msg_in);
+
  private:
   //============================================================================
   // P R I V A T E   M E T H O D S
@@ -365,10 +364,39 @@ class CanDispatcher : public atlas::Runnable {
   ros::NodeHandlePtr nh_;
   ros::ServiceServer call_device_srv_;
 
+  ros::Subscriber cand_msg_subscriber_;
+
   // service client used to verify ServiceServer validity
   ros::ServiceClient can_service_client_;
 };
 
+inline void CanDispatcher::CanMsgCallback(const sonia_msgs::SendCanMsgConstPtr &msg_in)
+{
+  SoniaDeviceStatus status;
+  ComputerMessage msg;
+
+  msg.method_number = msg_in->method_number;
+  msg.parameter_value = msg_in->parameter_value;
+  msg.string_param = msg_in->string_param;
+
+  size_t index;
+  // get device index
+  status = FindDevice(msg_in->device_id, msg_in->unique_id, &index);
+
+  if (status != SONIA_DEVICE_NOT_PRESENT) {
+    std::lock_guard<std::mutex> lock(pc_messages_buffer_mutex);
+
+    // Ensure the buffer does not overfill
+    if (devices_list_[index].pc_messages_buffer.size() <= PC_BUFFER_SIZE) {
+      devices_list_[index].pc_messages_buffer.push_back(msg);
+    } else {
+      ROS_WARN(
+          "Device %X: send_can_message service called too fast. "
+              "Some messages are dropped",
+          devices_list_[index].global_address);
+    }
+  }
+}
 }  // namespace provider_can
 
 #endif  // PROVIDER_CAN_CAN_DISPATCHER_H_

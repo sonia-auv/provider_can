@@ -83,6 +83,9 @@ CanDispatcher::CanDispatcher(uint32_t device_id, uint32_t unique_id,
 
   SendIdRequest();
 
+  cand_msg_subscriber_ = nh_->subscribe("/provider_can/send_can_msg", 100,
+                                        &CanDispatcher::CanMsgCallback, this);
+
   // initializing service for devices methods calling
   call_device_srv_ = nh_->advertiseService(
       "send_can_message", &provider_can::CanDispatcher::CallDeviceMethod, this);
