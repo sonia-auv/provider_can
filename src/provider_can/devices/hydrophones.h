@@ -27,20 +27,21 @@ struct InitialHydrosParams {
   int32_t wave_enable;
   int32_t pinger_freq;
   int32_t gain;
-  int32_t no_param1;
-  int32_t no_param2;
+  int32_t no_param;
+  int32_t hydros_2012_acq_threshold;
   int32_t filter_threshold;
   int32_t continuous_filter_freq;
   int32_t sample_count;
-  int32_t no_param3;
-  int32_t no_param5;
+  int32_t hydros_2012_acq_threshold_mode;
+  int32_t hydros_2012_phase_calc_algo;
   int32_t set_cutoff_freq;
   int32_t set_preamp_gain;
-  int32_t no_param4;
+  int32_t hydros_2012_fft_enable;
   int32_t fft_threshold;
   int32_t fft_prefilter;
   int32_t fft_prefilter_type;
   int32_t fft_bandwidth;
+  int32_t hydros_2012_trig_mode_param;
 };
 
 class Hydrophones : public CanDevice {
@@ -58,22 +59,23 @@ class Hydrophones : public CanDevice {
   static const uint32_t WAVE_ENABLE_PARAM;
   static const uint32_t PINGER_FREQ_PARAM;
   static const uint32_t GAIN_PARAM;
-  static const uint32_t NO_PARAM1;
-  static const uint32_t NO_PARAM2;
+  static const uint32_t NO_PARAM;
+  static const uint32_t HYDROS_2012_ACQ_THRESHOLD;
   static const uint32_t FILTER_THRESHOLD_PARAM;
   static const uint32_t CONTINUOUS_FILTER_FREQ_PARAM;
   static const uint32_t SAMPLE_COUNT_PARAM;
-  static const uint32_t NO_PARAM3;
-  static const uint32_t NO_PARAM5;
+  static const uint32_t HYDROS_2012_ACQ_THRESHOLD_MODE;
+  static const uint32_t HYDROS_2012_PHASE_CALC_ALGO;
   static const uint32_t SET_FREQ_CUTOFF_PARAM;
   static const uint32_t SET_PREAMP_GAIN_PARAM;
-  static const uint32_t NO_PARAM4;
+  static const uint32_t HYDROS_2012_FFT_ENABLE;
   static const uint32_t FFT_THRESHOLD_PARAM;
   static const uint32_t FFT_PREFILTER_PARAM;
   static const uint32_t FFT_PREFILTER_TYPE_PARAM;
   static const uint32_t FFT_BANDWIDTH_PARAM;
+  static const uint32_t HYDROS_2012_TRIG_MODE_PARAM;
 
-  static const uint32_t PARAM_TYPES_TABLE[18];
+  static const uint32_t PARAM_TYPES_TABLE[19];
 
   // Receivable CAN messages
   static const uint16_t SCOPE_MSG;

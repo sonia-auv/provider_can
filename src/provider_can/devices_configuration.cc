@@ -49,8 +49,8 @@ DevicesConfiguration::DevicesConfiguration(const ros::NodeHandlePtr &nh)
                      thruster_front_depth_en_(true),
                      thruster_back_head_en_(true),
                      thruster_front_head_en_(true),
-                     hydros_params_{0, 0, 14, 4, 0, 0,     15, 5, 256,
-                                    1, 0, 24, 1, 1, 38000, 1,  5, 1},
+                     hydros_params_{0, 0, 14, 4, 0, 1124800758,     15, 5, 256,
+                                    1, 0, 24, 1, 1, 38000, 1,  5, 1,1},
                      psu_params_{1, 1, 1, 1, 1, 1, 1, 1, 1},
                      nh_(nh) {
   DeserializeConfiguration();

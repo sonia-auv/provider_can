@@ -22,30 +22,30 @@ const uint32_t Hydrophones::HYDRO_ENABLE_PARAM = 10;
 const uint32_t Hydrophones::WAVE_ENABLE_PARAM = 20;
 const uint32_t Hydrophones::PINGER_FREQ_PARAM = 30;
 const uint32_t Hydrophones::GAIN_PARAM = 40;
-const uint32_t Hydrophones::NO_PARAM1 = 50;
-const uint32_t Hydrophones::NO_PARAM2 = 60;
+const uint32_t Hydrophones::NO_PARAM = 50;
+const uint32_t Hydrophones::HYDROS_2012_ACQ_THRESHOLD = 60;
 const uint32_t Hydrophones::FILTER_THRESHOLD_PARAM = 70;
 const uint32_t Hydrophones::CONTINUOUS_FILTER_FREQ_PARAM = 80;
 const uint32_t Hydrophones::SAMPLE_COUNT_PARAM = 90;
-const uint32_t Hydrophones::NO_PARAM3 = 100;
-const uint32_t Hydrophones::NO_PARAM5 = 110;
+const uint32_t Hydrophones::HYDROS_2012_ACQ_THRESHOLD_MODE = 100;
+const uint32_t Hydrophones::HYDROS_2012_PHASE_CALC_ALGO = 110;
 const uint32_t Hydrophones::SET_FREQ_CUTOFF_PARAM = 120;
 const uint32_t Hydrophones::SET_PREAMP_GAIN_PARAM = 130;
-const uint32_t Hydrophones::NO_PARAM4 = 140;
+const uint32_t Hydrophones::HYDROS_2012_FFT_ENABLE = 140;
 const uint32_t Hydrophones::FFT_THRESHOLD_PARAM = 150;
 const uint32_t Hydrophones::FFT_PREFILTER_PARAM = 160;
 const uint32_t Hydrophones::FFT_PREFILTER_TYPE_PARAM = 170;
 const uint32_t Hydrophones::FFT_BANDWIDTH_PARAM = 180;
+const uint32_t Hydrophones::HYDROS_2012_TRIG_MODE_PARAM = 190;
 
-const uint32_t Hydrophones::PARAM_TYPES_TABLE[18] = {
+const uint32_t Hydrophones::PARAM_TYPES_TABLE[19] = {
     HYDRO_ENABLE_PARAM, WAVE_ENABLE_PARAM, PINGER_FREQ_PARAM, GAIN_PARAM,
-    NO_PARAM1, NO_PARAM2, FILTER_THRESHOLD_PARAM, CONTINUOUS_FILTER_FREQ_PARAM,
-    SAMPLE_COUNT_PARAM, NO_PARAM3, NO_PARAM5, SET_FREQ_CUTOFF_PARAM,
-    SET_PREAMP_GAIN_PARAM, NO_PARAM4, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
-    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM};
+    NO_PARAM, HYDROS_2012_ACQ_THRESHOLD, FILTER_THRESHOLD_PARAM, CONTINUOUS_FILTER_FREQ_PARAM,
+    SAMPLE_COUNT_PARAM, HYDROS_2012_ACQ_THRESHOLD_MODE, HYDROS_2012_PHASE_CALC_ALGO, SET_FREQ_CUTOFF_PARAM,
+    SET_PREAMP_GAIN_PARAM, HYDROS_2012_FFT_ENABLE, FFT_THRESHOLD_PARAM, FFT_PREFILTER_PARAM,
+    FFT_PREFILTER_TYPE_PARAM, FFT_BANDWIDTH_PARAM,HYDROS_2012_TRIG_MODE_PARAM};
 
 // Receivable CAN messages
-const uint16_t Hydrophones::SCOPE_MSG = 0xF02;
 const uint16_t Hydrophones::DEPHASAGE_MSG = 0xF03;
 const uint16_t Hydrophones::DEPHASAGE2_MSG = 0xF04;
 const uint16_t Hydrophones::FREQ_MSG = 0xF05;
@@ -356,13 +356,25 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
         case FFT_BANDWIDTH_PARAM:
           ros_param_msg_.fft_bandwidth = data;
           break;
+        case HYDROS_2012_ACQ_THRESHOLD_MODE:
+          ros_param_msg_.acq_threshold = data;
+          break;
+        case HYDROS_2012_PHASE_CALC_ALGO:
+          ros_param_msg_.phase_calc_alg = data;
+          break;
+        case HYDROS_2012_TRIG_MODE_PARAM:
+          ros_param_msg_.fft_trig_mode_Param = data;
+          break;
+        case HYDROS_2012_FFT_ENABLE:
+          ros_param_msg_.fft_enable = data;
+          break;
       }
     }
 
     // avoids sending parameters 19 times after GetParams() is called
     if (get_params_sent_) {
       if ((get_params_index_ / 10) ==
-          (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))) {
+          (sizeof(PARAM_TYPES_TABLE) / sizeof(uint32_t))-1) {
         hydro_params_pub_.publish(ros_param_msg_);
       }
     } else {
