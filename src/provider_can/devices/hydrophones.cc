@@ -368,6 +368,9 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
         case HYDROS_2012_FFT_ENABLE:
           ros_param_msg_.fft_enable = data;
           break;
+        case HYDROS_2012_ACQ_THRESHOLD:
+          ros_param_msg_.acq_threshold = data;
+          break;
       }
     }
 
