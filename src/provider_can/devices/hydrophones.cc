@@ -312,7 +312,7 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
   if (can_message.dlc == 8) {
     // Index are coded by steps of 10. see constants under header.
     // verifying the index not to step out of the buffer
-    if (get_params_index_ <= FFT_BANDWIDTH_PARAM) {
+    if (get_params_index_ <= HYDROS_2012_TRIG_MODE_PARAM) {
       int32_t data = can_message.data[4] + (can_message.data[5] << 8) +
                      (can_message.data[6] << 16) + (can_message.data[7] << 24);
 
