@@ -357,7 +357,7 @@ void Hydrophones::ProcessParamsMsgs(const CanMessage &can_message)
           ros_param_msg_.fft_bandwidth = data;
           break;
         case HYDROS_2012_ACQ_THRESHOLD_MODE:
-          ros_param_msg_.acq_threshold = data;
+          ros_param_msg_.acq_thrs_mode = data;
           break;
         case HYDROS_2012_PHASE_CALC_ALGO:
           ros_param_msg_.phase_calc_alg = data;
